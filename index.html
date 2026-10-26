@@ -615,6 +615,8 @@ function render(){
  v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 const opts=(a,v)=>a.map(x=>{const k=Array.isArray(x)?x[0]:x,n=Array.isArray(x)?x[1]:x;return `<option value="${esc(k)}" ${k===v?"selected":""}>${esc(n)}</option>`}).join("");
+const PM={"باقة شهرية":1,"باقة ربع سنوية":3,"باقة نصف سنوية":6,"باقة سنوية":12},mons=it=>PM[it]||0;
+const addM=(iso,n)=>{const d=new Date(iso+"T00:00:00Z");d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,10)};
 function open(c){
  const isNew=!c;cur=c?{...c}:{id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),stage:"lead",type:"student",src:SR[0],log:[]};
  const k=cur,w=wa(k.wa||k.phone);
@@ -625,6 +627,13 @@ function open(c){
  <div><label>المصدر</label><select id="f_src">${opts(SR,k.src)}</select></div><div><label>انتهاء الاشتراك</label><input id="f_exp" type="date" value="${esc(k.exp)}"></div></div>
  <div class="g2"><div><label>الكورس المهتم به</label><input id="f_course" value="${esc(k.course)}"></div><div><label>موعد المتابعة</label><input id="f_nxt" type="date" value="${esc(k.nxt)}"></div></div>
  <div class="cons"><label><input type="checkbox" id="f_okm" ${k.okM!==false?"checked":""}> موافق على الإيميلات</label><label><input type="checkbox" id="f_okw" ${k.okW!==false?"checked":""}> موافق على واتساب</label></div>
+ ${P.fin&&P.cw?`<div class="card2" style="margin:8px 0"><label class="oto" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="pay_on" style="width:auto"> <b>تسجيل دفع اشتراك لهذا العميل (بينزل في الحسابات)</b></label>
+ <div id="pay_box" style="display:none"><div class="g2"><div><label>الاشتراك / الكورس</label><input id="pay_item" list="pay_dl" placeholder="اختار أو اكتب"><datalist id="pay_dl">${[...new Set([...PLANS,...COURSES,...T.map(x=>x.item).filter(Boolean)])].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
+ <div><label>القيمة (جنيه)</label><input id="pay_amt" type="number" min="0" step="any" inputmode="decimal"></div>
+ <div><label>تاريخ الدفع</label><input id="pay_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div><label>طريقة الدفع</label><select id="pay_met">${opts(MET,"")}</select></div>
+ <div><label>الحالة</label><select id="pay_st">${opts(STS,"paid")}</select></div><div><label>البند</label><select id="pay_cat">${opts(SALE,"باقة اشتراك")}</select></div></div>
+ <small class="lg">لو الاشتراك باقة (شهرية/ربع/نصف/سنوية) بيتحسب تاريخ الانتهاء ويتحوّل العميل لـ "مشترك" تلقائي.</small></div></div>`:""}
+ ${P.fin&&!isNew?(()=>{const L=T.filter(x=>x.con===k.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));return L.length?`<div class="log"><b>مدفوعاته</b>`+L.map(x=>`<div>${esc(x.date)} — ${esc(x.item||x.cat||"")} — ${fm(x.amt)}${x.status!=="paid"?" ("+esc(lbl(STS,x.status))+")":""}</div>`).join("")+`</div>`:""})():""}
  <label>ملاحظة جديدة</label><textarea id="f_note" rows="2"></textarea>
  ${(k.log||[]).length?`<div class="log">`+k.log.slice().reverse().map(l=>`<div><b>${esc(l.t)}</b> — ${esc(l.x)}</div>`).join("")+`</div>`:""}
  <div class="row"><button class="pri" id="b_save">حفظ</button>${w?`<a class="wa" href="${w}" target="_blank" rel="noopener"><button type="button">واتساب</button></a>`:""}<button id="b_x">إغلاق</button></div>
@@ -634,6 +643,10 @@ function open(c){
  if(!P.cdel&&$("b_del"))$("b_del").style.display="none";
  $("b_x").onclick=close;
  if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟ هتلاقيه في سجل التعديلات لو حبيت ترجّعه.")){del(k.id);close()}};
+ if($("pay_on")){
+  $("pay_on").onchange=()=>{$("pay_box").style.display=$("pay_on").checked?"":"none"};
+  $("pay_item").oninput=()=>{const it=$("pay_item").value.trim();$("pay_cat").value=PLANS.includes(it)?"باقة اشتراك":(COURSES.includes(it)?"كورس مسجل":$("pay_cat").value)};
+ }
  $("b_save").onclick=()=>{
   const n=$("f_name").value.trim();if(!n){alert("اكتب الاسم");return}
   const em=$("f_email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){alert("الإيميل غير صحيح");return}
@@ -641,7 +654,19 @@ function open(c){
   if(dp&&!confirm("الرقم ده موجود قبل كده باسم "+dp.name+". تحفظ برضه؟"))return;
   const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,log:(k.log||[]).slice()};
   const t=$("f_note").value.trim();if(t)u.log.push({t:new Date().toISOString().slice(0,10),x:t});
-  save(u);close();
+  let tx=null;
+  if($("pay_on")&&$("pay_on").checked){
+   const a=parseFloat($("pay_amt").value),it=$("pay_item").value.trim(),dt=$("pay_date").value,st=$("pay_st").value;
+   if(!(a>0)){alert("اكتب قيمة الاشتراك");return}if(!dt){alert("اختار تاريخ الدفع");return}if(!it){alert("اختار الاشتراك أو الكورس");return}
+   tx={id:nid("t"),kind:"in",amt:a,date:dt,cat:$("pay_cat").value,item:it,qty:1,status:st,method:$("pay_met").value,ref:"",con:u.id,note:"من ملف العميل"};
+   if(st==="paid"){
+    if(u.stage==="lead"||u.stage==="interested")u.stage="member";
+    const m=mons(it);if(m){const base=u.exp&&u.exp>dt?u.exp:dt;u.exp=addM(base,m)}
+    if(!u.course)u.course=it;
+   }
+   u.log.push({t:dt,x:`دفع اشتراك: ${it} (${a} ج)${st!=="paid"?" — "+lbl(STS,st):""}`});
+  }
+  save(u);if(tx)saveT(tx,true);close();
  };
 }
 function close(){$("ov").classList.remove("on")}
