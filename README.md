@@ -14,7 +14,7 @@
 
 ## الهيكل
 - `index.html` الواجهة كاملة
-- `supabase/migrations/001..008` قاعدة البيانات (كلها مطبّقة على المشروع الحي)
+- `supabase/migrations/001..009` قاعدة البيانات (كلها مطبّقة على المشروع الحي)
 - `supabase/functions/` admin-users, meta-webhook, inbox-send, inbox-config, woo-webhook
 - `.github/workflows/keepalive.yml` يمنع إيقاف المشروع المجاني لعدم النشاط
 

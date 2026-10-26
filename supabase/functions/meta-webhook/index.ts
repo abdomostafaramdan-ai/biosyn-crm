@@ -1,5 +1,6 @@
 // يستقبل رسائل واتساب وماسنجر وإنستجرام من Meta (Webhook)
-import { ingest, serviceDb, getSecrets } from "./inbox.ts";
+import { ingest, serviceDb, getSecrets, saveMedia, MAX_MEDIA } from "./inbox.ts";
+import type { Attachment } from "./inbox.ts";
 
 const enc = new TextEncoder();
 async function validSignature(secret: string, raw: string, header: string | null) {
@@ -37,6 +38,37 @@ function fbBody(message: Record<string, any>): string {
   return a === "image" ? "📷 صورة" : a === "video" ? "🎬 فيديو" : a === "audio" ? "🎤 رسالة صوتية" : a === "file" ? "📄 ملف" : "[مرفق]";
 }
 
+// ينزّل ملف واتساب من Graph (media id → url → bytes)
+async function waMedia(db: any, s: Record<string, any>, v: string, msg: Record<string, any>): Promise<Attachment[]> {
+  const kind = ["image", "video", "audio", "document", "sticker"].find((k) => msg.type === k);
+  if (!kind || !s.wa_token) return [];
+  const m = msg[kind];
+  if (!m?.id) return [];
+  try {
+    const meta = await (await fetch(`https://graph.facebook.com/${v}/${m.id}`, { headers: { Authorization: `Bearer ${s.wa_token}` } })).json();
+    if (!meta.url || (meta.file_size && Number(meta.file_size) > MAX_MEDIA)) return [];
+    const r = await fetch(meta.url, { headers: { Authorization: `Bearer ${s.wa_token}` } });
+    if (!r.ok) return [];
+    const a = await saveMedia(db, new Uint8Array(await r.arrayBuffer()), meta.mime_type || m.mime_type || "", m.filename || "");
+    return a ? [a] : [];
+  } catch { return []; }
+}
+// مرفقات ماسنجر/إنستجرام: روابط مباشرة في الـ payload
+async function fbMedia(db: any, message: Record<string, any>): Promise<Attachment[]> {
+  const out: Attachment[] = [];
+  for (const at of (message.attachments || []).slice(0, 5)) {
+    const url = at?.payload?.url;
+    if (!url || !["image", "video", "audio", "file"].includes(at.type)) continue;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const a = await saveMedia(db, new Uint8Array(await r.arrayBuffer()), r.headers.get("content-type") || "", decodeURIComponent((url.split("?")[0].split("/").pop() || "")));
+      if (a) out.push(a);
+    } catch { /* نكمّل من غير المرفق */ }
+  }
+  return out;
+}
+
 Deno.serve(async (req) => {
   const db = serviceDb();
   const s = await getSecrets(db);
@@ -66,6 +98,7 @@ Deno.serve(async (req) => {
           await ingest(db, {
             channel: "whatsapp", external_id: msg.from, name: names[msg.from] || "", body: waBody(msg),
             msg_id: msg.id, at: new Date(Number(msg.timestamp) * 1000).toISOString(),
+            attachments: await waMedia(db, s, v, msg),
           });
         }
         for (const st of val.statuses || []) {
@@ -81,7 +114,7 @@ Deno.serve(async (req) => {
         const psid = ev.sender?.id;
         if (!psid) continue;
         await ingest(db, {
-          channel, external_id: psid, body: fbBody(ev.message), msg_id: ev.message.mid,
+          channel, external_id: psid, body: fbBody(ev.message), msg_id: ev.message.mid, attachments: await fbMedia(db, ev.message),
           at: ev.timestamp ? new Date(ev.timestamp).toISOString() : undefined,
         }, async () => {
           if (!s.page_token) return "";

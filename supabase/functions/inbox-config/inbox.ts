@@ -35,13 +35,28 @@ export type Inbound = {
   body: string;
   msg_id?: string;
   at?: string;
+  attachments?: Attachment[];
 };
+export type Attachment = { path: string; mime: string; name: string; size: number };
+
+const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "video/mp4": "mp4", "audio/ogg": "ogg", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/aac": "aac", "application/pdf": "pdf" };
+export const MAX_MEDIA = 10 * 1024 * 1024;
+// يحفظ ملف وارد (صورة/ملف/صوت) في Storage الخاص ويرجّع بياناته
+export async function saveMedia(db: SupabaseClient, bytes: Uint8Array, mime: string, name = ""): Promise<Attachment | null> {
+  if (!bytes.length || bytes.length > MAX_MEDIA) return null;
+  const clean = mime.split(";")[0].trim().toLowerCase() || "application/octet-stream";
+  const ext = EXT[clean] || (name.match(/\.([A-Za-z0-9]{1,6})$/)?.[1] ?? "bin");
+  const path = `in/${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await db.storage.from("inbox-media").upload(path, bytes, { contentType: clean, upsert: false });
+  if (error) return null;
+  return { path, mime: clean, name: (name || path.split("/").pop() || "file").slice(0, 120), size: bytes.length };
+}
 
 const last10 = (s: string) => (s || "").replace(/\D/g, "").slice(-10);
 
 export async function ingest(db: SupabaseClient, m: Inbound, getName?: () => Promise<string>) {
   const at = m.at || new Date().toISOString();
-  const preview = m.body.slice(0, 120);
+  const preview = (m.body || (m.attachments?.length ? "📎 مرفق" : "")).slice(0, 120);
   if (m.msg_id) {
     const { data: dup } = await db.from("messages").select("id").eq("external_id", m.msg_id).maybeSingle();
     if (dup) return { duplicate: true };
@@ -76,7 +91,7 @@ export async function ingest(db: SupabaseClient, m: Inbound, getName?: () => Pro
 
   const { error } = await db.from("messages").insert({
     conversation_id: conv!.id, direction: "in", body: m.body, external_id: m.msg_id || null,
-    status: "received", created_at: at,
+    status: "received", created_at: at, attachments: m.attachments || [],
   });
   if (error && !/duplicate/i.test(error.message)) throw error;
   return { conversation_id: conv!.id };
