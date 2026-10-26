@@ -108,7 +108,7 @@ function pbar(x){const ys=[...new Set([Y,...T.map(yr)].filter(Boolean))].sort((a
  return `<div class="fx"><select id="ay">${ys.map(y=>`<option ${y===Y?"selected":""}>${y}</option>`).join("")}</select><select id="am"><option value="0">السنة كاملة</option>${MN.map((n,i)=>`<option value="${i+1}" ${M===i+1?"selected":""}>${n}</option>`).join("")}</select>${x||""}</div>`}
 function bindP(){$("ay").onchange=e=>{Y=+e.target.value;render()};$("am").onchange=e=>{M=+e.target.value;render()}}
 function dash(v){
- if(ROLE!=="admin"){dashS(v);return}
+ if(!P.fin){dashS(v);return}
  const l=T.filter(inP),pi=INC(l),inc=sum(pi),ex=sum(EXP(l)),net=inc-ex,mg=inc?Math.round(net/inc*100):0;
  const pend=sum(l.filter(t=>isI(t)&&st(t)==="pending")),sales=pi.filter(t=>SALE.includes(t.cat));
  const act=C.filter(c=>c.stage==="member"||c.stage==="renew").length,dc=C.filter(due),lc=C.filter(late);
@@ -215,8 +215,8 @@ function camp(v){
  v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,sj:k.sj||"",msg:k.msg};render()});
  v.querySelectorAll("[data-dk]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الحملة؟"))return;const id=a.dataset.dk;K=K.filter(x=>x.id!==id);render();if(db){try{await db.collection("campaigns").doc(id).delete()}catch(x){}}});
 }
-const RN={admin:"مدير",staff:"دعم",viewer:"مشاهد (قراءة فقط)",none:"بدون وصول"};
-let ROLE="admin",IM=null,BK=null;
+const RN={admin:"مدير",cofounder:"شريك مؤسس",accountant:"محاسب",moderator:"مودريتور",support:"دعم ومبيعات",viewer:"مشاهد (قراءة فقط)",none:"بدون وصول"};
+let ROLE="admin",IM=null,BK=null,P={},NEWPW=null;
 const FIELDS=[["name","الاسم"],["phone","الموبايل"],["wa","واتساب"],["email","الإيميل"],["course","الكورس المهتم به"],["type","النوع"],["stage","المرحلة"],["src","المصدر"],["exp","انتهاء الاشتراك"]];
 const DET={wa:/whats|واتس/i,email:/mail|إيميل|ايميل|بريد/i,phone:/phone|mobile|cell|tel|موبايل|هاتف|تليفون|جوال|رقم/i,name:/^(name|customer|client|full ?name|display ?name|user ?name|عميل|العميل|الاسم|اسم|الاسم بالكامل|اسم العميل|اسم المستخدم)$/i,course:/course|كورس|دورة|مهتم/i,type:/^(type|role|النوع|الدور)$/i,stage:/^(stage|status|المرحلة|الحالة)$/i,src:/source|المصدر/i,exp:/expir|انتهاء|ينتهي|end ?date/i};
 const nph=p=>{p=String(p||"").replace(/\D/g,"");return p.length>=10?p.slice(-10):""};
@@ -342,7 +342,7 @@ function bkCard(){
  <div class="row"><button class="pri" id="bk_go" ${B.busy?"disabled":""}>${B.busy?"جاري الاسترجاع...":"استرجاع"}</button><button id="bk_x">إلغاء</button></div>`:`<label class="cl">استرجاع من نسخة</label><input type="file" id="bk_f" accept=".json,application/json">`}</div>`;
 }
 function stg(v){
- v.innerHTML=`<div class="ac" style="padding-top:12px">${acctCard()}${ROLE!=="viewer"?imCard():""}${ROLE==="admin"?usersCard()+bkCard():""}</div>`;
+ v.innerHTML=`<div class="ac" style="padding-top:12px">${acctCard()}${P.imp?imCard():""}${P.users?usersCard():""}${P.bk?bkCard():""}</div>`;
  const b=(id,fn)=>{if($(id))fn($(id))};
  b("im_f",e=>e.onchange=x=>{const f=x.target.files[0];if(f)readImport(f)});
  v.querySelectorAll("[data-m]").forEach(s=>s.onchange=e=>{IM.map[s.dataset.m]=+e.target.value;setTimeout(render,0)});
@@ -353,18 +353,20 @@ function stg(v){
 }
 function dashS(v){
  const dc=C.filter(due),lc=C.filter(late),fu=[...new Set([...dc,...lc])].slice(0,8);
- v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(ROLE==="viewer"?"":kc("حملات محفوظة",K.length))}</div><div class="ac"><div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
+ v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(P.camp?kc("حملات محفوظة",K.length):"")}</div><div class="ac"><div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
  v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 function applyRole(){
  $("rb").textContent=RN[ROLE];
- if(ROLE!=="admin")$("t3").style.display="none";
- if(ROLE==="viewer"){$("t4").style.display="none";$("add").style.display="none";$("exp").style.display="none"}
+ setPerms();
+ if(!P.fin)$("t3").style.display="none";
+ if(!P.camp)$("t4").style.display="none";
+ if(!P.cw){$("add").style.display="none";$("exp").style.display="none"}
  if(ROLE==="none")document.querySelectorAll(".tabs,.bar,.fl,.stats").forEach(e=>e.style.display="none");
  render();
 }
 function goTab(n){
- if(ROLE!=="admin"&&n===3||ROLE==="viewer"&&n===4)return;
+ if(n===3&&!P.fin||n===4&&!P.camp)return;
  tab=n;[0,1,3,4,5].forEach(m=>$("t"+m).className=m===n?"on":"");
  document.querySelectorAll(".bar,.fl,.stats").forEach(e=>e.style.display=n>=3||n===0?"none":"");render();
 }
@@ -392,8 +394,8 @@ function open(c){
  <div class="row"><button class="pri" id="b_save">حفظ</button>${w?`<a class="wa" href="${w}" target="_blank" rel="noopener"><button type="button">واتساب</button></a>`:""}<button id="b_x">إغلاق</button></div>
  ${isNew?"":`<div class="row"><button id="b_del" style="color:var(--dg)">حذف</button></div>`}`;
  $("ov").classList.add("on");
- if(ROLE==="viewer"){$("md").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);["b_save","b_del"].forEach(i=>{if($(i))$(i).style.display="none"})}
- if(ROLE!=="admin"&&$("b_del"))$("b_del").style.display="none";
+ if(!P.cw){$("md").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);["b_save","b_del"].forEach(i=>{if($(i))$(i).style.display="none"})}
+ if(!P.cdel&&$("b_del"))$("b_del").style.display="none";
  $("b_x").onclick=close;
  if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟")){del(k.id);close()}};
  $("b_save").onclick=()=>{
@@ -454,23 +456,62 @@ async function boot(){
  if(error||!pr||!pr.active){lg(LH+`<div class="empty">حسابك غير مفعّل. كلّم المدير يفعّله.</div><div class="row"><button id="lo2">تسجيل خروج</button></div>`);$("lo2").onclick=signOut;return}
  $("lg").classList.remove("on");if(booted)return;booted=true;
  ME={id:pr.id,email:pr.email||session.user.email,role:pr.role,name:pr.name};
- ROLE=pr.role==="admin"?"admin":pr.role==="support"?"staff":"viewer";
+ ROLE=RN[pr.role]?pr.role:"viewer";setPerms();
  db=mkDb();applyRole();
  const mk=(arr,set)=>s=>{set(s.docs.map(d=>({...(typeof d.data==="function"?d.data():d.data),id:d.id})));render()};
  db.collection("contacts").onSnapshot(mk(0,x=>{C=x}),e=>{$("warn").style.display="block";$("warn").textContent="تعذر تحميل البيانات: "+(e.message||e.code)});
- if(ROLE!=="viewer")db.collection("campaigns").onSnapshot(mk(0,x=>{K=x}),()=>{});
- if(ROLE==="admin"){db.collection("txns").onSnapshot(mk(0,x=>{T=x}),()=>{});loadUsers()}
+ if(P.camp)db.collection("campaigns").onSnapshot(mk(0,x=>{K=x}),()=>{});
+ if(P.fin)db.collection("txns").onSnapshot(mk(0,x=>{T=x}),()=>{});
+ if(P.users)loadUsers();
 }
 function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
-function usersCard(){const RR=[["admin","مدير"],["support","دعم"],["viewer","مشاهد"]];
- return `<div class="card2"><h4>المستخدمين (${USERS.length})</h4>${USERS.map(u=>{const me=u.id===ME.id;return `<div class="hb"><div class="hl"><span>${esc(u.name||u.email)}<br><small>${esc(u.email)}</small></span><span><select data-ur="${esc(u.id)}" ${me?"disabled":""}>${RR.map(([k,n])=>`<option value="${k}" ${u.role===k?"selected":""}>${n}</option>`).join("")}</select> <label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" data-ua="${esc(u.id)}" ${u.active?"checked":""} ${me?"disabled":""} style="width:auto">مفعّل</label></span></div></div>`}).join("")}<small class="lg">لإضافة مستخدم: من Supabase ← Authentication ← Users ← Add user (إيميل + كلمة مرور). بيظهر هنا بدور مشاهد وانت تغيّره.</small></div>`}
+const ROLES=[["admin","مدير","كل حاجة، وهو الوحيد اللي يضيف أو يعدّل مدير"],["cofounder","شريك مؤسس","كل حاجة: الحسابات والعملاء والحملات والفريق والنسخ الاحتياطي"],["accountant","محاسب","الحسابات والأرباح والداشبورد المالي، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل، من غير الحسابات"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل، من غير الحسابات"],["viewer","مشاهد","يشوف العملاء والداشبورد قراءة فقط"]];
+const PERM={fin:["admin","cofounder","accountant"],cw:["admin","cofounder","moderator","support"],cdel:["admin","cofounder"],camp:["admin","cofounder","support"],imp:["admin","cofounder","support"],bk:["admin","cofounder"],users:["admin","cofounder"],inbox:["admin","cofounder","moderator","support"]};
+const setPerms=()=>{P={};Object.keys(PERM).forEach(k=>P[k]=PERM[k].includes(ROLE))};
+async function teamCall(body){
+ try{const{data,error}=await SB.functions.invoke("admin-users",{body});
+  if(error){let m="تعذر تنفيذ الطلب";try{const j=await error.context.json();if(j&&j.error)m=j.error}catch(e){}return{error:m}}
+  return{data}}catch(e){return{error:"تعذر الاتصال بالسيرفر"}}
+}
+function usersCard(){
+ const amAdmin=ROLE==="admin",RR=ROLES.filter(r=>amAdmin||r[0]!=="admin");
+ const opt=(u)=>ROLES.map(([k,n])=>`<option value="${k}" ${u.role===k?"selected":""} ${!amAdmin&&k==="admin"?"disabled":""}>${n}</option>`).join("");
+ return `<div class="card2"><h4>الفريق (${USERS.length})</h4>
+ ${NEWPW?`<div class="ok" style="margin:6px 0 10px;font-size:14px">اتعمل حساب <b>${esc(NEWPW.email)}</b><br>كلمة المرور المؤقتة: <code id="npw" style="font-size:15px;user-select:all">${esc(NEWPW.password)}</code> <button id="npw_c" style="padding:3px 10px">نسخ</button><br><small>ابعتها للشخص ده بنفسك (مش هتظهر تاني)، وخليه يغيّرها أول ما يدخل.</small><div class="row"><button id="npw_x">تمام</button></div></div>`:""}
+ ${USERS.map(u=>{const me=u.id===ME.id,lock=me||(!amAdmin&&u.role==="admin");return `<div class="hb" style="border-bottom:1px solid var(--bd);padding-bottom:8px"><div class="hl"><span>${esc(u.name||u.email)}${me?' <small class="tag">انت</small>':""}<br><small>${esc(u.email)}</small></span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><select data-ur="${esc(u.id)}" ${lock?"disabled":""} style="width:auto">${opt(u)}</select><label style="display:inline-flex;gap:4px;align-items:center;font-size:13px"><input type="checkbox" data-ua="${esc(u.id)}" ${u.active?"checked":""} ${lock?"disabled":""} style="width:auto">مفعّل</label>${lock?"":`<button data-rp="${esc(u.id)}" data-em="${esc(u.email)}" style="padding:4px 8px;font-size:12px">كلمة مرور جديدة</button>`}</span></div></div>`}).join("")}
+ <h4 style="margin-top:14px">إضافة عضو للفريق</h4>
+ <div class="g2"><div><label class="cl">الاسم</label><input id="nu_n"></div><div><label class="cl">الإيميل</label><input id="nu_e" type="email" inputmode="email"></div></div>
+ <label class="cl">الدور</label><select id="nu_r">${RR.map(([k,n])=>`<option value="${k}" ${k==="moderator"?"selected":""}>${n}</option>`).join("")}</select>
+ <small class="lg" id="nu_d"></small>
+ <div class="row"><button class="pri" id="nu_go">إضافة</button></div>
+ <details style="margin-top:10px"><summary class="lg" style="cursor:pointer">مين يعمل إيه؟</summary><div class="tw" style="padding:6px 0 0"><table>${ROLES.map(([k,n,d])=>`<tr><td><b>${n}</b></td><td style="white-space:normal">${d}</td></tr>`).join("")}</table></div></details></div>`;
+}
 function bindAcct(v){
  if($("lo"))$("lo").onclick=signOut;
  if($("pw_go"))$("pw_go").onclick=async()=>{const p=$("pw1").value;if(p.length<8){alert("8 أحرف على الأقل");return}const{error}=await SB.auth.updateUser({password:p});alert(error?"تعذر التغيير: "+error.message:"تم تغيير كلمة المرور");$("pw1").value=""};
- const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert("تعذر التغيير");loadUsers()};
+ const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert(/مدير/.test(error.message||"")?error.message:"تعذر التغيير");loadUsers()};
  v.querySelectorAll("[data-ur]").forEach(s=>s.onchange=e=>up(s.dataset.ur,{role:e.target.value}));
  v.querySelectorAll("[data-ua]").forEach(c=>c.onchange=e=>up(c.dataset.ua,{active:e.target.checked}));
+ const desc=()=>{if($("nu_r")&&$("nu_d"))$("nu_d").textContent=(ROLES.find(r=>r[0]===$("nu_r").value)||[0,0,""])[2]};desc();
+ if($("nu_r"))$("nu_r").onchange=desc;
+ if($("nu_go"))$("nu_go").onclick=async()=>{
+  const name=$("nu_n").value.trim(),email=$("nu_e").value.trim(),role=$("nu_r").value;
+  if(!name){alert("اكتب الاسم");return}if(!/^\S+@\S+\.\S+$/.test(email)){alert("الإيميل غير صحيح");return}
+  $("nu_go").disabled=true;$("nu_go").textContent="جاري الإضافة...";
+  const r=await teamCall({action:"create",name,email,role});
+  if(r.error){alert(r.error);$("nu_go").disabled=false;$("nu_go").textContent="إضافة";return}
+  NEWPW={email:r.data.email,password:r.data.password};loadUsers();
+ };
+ v.querySelectorAll("[data-rp]").forEach(b=>b.onclick=async()=>{
+  if(!confirm("هيتعمل كلمة مرور مؤقتة جديدة لـ "+b.dataset.em+" والقديمة هتبطل. تكمل؟"))return;
+  b.disabled=true;const r=await teamCall({action:"reset_password",user_id:b.dataset.rp});
+  if(r.error){alert(r.error);b.disabled=false;return}
+  NEWPW={email:b.dataset.em,password:r.data.password};render();
+ });
+ if($("npw_c"))$("npw_c").onclick=async()=>{try{await navigator.clipboard.writeText(NEWPW.password);$("npw_c").textContent="اتنسخت"}catch(e){}};
+ if($("npw_x"))$("npw_x").onclick=()=>{NEWPW=null;render()};
 }
+
 (async()=>{
  if(!window.supabase||!SUPABASE_URL){lg(LH+'<div class="empty">الإعداد ناقص: حط SUPABASE_URL و SUPABASE_ANON_KEY في أول السكربت داخل index.html.</div>');return}
  SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
