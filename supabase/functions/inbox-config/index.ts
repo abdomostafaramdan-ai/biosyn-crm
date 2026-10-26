@@ -1,8 +1,8 @@
 // إعداد ربط القنوات (لإدارة الفريق) + رسالة تجريبية (لأي حد عنده صندوق الرسائل)
 import { CORS, json, serviceDb, requirePerm, getSecrets, ingest } from "./inbox.ts";
 
-const FIELDS = ["graph_version", "app_secret", "wa_phone_number_id", "wa_token", "page_id", "page_token", "ig_id"];
-const SECRET = ["app_secret", "wa_token", "page_token"];
+const FIELDS = ["graph_version", "app_secret", "wa_phone_number_id", "wa_token", "page_id", "page_token", "ig_id", "resend_key", "mail_from", "wa_template", "wa_lang"];
+const SECRET = ["app_secret", "wa_token", "page_token", "resend_key"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -32,6 +32,9 @@ Deno.serve(async (req) => {
     wa_phone_number_id: x.wa_phone_number_id || "",
     page_id: x.page_id || "",
     ig_id: x.ig_id || "",
+    mail_from: x.mail_from || "",
+    wa_template: x.wa_template || "",
+    wa_lang: x.wa_lang || "ar",
     woo_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/woo-webhook`,
     woo_secret: x.woo_secret,
     has: Object.fromEntries(SECRET.map((k) => [k, !!x[k]])),

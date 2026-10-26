@@ -208,6 +208,13 @@ async function dlCsv(file,H,R){
  const q=v=>{let s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
  try{await d.save({filename:file,data:new Blob(["\ufeff"+[H,...R].map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv"})})}catch(e){if(e.code!=="declined")alert("تعذر التصدير")}
 }
+async function fnCall(name,body){try{const{data,error}=await SB.functions.invoke(name,{body});if(error){let m="تعذر تنفيذ الطلب";try{const j=await error.context.json();if(j&&j.error)m=j.error}catch(e){}return{error:m}}return{data}}catch(e){return{error:"تعذر الاتصال بالسيرفر"}}}
+async function runSend(id){const pg=()=>$("cg_pg");let last=null;
+ for(let i=0;i<200;i++){const r=await fnCall("campaign-send",{campaign_id:id});
+  if(r.error){alert("❌ "+r.error+(last?`\nاتبعت لحد دلوقتي: ${last.sent}`:""));break}
+  last=r.data;if(pg())pg().textContent=`جاري الإرسال… ${last.sent} من ${last.total}${last.failed?` (فشل ${last.failed})`:""}`;
+  if(!last.remaining){alert(`✅ خلصت: اتبعت ${last.sent} من ${last.total}${last.failed?`، وفشل ${last.failed}`:""}`);break}}
+ render()}
 function camp(v){
  const A=aud(),R=A.filter(okc),ex=A.length-R.length;
  v.innerHTML=`<div class="ac" style="padding-top:12px"><div class="card2" style="margin-top:0"><h4>حملة جديدة</h4>
@@ -220,9 +227,10 @@ function camp(v){
  ${R[0]?`<small class="lg">معاينة (${esc(R[0].name)}):</small><div class="pv" id="cg_pv">${esc(msgFor(R[0]))}</div>`:""}
  <label class="cl">اسم الحملة (للحفظ)</label><input id="cg_nm">
  <div class="row"><button class="pri" id="cg_x">تصدير المستلمين CSV</button><button id="cg_s">حفظ الحملة</button></div>
- <small class="lg">الإرسال بنضغطة واحدة لكل المستلمين هيتفعل لما نربط API الواتساب أو الإيميل.</small></div>
+ <div class="row"><button id="cg_t">تجربة على رقم/إيميل واحد</button><button class="pri" id="cg_go" ${R.length?"":"disabled"}>إرسال لكل المستلمين (${R.length})</button></div>
+ <small class="lg" id="cg_pg">الإرسال محتاج ربط الواتساب/الإيميل من الإعدادات. جرّب على نفسك الأول. اللي مفيش عندهم موافقة بيتستبعدوا تلقائي.</small></div>
  ${CG.ch==="wa"&&R.length?`<div class="card2"><h4>إرسال يدوي (واتساب)</h4>${R.slice(0,30).map(c=>`<div class="hb"><div class="hl"><span>${esc(c.name)}</span><a class="wa" target="_blank" rel="noopener" data-w="${esc(c.id)}" href="#">إرسال</a></div></div>`).join("")}${R.length>30?`<small class="lg">أول 30 فقط، الباقي في ملف CSV</small>`:""}</div>`:""}
- <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":"مسودة"}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
+ <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
  const g=(id,k)=>{$(id).onchange=e=>{CG[k]=e.target.value;setTimeout(render,0)}};
  g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
  $("cg_msg").oninput=e=>{CG.msg=e.target.value;if($("cg_pv")&&R[0])$("cg_pv").textContent=msgFor(R[0])};
@@ -231,6 +239,14 @@ function camp(v){
  $("cg_s").onclick=async()=>{const n=$("cg_nm").value.trim();if(!n){alert("اكتب اسم الحملة");return}
   const k={id:nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};
   K.push(k);render();if(db){try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code))}}};
+ const camp1=async()=>{const n=$("cg_nm").value.trim()||("حملة "+new Date().toLocaleDateString("ar-EG")),sig=[CG.ch,CG.st,CG.ty,CG.co,CG.sj,CG.msg].join("|");
+  if(CG.kid&&CG.ksig===sig){const e=K.find(x=>x.id===CG.kid);if(e)return e}
+  const k={id:CG.kid=nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};CG.ksig=sig;
+  if(!db){alert("الإرسال بيحتاج السيرفر");return null}
+  try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code));return null}K.push(k);return k};
+ if($("cg_t"))$("cg_t").onclick=async()=>{const to=prompt(CG.ch==="wa"?"رقم الواتساب (بالكود، مثال 2010...)":"الإيميل");if(!to)return;const k=await camp1();if(!k)return;const r=await fnCall("campaign-send",{campaign_id:k.id,test_to:to});alert(r.error?"❌ "+r.error:"✅ اتبعتت التجربة")};
+ if($("cg_go"))$("cg_go").onclick=async()=>{if(!confirm("هتتبعت لـ "+R.length+" مستلم. متأكد؟"))return;const k=await camp1();if(k)runSend(k.id)};
+ v.querySelectorAll("[data-sk]").forEach(a=>a.onclick=e=>{e.preventDefault();if(confirm("تكمّل إرسال الحملة دي؟"))runSend(a.dataset.sk)});
  v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,sj:k.sj||"",msg:k.msg};render()});
  v.querySelectorAll("[data-dk]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الحملة؟"))return;const id=a.dataset.dk;K=K.filter(x=>x.id!==id);render();if(db){try{await db.collection("campaigns").doc(id).delete()}catch(x){}}});
 }
@@ -531,6 +547,9 @@ function chanCard(){
  <div class="g2"><div>${f("cf_wp","WhatsApp Phone Number ID",c.wa_phone_number_id,"")}</div><div>${f("cf_wt","WhatsApp Access Token","","",'wa_token')}</div>
  <div>${f("cf_pi","Facebook Page ID",c.page_id,"")}</div><div>${f("cf_pt","Page Access Token (للماسنجر وإنستجرام)","","",'page_token')}</div>
  <div>${f("cf_ig","Instagram Account ID (اختياري)",c.ig_id,"")}</div><div>${f("cf_gv","Graph API Version",c.graph_version,"v25.0")}</div></div>
+  <h4 style="margin-top:12px">إرسال الحملات</h4><small class="lg">إيميل: حساب Resend (مجاني 100 رسالة/يوم) ودومين متوثّق. واتساب: لازم قالب معتمد من Meta بمتغيرين: {{1}} اسم العميل، و{{2}} نص الرسالة.</small>
+ ${f("cf_rk","Resend API Key","","",'resend_key')}
+ <div class="g2"><div>${f("cf_mf","إيميل المرسل (مثال: Biosyn <hello@biosynegypt.com>)",c.mail_from,"")}</div><div>${f("cf_wtn","اسم قالب واتساب المعتمد",c.wa_template,"")}</div><div>${f("cf_wl","لغة القالب",c.wa_lang,"ar")}</div></div>
  <div class="row"><button class="pri" id="cf_sv">حفظ</button><button id="cf_ts">اختبار الاتصال</button></div>
  ${INB.cfgOut?`<div class="tw" style="padding:8px 0 0"><table>${Object.entries({whatsapp:"واتساب",messenger:"ماسنجر",instagram:"إنستجرام",webhook:"استقبال الرسائل"}).map(([k,n])=>`<tr><td>${n}</td><td style="white-space:normal">${esc(INB.cfgOut[k]||"")}</td></tr>`).join("")}</table></div>`:""}
  <h4 style="margin-top:14px">ربط الموقع (WooCommerce)</h4>
@@ -543,7 +562,7 @@ function bindChan(v){
  if($("woo_rg"))$("woo_rg").onclick=async()=>{if(!confirm("هيتغيّر السر وتحتاج تحدّثه في WooCommerce. متأكد؟"))return;const r=await cfgCall({action:"woo_regen"});if(r.error)alert(r.error);else{INB.cfg=r.data;render()}};
  v.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.cp);b.textContent="اتنسخ"}catch(e){}});
  if($("cf_sv"))$("cf_sv").onclick=async()=>{
-  const body={action:"save",app_secret:$("cf_as").value,wa_phone_number_id:$("cf_wp").value,wa_token:$("cf_wt").value,page_id:$("cf_pi").value,page_token:$("cf_pt").value,ig_id:$("cf_ig").value,graph_version:$("cf_gv").value};
+  const body={action:"save",app_secret:$("cf_as").value,wa_phone_number_id:$("cf_wp").value,wa_token:$("cf_wt").value,page_id:$("cf_pi").value,page_token:$("cf_pt").value,ig_id:$("cf_ig").value,graph_version:$("cf_gv").value,resend_key:$("cf_rk").value,mail_from:$("cf_mf").value,wa_template:$("cf_wtn").value,wa_lang:$("cf_wl").value};
   $("cf_sv").disabled=true;const r=await cfgCall(body);if(r.error){alert(r.error);$("cf_sv").disabled=false;return}INB.cfg=r.data;INB.cfgOut=null;render();alert("اتحفظ")};
  if($("cf_ts"))$("cf_ts").onclick=async()=>{$("cf_ts").disabled=true;$("cf_ts").textContent="جاري الاختبار…";const r=await cfgCall({action:"test"});if(r.error){alert(r.error)}else INB.cfgOut=r.data;render()};
 }
