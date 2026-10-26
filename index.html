@@ -215,6 +215,7 @@ function openT(t){
  <div class="ino"><label>اسم الكورس / الباقة / الفعالية</label><input id="g_item" list="g_dl" value="${esc(k.item)}"><datalist id="g_dl">${items.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>
  <label>العدد (اشتراكات / مشاركين)</label><input id="g_qty" type="number" min="1" value="${esc(k.qty||1)}"></div>
  <label>رقم الفاتورة / المرجع</label><input id="g_ref" value="${esc(k.ref)}">
+ <div class="oto"><label>القناة الإعلانية (لحساب تكلفة العميل لو البند تسويق)</label><select id="g_src"><option value="">—</option>${opts(SR,k.src)}</select></div><div class="ino"><label>كود الخصم / الكوبون</label><input id="g_cpn" value="${esc(k.cpn||"")}"></div>
  <label>جهة الاتصال (اختياري)</label><select id="g_con"><option value="">—</option>${C.map(c=>`<option value="${esc(c.id)}" ${c.id===k.con?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
  <label>ملاحظة</label><input id="g_note" value="${esc(k.note)}">
  ${t?"":`<label class="oto"><input type="checkbox" id="g_rep" style="width:auto"> كرر شهرياً حتى آخر السنة</label>`}
@@ -226,7 +227,7 @@ function openT(t){
  $("g_save").onclick=()=>{const a=parseFloat($("g_amt").value);
   if(!(a>0)){alert("اكتب مبلغ صحيح");return}if(!$("g_date").value){alert("اختار التاريخ");return}
   const i=$("g_kind").value==="in",o={...k,kind:$("g_kind").value,amt:a,date:$("g_date").value,cat:$("g_cat").value,method:$("g_met").value,
-   item:i?$("g_item").value.trim():"",qty:i?Math.max(1,parseInt($("g_qty").value)||1):1,status:i?$("g_st").value:"paid",ref:$("g_ref").value.trim(),con:$("g_con").value,note:$("g_note").value.trim()};
+   item:i?$("g_item").value.trim():"",qty:i?Math.max(1,parseInt($("g_qty").value)||1):1,status:i?$("g_st").value:"paid",ref:$("g_ref").value.trim(),con:$("g_con").value,note:$("g_note").value.trim(),src:i?"":$("g_src").value,cpn:i?$("g_cpn").value.trim():""};
   saveT(o);
   if(!t&&!i&&$("g_rep")&&$("g_rep").checked){const[y,m,d]=o.date.split("-").map(Number);for(let n=m+1;n<=12;n++)saveT({...o,id:nid("t"),date:y+"-"+String(n).padStart(2,"0")+"-"+String(Math.min(d,28)).padStart(2,"0")},true)}
   close()};
@@ -721,12 +722,14 @@ function open(c){
  <div><label>المصدر</label><select id="f_src">${opts(SR,k.src)}</select></div><div><label>انتهاء الاشتراك</label><input id="f_exp" type="date" value="${esc(k.exp)}"></div></div>
  <div class="g2"><div><label>الكورس المهتم به</label><input id="f_course" value="${esc(k.course)}"></div><div><label>موعد المتابعة</label><input id="f_nxt" type="date" value="${esc(k.nxt)}"></div></div>
  <label>الوسوم (افصل بفاصلة)</label><input id="f_tags" value="${esc((k.tags||[]).join("، "))}">
+ <label>رشّحه (اسم أو كود المُرشِّح، اختياري)</label><input id="f_ref" value="${esc(k.refBy||"")}">
+ ${!isNew&&(k.nxt||k.exp)?`<div class="row" style="margin:4px 0">${k.nxt?`<a class="wa" target="_blank" rel="noopener" href="${esc(gcal({t:"متابعة: "+k.name,d:k.nxt,n:[k.phone,k.email].filter(Boolean).join(" · ")}))}">📅 المتابعة في تقويم Google</a>`:""}${k.exp?`<a class="wa" target="_blank" rel="noopener" href="${esc(gcal({t:"انتهاء اشتراك: "+k.name,d:k.exp,n:[k.phone,k.email].filter(Boolean).join(" · ")}))}">📅 تاريخ الانتهاء في تقويم Google</a>`:""}</div>`:""}
  <div class="cons"><label><input type="checkbox" id="f_okm" ${k.okM!==false?"checked":""}> موافق على الإيميلات</label><label><input type="checkbox" id="f_okw" ${k.okW!==false?"checked":""}> موافق على واتساب</label></div>${k.unsub?`<div class="note" style="margin:6px 0">العميل ده ألغى الاشتراك من الرسائل. لو فعّلت الموافقة تاني الإلغاء بيتشال.</div>`:""}
  ${P.fin&&P.cw?`<div class="card2" style="margin:8px 0"><label class="oto" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="pay_on" style="width:auto"> <b>تسجيل دفع اشتراك لهذا العميل (بينزل في الحسابات)</b></label>
  <div id="pay_box" style="display:none"><div class="g2"><div><label>الاشتراك / الكورس</label><input id="pay_item" list="pay_dl" placeholder="اختار أو اكتب"><datalist id="pay_dl">${[...new Set([...PLANS,...COURSES,...T.map(x=>x.item).filter(Boolean)])].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
  <div><label>القيمة (جنيه)</label><input id="pay_amt" type="number" min="0" step="any" inputmode="decimal"></div>
  <div><label>تاريخ الدفع</label><input id="pay_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div><label>طريقة الدفع</label><select id="pay_met">${opts(MET,"")}</select></div>
- <div><label>الحالة</label><select id="pay_st">${opts(STS,"paid")}</select></div><div><label>البند</label><select id="pay_cat">${opts(SALE,"باقة اشتراك")}</select></div></div>
+ <div><label>الحالة</label><select id="pay_st">${opts(STS,"paid")}</select></div><div><label>البند</label><select id="pay_cat">${opts(SALE,"باقة اشتراك")}</select></div><div><label>كود الخصم (اختياري)</label><input id="pay_cpn"></div></div>
  <small class="lg">لو الاشتراك باقة (شهرية/ربع/نصف/سنوية) بيتحسب تاريخ الانتهاء ويتحوّل العميل لـ "مشترك" تلقائي.</small></div></div>`:""}
  ${P.fin&&!isNew?(()=>{const L=T.filter(x=>x.con===k.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));return L.length?`<div class="log"><b>مدفوعاته</b>`+L.map(x=>`<div>${esc(x.date)} — ${esc(x.item||x.cat||"")} — ${fm(x.amt)}${x.status!=="paid"?" ("+esc(lbl(STS,x.status))+")":""} ${x.kind==="in"?`<a href="#" data-rc="${esc(x.id)}" class="wa">إيصال</a>`:""}</div>`).join("")+`</div>`:""})():""}
  ${!isNew&&TK.ok?(()=>{const L=TK.rows.filter(t=>!t.done&&t.contact_id===k.id).sort(tsort);return `<div class="card2" style="margin:8px 0"><b>مهام متابعة</b>${L.map(trow).join("")}<div class="row"><button type="button" id="b_tk">+ مهمة متابعة</button></div></div>`})():""}
@@ -752,13 +755,13 @@ function open(c){
   const em=$("f_email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){alert("الإيميل غير صحيح");return}
   const ph=wa($("f_phone").value),dp=ph&&C.find(x=>x.id!==k.id&&wa(x.phone)===ph);
   if(dp&&!confirm("الرقم ده موجود قبل كده باسم "+dp.name+". تحفظ برضه؟"))return;
-  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,tags:[...new Set($("f_tags").value.split(/[,،]/).map(x=>x.trim()).filter(Boolean))].slice(0,10),log:(k.log||[]).slice()};if(k.unsub&&(u.okM||u.okW))u.unsub=false;
+  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,tags:[...new Set($("f_tags").value.split(/[,،]/).map(x=>x.trim()).filter(Boolean))].slice(0,10),refBy:$("f_ref").value.trim(),log:(k.log||[]).slice()};if(k.unsub&&(u.okM||u.okW))u.unsub=false;
   const t=$("f_note").value.trim();if(t)u.log.push({t:new Date().toISOString().slice(0,10),x:t});
   let tx=null;
   if($("pay_on")&&$("pay_on").checked){
    const a=parseFloat($("pay_amt").value),it=$("pay_item").value.trim(),dt=$("pay_date").value,st=$("pay_st").value;
    if(!(a>0)){alert("اكتب قيمة الاشتراك");return}if(!dt){alert("اختار تاريخ الدفع");return}if(!it){alert("اختار الاشتراك أو الكورس");return}
-   tx={id:nid("t"),kind:"in",amt:a,date:dt,cat:$("pay_cat").value,item:it,qty:1,status:st,method:$("pay_met").value,ref:"",con:u.id,note:"من ملف العميل"};
+   tx={id:nid("t"),kind:"in",amt:a,date:dt,cat:$("pay_cat").value,item:it,qty:1,status:st,method:$("pay_met").value,ref:"",con:u.id,note:"من ملف العميل",cpn:$("pay_cpn").value.trim()};
    if(st==="paid"){
     if(u.stage==="lead"||u.stage==="interested")u.stage="member";
     const m=mons(it);if(m){const base=u.exp&&u.exp>dt?u.exp:dt;u.exp=addM(base,m)}
@@ -875,7 +878,13 @@ function openInsights(){
  const paid=T.filter(t=>isI(t)&&st(t)==="paid"),rev={};paid.forEach(t=>{if(t.con)rev[t.con]=(rev[t.con]||0)+(+t.amt||0)});
  const fin=!!P.fin,pc=(a,b)=>b?Math.round(a/b*100)+"%":"—";
  const src={};C.forEach(c=>{const k=c.src||"غير محدد",o=src[k]=src[k]||{n:0,cv:0,r:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0});
- const srows=Object.entries(src).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}</td><td>${pc(o.cv,o.n)}</td>${fin?`<td>${fm(o.r)}</td>`:""}</tr>`).join("");
+ const adT=T.filter(t=>!isI(t)&&t.cat==="تسويق وإعلانات"),spend={};adT.filter(t=>t.src).forEach(t=>{spend[t.src]=(spend[t.src]||0)+(+t.amt||0)});
+ Object.keys(spend).forEach(k=>{src[k]=src[k]||{n:0,cv:0,r:0}});const unal=sum(adT.filter(t=>!t.src));
+ const srows=Object.entries(src).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>{const sp=spend[k]||0;return `<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}</td><td>${pc(o.cv,o.n)}</td>${fin?`<td>${fm(o.r)}</td><td>${sp?fm(sp):"—"}</td><td>${sp&&o.cv?fm(sp/o.cv):"—"}</td><td>${sp?(o.r/sp).toFixed(1)+"x":"—"}</td>`:""}</tr>`}).join("");
+ const cp={};paid.forEach(t=>{if(t.cpn)String(t.cpn).split(/[,،]\s*/).filter(Boolean).forEach(x=>{const k=x.toUpperCase(),o=cp[k]=cp[k]||{n:0,r:0};o.n++;o.r+=+t.amt||0})});
+ const cprows=Object.entries(cp).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td>${fin?`<td>${fm(o.r)}</td>`:""}</tr>`).join("");
+ const rf={};C.forEach(c=>{const k=String(c.refBy||"").trim();if(!k)return;const o=rf[k]=rf[k]||{n:0,cv:0,r:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0});
+ const rfrows=Object.entries(rf).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}</td>${fin?`<td>${fm(o.r)}</td>`:""}</tr>`).join("");
  const fun=ST.map(([k,n])=>`<tr><td>${esc(n)}</td><td>${C.filter(c=>c.stage===k).length}</td></tr>`).join("");
  const plan=paid.filter(t=>t.cat==="باقة اشتراك"&&t.con),byC={};plan.forEach(t=>{(byC[t.con]=byC[t.con]||[]).push(t)});
  const A=Object.keys(byC).length,B=Object.values(byC).filter(a=>a.length>=2).length,rr=A?B/A:0;
@@ -887,7 +896,8 @@ function openInsights(){
   const amt=L.reduce((a,c)=>a+(lastAmt(c)||avgPlan),0);return [MN[m]+" "+y,L.length,amt]});
  const pay=Object.values(rev),ltv=pay.length?pay.reduce((a,b)=>a+b,0)/pay.length:0;
  $("md").innerHTML=`<div class="rep"><h2 style="margin:0">تحليلات العملاء</h2><small>${esc(new Date().toLocaleDateString("ar-EG"))}</small>
- <h3>مصادر العملاء</h3><table><tr><th>المصدر</th><th>عملاء</th><th>اشتركوا</th><th>التحويل</th>${fin?"<th>الدخل</th>":""}</tr>${srows||`<tr><td colspan="5">لا يوجد</td></tr>`}</table>
+ <h3>مصادر العملاء</h3><table><tr><th>المصدر</th><th>عملاء</th><th>اشتركوا</th><th>التحويل</th>${fin?"<th>الدخل</th><th>صرف الإعلانات</th><th>تكلفة المشترك</th><th>العائد</th>":""}</tr>${srows||`<tr><td colspan="8">لا يوجد</td></tr>`}</table>${fin&&unal?`<small class="lg">مصروفات إعلانات من غير قناة محددة: ${fm(unal)} (حدد القناة في العملية عشان تتحسب).</small>`:""}
+ ${cprows?`<h3>الكوبونات</h3><table><tr><th>الكود</th><th>مرات الاستخدام</th>${fin?"<th>الدخل</th>":""}</tr>${cprows}</table>`:""}${rfrows?`<h3>الترشيحات</h3><table><tr><th>المُرشِّح</th><th>رشّح</th><th>اشتركوا</th>${fin?"<th>الدخل</th>":""}</tr>${rfrows}</table>`:""}
  <h3>مراحل العملاء</h3><table>${fun}</table>
  <h3>الاحتفاظ بالمشتركين</h3><table><tr><td>مشتركين نشطين (اشتراكهم ساري)</td><td>${act}</td></tr><tr><td>اشتراكهم بينتهي خلال 30 يوم</td><td>${soon}</td></tr><tr><td>اشتراكهم انتهى</td><td>${gone}</td></tr>${fin?`<tr><td>معدل التجديد (اشتروا باقة أكتر من مرة)</td><td>${A?pc(B,A)+" ("+B+" من "+A+")":"لسه مفيش بيانات كفاية"}</td></tr><tr><td>متوسط ما دفعه العميل الواحد</td><td>${pay.length?fm(ltv):"—"}</td></tr>`:""}</table>
  <h3>الاشتراكات المنتهية قريباً${fin?" والدخل المتوقع":""}</h3><table><tr><th>الشهر</th><th>اشتراكات بتنتهي</th>${fin?"<th>لو جددوا كلهم</th>"+(A>=3?"<th>بمعدل تجديدكم</th>":""):""}</tr>${fc.map(f=>`<tr><td>${esc(f[0])}</td><td>${f[1]}</td>${fin?`<td>${fm(f[2])}</td>`+(A>=3?`<td>${fm(f[2]*rr)}</td>`:""):""}</tr>`).join("")}</table>
@@ -916,6 +926,44 @@ function openReceipt(t){
 }
 $("md").addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-rc]");if(a){e.preventDefault();openReceipt(T.find(x=>x.id===a.dataset.rc))}});
 
+/* ===== تقويم + تحقق بخطوتين ===== */
+const nextDay=iso=>{const d=new Date(iso+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10)};
+const icsD=iso=>String(iso).replace(/-/g,"");
+const icsEsc=x=>String(x||"").replace(/[\;,]/g,m=>"\\"+m).replace(/\r?\n/g,"\\n");
+function icsText(evs){const ts=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+ return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Biosyn CRM//AR","CALSCALE:GREGORIAN"].concat(evs.flatMap((e,i)=>["BEGIN:VEVENT","UID:"+Date.now().toString(36)+i+"@biosyn-crm","DTSTAMP:"+ts,"DTSTART;VALUE=DATE:"+icsD(e.d),"DTEND;VALUE=DATE:"+icsD(nextDay(e.d)),"SUMMARY:"+icsEsc(e.t),"DESCRIPTION:"+icsEsc(e.n||""),"END:VEVENT"]),["END:VCALENDAR"]).join("\r\n")}
+const gcal=e=>"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.t)+"&dates="+icsD(e.d)+"/"+icsD(nextDay(e.d))+"&details="+encodeURIComponent(e.n||"");
+async function exportIcs(){
+ const d=await window.claude.use("downloads").catch(()=>null);if(!d){alert("التصدير غير متاح هنا");return}
+ const today=new Date().toISOString().slice(0,10),lim=new Date(Date.now()+120*864e5).toISOString().slice(0,10),ev=[];
+ TK.rows.filter(t=>!t.done&&t.due).forEach(t=>{const c=C.find(x=>x.id===t.contact_id);ev.push({t:"مهمة: "+t.title,d:t.due,n:c?c.name:""})});
+ C.forEach(c=>{if(c.nxt&&c.nxt>=today)ev.push({t:"متابعة: "+c.name,d:c.nxt,n:[c.phone,c.email].filter(Boolean).join(" · ")});
+  if(c.exp&&c.exp>=today&&c.exp<=lim&&(c.stage==="member"||c.stage==="renew"))ev.push({t:"انتهاء اشتراك: "+c.name,d:c.exp,n:[c.phone,c.email].filter(Boolean).join(" · ")})});
+ if(!ev.length){alert("مفيش مهام أو متابعات أو تجديدات جاية");return}
+ try{await d.save({filename:"biosyn-calendar.ics",data:new Blob([icsText(ev)],{type:"text/calendar"})})}catch(e){if(e&&e.code!=="declined")alert("تعذر التصدير")}
+}
+const MF={loaded:false,f:null};
+async function loadMfa(){if(!SB||MF.loaded)return;MF.loaded=true;try{const{data}=await SB.auth.mfa.listFactors();MF.f=((data&&data.totp)||[]).find(f=>f.status==="verified")||null}catch(e){MF.f=null}if(tab===5)render()}
+function mfaBlock(){loadMfa();return `<div class="hb" style="margin:8px 0"><div class="hl"><span>التحقق بخطوتين</span><span class="tag ${MF.f?"":"w"}">${MF.f?"مفعّل ✓":"مقفول"}</span></div><small class="lg">كود من تطبيق مصادقة (Google Authenticator أو Microsoft Authenticator) بيتطلب عند كل دخول. حتى لو حد عرف كلمة المرور مش هيقدر يدخل.</small><div class="row">${MF.f?`<button id="mf_off" style="color:var(--dg)">إيقاف</button>`:`<button class="pri" id="mf_on">تفعيل</button>`}</div></div>`}
+async function mfaVerify(factorId,code){const ch=await SB.auth.mfa.challenge({factorId});if(ch.error)return ch.error;const v=await SB.auth.mfa.verify({factorId,challengeId:ch.data.id,code});return v.error||null}
+function bindMfa(){
+ if($("mf_on"))$("mf_on").onclick=async()=>{const r=await SB.auth.mfa.enroll({factorType:"totp",friendlyName:"Biosyn "+Date.now()});if(r.error){alert("تعذر التفعيل: "+r.error.message);return}
+  const f=r.data;$("md").innerHTML=`<h2 style="margin:0 0 6px;font-size:17px">تفعيل التحقق بخطوتين</h2><small class="lg">1) افتح تطبيق المصادقة على موبايلك وامسح الكود. 2) اكتب الرقم اللي بيظهر فيه.</small><div style="text-align:center;margin:8px 0"><img src="${esc(f.totp.qr_code)}" width="180" height="180" alt="QR"></div><small class="lg">أو اكتب المفتاح يدويًا:</small><div class="cpy"><code>${esc(f.totp.secret)}</code></div><label class="cl">الكود (6 أرقام)</label><input id="mfe_c" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><div class="row"><button class="pri" id="mfe_go">تأكيد</button><button id="mfe_x">إلغاء</button></div>`;
+  $("ov").classList.add("on");
+  $("mfe_x").onclick=async()=>{close();try{await SB.auth.mfa.unenroll({factorId:f.id})}catch(e){}};
+  $("mfe_go").onclick=async()=>{const code=$("mfe_c").value.trim();if(!/^\d{6}$/.test(code)){alert("اكتب 6 أرقام");return}
+   const er=await mfaVerify(f.id,code);if(er){alert("الكود غير صحيح");return}close();MF.loaded=false;render();alert("اتفعّل التحقق بخطوتين. هيتطلب منك الكود في كل دخول.")}};
+ if($("mf_off"))$("mf_off").onclick=async()=>{if(!confirm("إيقاف التحقق بخطوتين؟ الحساب هيبقى أقل أمانًا."))return;const r=await SB.auth.mfa.unenroll({factorId:MF.f.id});if(r.error){alert("تعذر الإيقاف: "+r.error.message);return}MF.loaded=false;MF.f=null;render()};
+}
+async function mfaForm(){
+ const{data:fs}=await SB.auth.mfa.listFactors();const f=((fs&&fs.totp)||[]).find(x=>x.status==="verified");
+ if(!f){loginForm("تعذر التحقق بخطوتين");return}
+ lg(LH+`<p style="text-align:center;color:var(--mu);margin:4px 0">اكتب الكود من تطبيق المصادقة</p><input id="mf_c" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:20px;letter-spacing:6px"><div class="neg" id="mf_m" style="min-height:22px;margin-top:8px;font-size:13px"></div><div class="row"><button class="pri" id="mf_go">تأكيد</button><button id="mf_lo">خروج</button></div>`);
+ const go=async()=>{const code=$("mf_c").value.trim();if(!/^\d{6}$/.test(code)){$("mf_m").textContent="اكتب 6 أرقام";return}
+  const er=await mfaVerify(f.id,code);if(er){$("mf_m").textContent="الكود غير صحيح";return}boot()};
+ $("mf_go").onclick=go;$("mf_c").onkeydown=e=>{if(e.key==="Enter")go()};$("mf_lo").onclick=signOut;$("mf_c").focus();
+}
+
 /* ===== مهام + ردود جاهزة + دمج المكررين ===== */
 const TK={rows:[],team:[],ok:false,loaded:false},QR={rows:[],loaded:false};
 async function loadTasks(){
@@ -929,13 +977,13 @@ const todayS=()=>new Date().toISOString().slice(0,10);
 const whoN=id=>{const t=TK.team.find(x=>x.id===id);return id===(ME&&ME.id)?"انت":t?(t.name||t.email):""};
 function trow(t){
  const c=t.contact_id&&C.find(x=>x.id===t.contact_id),late=t.due&&t.due<todayS();
- return `<div class="hb"><div class="hl"><label style="display:flex;gap:8px;align-items:center;flex:1"><input type="checkbox" data-tk="${esc(t.id)}" style="width:auto"><span>${esc(t.title)}<br><small class="${late?"neg":"lg"}">${t.due?esc(t.due)+(late?" · متأخرة":""):"من غير موعد"}${c?" · "+esc(c.name):""}${t.assigned_to&&t.assigned_to!==(ME&&ME.id)?" · "+esc(whoN(t.assigned_to)):""}</small></span></label><a href="#" data-td="${esc(t.id)}" style="color:var(--dg)">×</a></div></div>`}
+ return `<div class="hb"><div class="hl"><label style="display:flex;gap:8px;align-items:center;flex:1"><input type="checkbox" data-tk="${esc(t.id)}" style="width:auto"><span>${esc(t.title)}<br><small class="${late?"neg":"lg"}">${t.due?esc(t.due)+(late?" · متأخرة":""):"من غير موعد"}${c?" · "+esc(c.name):""}${t.assigned_to&&t.assigned_to!==(ME&&ME.id)?" · "+esc(whoN(t.assigned_to)):""}</small></span></label>${t.due?`<a target="_blank" rel="noopener" href="${esc(gcal({t:t.title,d:t.due,n:c?c.name:""}))}" title="أضف لتقويم Google" style="margin-inline-end:6px">📅</a>`:""}<a href="#" data-td="${esc(t.id)}" style="color:var(--dg)">×</a></div></div>`}
 const tsort=(a,b)=>(a.due||"9999").localeCompare(b.due||"9999");
 function taskCard(){
  if(!TK.ok)return "";
  const op=TK.rows.filter(t=>!t.done),mine=op.filter(t=>t.assigned_to===ME.id).sort(tsort),oth=op.filter(t=>t.assigned_to!==ME.id).sort(tsort);
  return `<div class="card2"><h4>مهامي <small>${mine.length}</small></h4>${mine.slice(0,8).map(trow).join("")||`<div class="empty" style="padding:10px">مفيش مهام</div>`}
- ${oth.length?`<small class="lg">مهام باقي الفريق (${oth.length})</small>${oth.slice(0,4).map(trow).join("")}`:""}<div class="row"><button class="pri" id="tk_add">+ مهمة</button></div></div>`}
+ ${oth.length?`<small class="lg">مهام باقي الفريق (${oth.length})</small>${oth.slice(0,4).map(trow).join("")}`:""}<div class="row"><button class="pri" id="tk_add">+ مهمة</button><button id="tk_ics">تقويم (.ics)</button></div></div>`}
 function bindTasks(root){
  root.querySelectorAll("[data-tk]").forEach(b=>b.onchange=async()=>{const id=b.dataset.tk;b.disabled=true;
   const{error}=await SB.from("tasks").update({done:true,done_at:new Date().toISOString()}).eq("id",id);
@@ -943,6 +991,7 @@ function bindTasks(root){
  root.querySelectorAll("[data-td]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف المهمة؟"))return;
   const id=a.dataset.td;const{error}=await SB.from("tasks").delete().eq("id",id);if(error){alert("تعذر الحذف (بس صاحب المهمة أو الإدارة يقدروا يحذفوا)");return}TK.rows=TK.rows.filter(x=>x.id!==id);render()});
  const ad=root.querySelector("#tk_add");if(ad)ad.onclick=()=>taskDialog(null);
+ const ic=root.querySelector("#tk_ics");if(ic)ic.onclick=exportIcs;
 }
 function taskDialog(cid){
  const tm=TK.team.length?TK.team:[{id:ME.id,name:ME.name,email:ME.email}],tm2=new Date(Date.now()+864e5).toISOString().slice(0,10);
@@ -998,12 +1047,12 @@ $("ov").onclick=e=>{if(e.target.id==="ov")close()};
 $("add").onclick=()=>open(null);$("q").oninput=render;$("ft").onchange=$("fd").onchange=$("fg").onchange=render;
 $("exp").onclick=async()=>{
  const d=await window.claude.use("downloads").catch(()=>null);if(!d){alert("التصدير غير متاح هنا");return}
- const H=["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","ملاحظات"];
+ const H=["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","الوسوم","التقييم","رشّحه","ملاحظات"];
  const q=v=>{let s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
- const R=filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")]);
+ const R=filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.tags||[]).join("، "),score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")]);
  try{await d.save({filename:"biosyn-contacts.csv",data:new Blob(["\ufeff"+[H,...R].map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv"})})}catch(e){if(e.code!=="declined")alert("تعذر التصدير")}
 };
-$("expx").onclick=()=>dlXlsx("biosyn-contacts.xlsx",[{name:"العملاء",H:["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","ملاحظات"],R:filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")])}]);
+$("expx").onclick=()=>dlXlsx("biosyn-contacts.xlsx",[{name:"العملاء",H:["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","الوسوم","التقييم","رشّحه","ملاحظات"],R:filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.tags||[]).join("، "),score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")])}]);
 [0,1,6,3,4,5].forEach(n=>$("t"+n).onclick=()=>goTab(n));
 document.querySelectorAll(".bar,.fl,.stats").forEach(e=>e.style.display="none");
 render();
@@ -1038,6 +1087,7 @@ async function loadUsers(){const{data}=await SB.from("profiles").select("*").ord
 async function boot(){
  if(recov)return;
  const{data:{session}}=await SB.auth.getSession();if(!session){loginForm();return}
+ try{const{data:al}=await SB.auth.mfa.getAuthenticatorAssuranceLevel();if(al&&al.nextLevel==="aal2"&&al.currentLevel!=="aal2"){mfaForm();return}}catch(e){}
  const{data:pr,error}=await SB.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
  if(error||!pr||!pr.active){lg(LH+`<div class="empty">حسابك غير مفعّل. كلّم المدير يفعّله.</div><div class="row"><button id="lo2">تسجيل خروج</button></div>`);$("lo2").onclick=signOut;return}
  $("lg").classList.remove("on");if(booted)return;booted=true;
@@ -1051,7 +1101,7 @@ async function boot(){
  if(P.users)loadUsers();
  if(P.inbox)startInbox();loadTasks();
 }
-function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
+function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div>${mfaBlock()}<label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
 const ROLES=[["admin","مدير","كل الصلاحيات"],["cofounder","شريك مؤسس","كل الصلاحيات، زي المدير"],["accountant","محاسب","الحسابات والأرباح، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل"],["viewer","مشاهد","قراءة فقط"]];
 const PL=[["fin","الحسابات والأرباح"],["cw","إضافة وتعديل العملاء"],["cdel","حذف العملاء"],["camp","الحملات"],["imp","استيراد العملاء"],["bk","النسخ الاحتياطي والاسترجاع"],["inbox","صندوق الرسائل"],["users","إدارة الفريق والصلاحيات"]];
 const PERM={fin:["admin","cofounder","accountant"],cw:["admin","cofounder","moderator","support"],cdel:["admin","cofounder"],camp:["admin","cofounder","support"],imp:["admin","cofounder","support"],bk:["admin","cofounder"],users:["admin","cofounder"],inbox:["admin","cofounder","moderator","support"]};
@@ -1086,6 +1136,7 @@ function usersCard(){
  <details style="margin-top:10px"><summary class="lg" style="cursor:pointer">صلاحيات كل دور</summary><div class="tw" style="padding:6px 0 0"><table><tr><th></th>${ROLES.map(r=>`<th>${r[1]}</th>`).join("")}</tr>${PL.map(([k,n])=>`<tr><td style="white-space:normal">${n}</td>${ROLES.map(r=>`<td style="text-align:center">${roleHas(r[0],k)?"✓":"–"}</td>`).join("")}</tr>`).join("")}</table></div></details></div>`;
 }
 function bindAcct(v){
+ bindMfa();
  if($("lo"))$("lo").onclick=signOut;
  if($("pw_go"))$("pw_go").onclick=async()=>{const p=$("pw1").value;if(p.length<8){alert("8 أحرف على الأقل");return}const{error}=await SB.auth.updateUser({password:p});alert(error?"تعذر التغيير: "+error.message:"تم تغيير كلمة المرور");$("pw1").value=""};
  const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert(/محمي|بنفسك|المالك/.test(error.message||"")?error.message:"تعذر التغيير");loadUsers()};

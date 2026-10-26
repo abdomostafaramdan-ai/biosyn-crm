@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
   const itemName = items.map((i) => i.name).filter(Boolean).join(" + ").slice(0, 200);
   const qty = Math.max(1, items.reduce((s, i) => s + (Number(i.quantity) || 1), 0));
   const amt = Number(o.total) || 0;
+  const cpn = (Array.isArray(o.coupon_lines) ? o.coupon_lines : []).map((x: { code?: string }) => String(x.code || "")).filter(Boolean).join(", ").slice(0, 80);
 
   // دور على العميل بالإيميل أو آخر 10 أرقام من الموبايل
   const { data: all } = await db.from("contacts").select("id,data");
@@ -74,7 +75,7 @@ Deno.serve(async (req) => {
     const method = /vodafone|فودافون/i.test(pm) ? "فودافون كاش" : /insta|إنستا|انستا/i.test(pm) ? "إنستاباي" : /bank|تحويل/i.test(pm) ? "تحويل بنكي" : /cod|cash|كاش|الدفع عند/i.test(pm) ? "كاش" : "كارت / بوابة دفع";
     const { error: te } = await db.from("txns").upsert({
       id: txId,
-      data: { kind: "in", amt, date, cat, method, item: itemName, qty, status: "paid", ref: "#" + oid, con: cid, note: "WooCommerce" },
+      data: { kind: "in", amt, date, cat, method, item: itemName, qty, status: "paid", ref: "#" + oid, con: cid, note: "WooCommerce", ...(cpn ? { cpn } : {}) },
     });
     if (te) return ok({ error: "txn: " + te.message }, 500);
   }
