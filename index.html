@@ -75,7 +75,7 @@ a.wa{color:var(--wa);text-decoration:none;font-weight:600}
 <div class="stats"><div class="st"><b id="s1">0</b><small>إجمالي جهات الاتصال</small></div><div class="st"><b id="s2">0</b><small>مشتركين</small></div><div class="st"><b id="s3">0</b><small>تجديد قريب</small></div></div></header>
 <div id="warn" class="note" style="display:none">التخزين الدائم غير متاح في هذا العرض، البيانات مؤقتة حتى إغلاق الصفحة.</div>
 <div class="bar"><input id="q" placeholder="ابحث بالاسم أو الموبايل أو الإيميل"><button class="pri" id="add">+ إدخال عميل</button><button id="exp">تصدير CSV</button><button id="expx">Excel</button></div>
-<div class="fl"><select id="ft"><option value="">كل الأنواع</option><option value="student">طالب</option><option value="instructor">محاضر</option><option value="partner">جهة / شراكة</option></select><select id="fd"><option value="">الكل</option><option value="due">تجديد قريب</option><option value="late">متابعة متأخرة</option><option value="hot">الأسخن 🔥</option></select><select id="fg"><option value="">كل الوسوم</option></select></div>
+<div class="fl"><select id="ft"><option value="">كل الأنواع</option><option value="student">طالب</option><option value="instructor">محاضر</option><option value="partner">جهة / شراكة</option></select><select id="fd"><option value="">الكل</option><option value="due">تجديد قريب</option><option value="late">متابعة متأخرة</option><option value="hot">الأسخن 🔥</option></select></div>
 <div class="tabs"><button id="t0" class="on">الرئيسية</button><button id="t1">العملاء</button><button id="t6">الرسائل</button><button id="t3">الحسابات</button><button id="t4">الحملات</button><button id="t5">الإعدادات</button></div>
 <div id="view"></div>
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
@@ -113,13 +113,11 @@ function score(c){if(c.unsub||(c.stage!=="lead"&&c.stage!=="interested"))return 
  const lg=c.log||[],last=lg.length?lg[lg.length-1].t:"";if(lg.length>=2)s+=5;if(last&&(now-new Date(last))/864e5<=14)s+=10;
  return Math.min(100,s)}
 const heat=c=>{const s=score(c);return s>=60?"ساخن 🔥":s>=35?"دافئ":""};
-function fillTags(){const s=$("fg"),cur=s.value,all=[...new Set(C.flatMap(c=>c.tags||[]))].sort();
- const h='<option value="">كل الوسوم</option>'+all.map(t=>`<option ${t===cur?"selected":""}>${esc(t)}</option>`).join("");if(s.dataset.h!==h){s.innerHTML=h;s.dataset.h=h}}
 function filt(){const q=$("q").value.trim().toLowerCase();
- const t=$("ft").value,d=$("fd").value,g=$("fg").value;return C.filter(c=>(!q||[c.name,c.phone,c.email,(c.tags||[]).join(" ")].join(" ").toLowerCase().includes(q))&&(!t||c.type===t)&&(!g||(c.tags||[]).includes(g))&&(d!=="due"||due(c))&&(d!=="late"||late(c))&&(d!=="hot"||score(c)>=60))}
+ const t=$("ft").value,d=$("fd").value;return C.filter(c=>(!q||[c.name,c.phone,c.email].join(" ").toLowerCase().includes(q))&&(!t||c.type===t)&&(d!=="due"||due(c))&&(d!=="late"||late(c))&&(d!=="hot"||score(c)>=60))}
 function card(c){const d=days(c.exp);
  return `<div class="card" data-id="${esc(c.id)}"><b>${esc(c.name)}</b><small>${esc(lbl(TY,c.type))}${c.phone?" · "+esc(c.phone):""}</small>`+
- (c.exp?`<br><span class="tag ${due(c)?"w":""}">${d<0?"انتهى الاشتراك":"ينتهي بعد "+d+" يوم"}</span>`:"")+(c.nxt?` <span class="tag ${late(c)?"w":""}">متابعة ${esc(c.nxt)}</span>`:"")+(heat(c)?` <span class="tag ${score(c)>=60?"w":""}">${heat(c)}</span>`:"")+((c.tags||[]).length?`<br>`+c.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join(" "):"")+`</div>`}
+ (c.exp?`<br><span class="tag ${due(c)?"w":""}">${d<0?"انتهى الاشتراك":"ينتهي بعد "+d+" يوم"}</span>`:"")+(c.nxt?` <span class="tag ${late(c)?"w":""}">متابعة ${esc(c.nxt)}</span>`:"")+(heat(c)?` <span class="tag ${score(c)>=60?"w":""}">${heat(c)}</span>`:"")+`</div>`}
 const IN=["باقة اشتراك","كورس مسجل","كورس تفاعلي","فعالية / ورشة","رعاية وشراكات","أخرى"],OUT=["رواتب ومحاضرين","تسويق وإعلانات","استضافة وأدوات","رسوم بوابة الدفع","إيجار ومكتب","ضرائب ورسوم","أخرى"],SALE=IN.slice(0,4);
 const MET=["فودافون كاش","إنستاباي","كارت / بوابة دفع","تحويل بنكي","كاش"],STS=[["paid","مدفوع"],["pending","معلّق"],["refund","مسترد"]];
 const PLANS=["باقة شهرية","باقة ربع سنوية","باقة نصف سنوية","باقة سنوية"],COURSES=["Introduction To Genetics Engineering","Introduction To Gentics","Molecular Biology","Computational Neuroscience","Introduction To Immunology","Some concepts in clinical research"];
@@ -232,11 +230,11 @@ function openT(t){
   if(!t&&!i&&$("g_rep")&&$("g_rep").checked){const[y,m,d]=o.date.split("-").map(Number);for(let n=m+1;n<=12;n++)saveT({...o,id:nid("t"),date:y+"-"+String(n).padStart(2,"0")+"-"+String(Math.min(d,28)).padStart(2,"0")},true)}
   close()};
 }
-let CG={ch:"wa",st:"",ty:"",co:"",ex:"",tag:"",sj:"",msg:"أهلاً {الاسم}،\n"};
+let CG={ch:"wa",st:"",ty:"",co:"",ex:"",sj:"",msg:"أهلاً {الاسم}،\n"};
 const nm=c=>String(c.name||"").trim().split(/\s+/)[0];
 const waN=c=>{let p=String(c.wa||c.phone||"").replace(/\D/g,"");if(p.startsWith("00"))p=p.slice(2);if(p[0]==="0")p="20"+p.slice(1);return p.length>=11?p:""};
 const okc=c=>!c.unsub&&(CG.ch==="wa"?(c.okW!==false&&!!waN(c)):(c.okM!==false&&/^\S+@\S+\.\S+$/.test(c.email||"")));
-const aud=()=>C.filter(c=>(c.stage!=="lost"||CG.st==="lost")&&(!CG.st||(CG.st==="subs"?(c.stage==="member"||c.stage==="renew"):c.stage===CG.st))&&(!CG.ty||c.type===CG.ty)&&(!CG.co||String(c.course||"").toLowerCase().includes(CG.co.toLowerCase()))&&(!CG.tag||(c.tags||[]).includes(CG.tag))&&(!CG.ex||(d=>d!==null&&d<=+CG.ex&&d>=-30)(days(c.exp))));
+const aud=()=>C.filter(c=>(c.stage!=="lost"||CG.st==="lost")&&(!CG.st||(CG.st==="subs"?(c.stage==="member"||c.stage==="renew"):c.stage===CG.st))&&(!CG.ty||c.type===CG.ty)&&(!CG.co||String(c.course||"").toLowerCase().includes(CG.co.toLowerCase()))&&(!CG.ex||(d=>d!==null&&d<=+CG.ex&&d>=-30)(days(c.exp))));
 const msgFor=c=>CG.msg.replace(/\{الاسم\}/g,nm(c));
 async function dlCsv(file,H,R){
  const d=await window.claude.use("downloads").catch(()=>null);if(!d){alert("التصدير غير متاح هنا");return}
@@ -270,7 +268,6 @@ function camp(v){
  <label class="cl">القناة</label><select id="cg_ch"><option value="wa" ${CG.ch==="wa"?"selected":""}>واتساب</option><option value="mail" ${CG.ch==="mail"?"selected":""}>إيميل</option></select>
  <div class="g2"><div><label class="cl">المرحلة</label><select id="cg_st"><option value="">كل المراحل</option><option value="subs" ${CG.st==="subs"?"selected":""}>المشتركين (مشترك + تجديد)</option>${opts(ST,CG.st)}</select></div><div><label class="cl">النوع</label><select id="cg_ty"><option value="">كل الأنواع</option>${opts(TY,CG.ty)}</select></div></div>
  <label class="cl">مهتم بكورس (اختياري)</label><input id="cg_co" value="${esc(CG.co)}">
- <label class="cl">وسم (اختياري)</label><select id="cg_tag"><option value="">كل العملاء</option>${[...new Set(C.flatMap(c=>c.tags||[]))].sort().map(t=>`<option ${t===CG.tag?"selected":""}>${esc(t)}</option>`).join("")}</select>
  <label class="cl">اشتراكه بينتهي خلال (اختياري)</label><select id="cg_ex"><option value="">أي وقت</option>${[7,30,60].map(n=>`<option value="${n}" ${String(CG.ex)===String(n)?"selected":""}>${n} يوم (وكمان اللي خلص من آخر 30 يوم)</option>`).join("")}</select>
  ${CG.ch==="mail"?`<label class="cl">عنوان الإيميل</label><input id="cg_sj" value="${esc(CG.sj)}">`:""}
  <label class="cl">نص الرسالة (استخدم {الاسم} لاسم العميل)</label><textarea id="cg_msg" rows="4">${esc(CG.msg)}</textarea>
@@ -284,23 +281,23 @@ function camp(v){
  <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.sent!=null?`<a href="#" data-kd="${esc(k.id)}" class="wa">تفاصيل</a> `:""}${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div>${autoCard()}</div>`;
  bindAut(v);
  const g=(id,k)=>{$(id).onchange=e=>{CG[k]=e.target.value;setTimeout(render,0)}};
- g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");g("cg_tag","tag");g("cg_ex","ex");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
+ g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");g("cg_ex","ex");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
  $("cg_msg").oninput=e=>{CG.msg=e.target.value;if($("cg_pv")&&R[0])$("cg_pv").textContent=msgFor(R[0])};
  v.querySelectorAll("[data-w]").forEach(a=>a.onclick=()=>{const c=C.find(x=>x.id===a.dataset.w);a.href="https://wa.me/"+waN(c)+"?text="+encodeURIComponent(msgFor(c))});
  $("cg_x").onclick=()=>dlCsv("biosyn-campaign-"+new Date().toISOString().slice(0,10)+".csv",["الاسم","المرحلة","واتساب","الإيميل","الرسالة"],R.map(c=>[c.name,lbl(ST,c.stage),waN(c),c.email,msgFor(c)]));
  $("cg_s").onclick=async()=>{const n=$("cg_nm").value.trim();if(!n){alert("اكتب اسم الحملة");return}
-  const k={id:nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,tag:CG.tag,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};
+  const k={id:nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};
   K.push(k);render();if(db){try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code))}}};
- const camp1=async()=>{const n=$("cg_nm").value.trim()||("حملة "+new Date().toLocaleDateString("ar-EG")),sig=[CG.ch,CG.st,CG.ty,CG.co,CG.ex,CG.tag,CG.sj,CG.msg].join("|");
+ const camp1=async()=>{const n=$("cg_nm").value.trim()||("حملة "+new Date().toLocaleDateString("ar-EG")),sig=[CG.ch,CG.st,CG.ty,CG.co,CG.ex,CG.sj,CG.msg].join("|");
   if(CG.kid&&CG.ksig===sig){const e=K.find(x=>x.id===CG.kid);if(e)return e}
-  const k={id:CG.kid=nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,tag:CG.tag,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};CG.ksig=sig;
+  const k={id:CG.kid=nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};CG.ksig=sig;
   if(!db){alert("الإرسال بيحتاج السيرفر");return null}
   try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code));return null}K.push(k);return k};
  if($("cg_t"))$("cg_t").onclick=async()=>{const to=prompt(CG.ch==="wa"?"رقم الواتساب (بالكود، مثال 2010...)":"الإيميل");if(!to)return;const k=await camp1();if(!k)return;const r=await fnCall("campaign-send",{campaign_id:k.id,test_to:to});alert(r.error?"❌ "+r.error:"✅ اتبعتت التجربة")};
  if($("cg_go"))$("cg_go").onclick=async()=>{if(!confirm("هتتبعت لـ "+R.length+" مستلم. متأكد؟"))return;const k=await camp1();if(k)runSend(k.id)};
  v.querySelectorAll("[data-sk]").forEach(a=>a.onclick=e=>{e.preventDefault();if(confirm("تكمّل إرسال الحملة دي؟"))runSend(a.dataset.sk)});
  v.querySelectorAll("[data-kd]").forEach(a=>a.onclick=e=>{e.preventDefault();campDetails(K.find(x=>x.id===a.dataset.kd))});
- v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,ex:k.ex||"",tag:k.tag||"",sj:k.sj||"",msg:k.msg};render()});
+ v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,ex:k.ex||"",sj:k.sj||"",msg:k.msg};render()});
  v.querySelectorAll("[data-dk]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الحملة؟"))return;const id=a.dataset.dk;K=K.filter(x=>x.id!==id);render();if(db){try{await db.collection("campaigns").doc(id).delete()}catch(x){}}});
 }
 const RN={admin:"مدير",cofounder:"شريك مؤسس",accountant:"محاسب",moderator:"مودريتور",support:"دعم ومبيعات",viewer:"مشاهد (قراءة فقط)",none:"بدون وصول"};
@@ -702,7 +699,7 @@ function bindHist(v){
 }
 
 function render(){
- fillTags();const f=filt();
+ const f=filt();
  $("s1").textContent=C.length;$("s2").textContent=C.filter(c=>c.stage==="member"||c.stage==="renew").length;$("s3").textContent=C.filter(due).length;
  const v=$("view");if(ROLE==="none"){v.innerHTML='<div class="empty">ليس لديك صلاحية على بيانات العملاء. اطلب من المدير يرفع مستوى مشاركتك.</div>';return}if(tab===5){stg(v);return}if(tab===0){dash(v);return}if(tab===3){acct(v);return}if(tab===4){camp(v);return}if(tab===6){inbox(v);return}
  v.innerHTML=`<div class="board">`+ST.map(([k,n])=>{const l=f.filter(c=>c.stage===k);if(k==="lead"||k==="interested")l.sort((a,b)=>score(b)-score(a));
@@ -721,7 +718,6 @@ function open(c){
  <div><label>النوع</label><select id="f_type">${opts(TY,k.type)}</select></div><div><label>المرحلة</label><select id="f_stage">${opts(ST,k.stage)}</select></div>
  <div><label>المصدر</label><select id="f_src">${opts(SR,k.src)}</select></div><div><label>انتهاء الاشتراك</label><input id="f_exp" type="date" value="${esc(k.exp)}"></div></div>
  <div class="g2"><div><label>الكورس المهتم به</label><input id="f_course" value="${esc(k.course)}"></div><div><label>موعد المتابعة</label><input id="f_nxt" type="date" value="${esc(k.nxt)}"></div></div>
- <label>الوسوم (افصل بفاصلة)</label><input id="f_tags" value="${esc((k.tags||[]).join("، "))}">
  <label>رشّحه (اسم أو كود المُرشِّح، اختياري)</label><input id="f_ref" value="${esc(k.refBy||"")}">
  ${!isNew&&(k.nxt||k.exp)?`<div class="row" style="margin:4px 0">${k.nxt?`<a class="wa" target="_blank" rel="noopener" href="${esc(gcal({t:"متابعة: "+k.name,d:k.nxt,n:[k.phone,k.email].filter(Boolean).join(" · ")}))}">📅 المتابعة في تقويم Google</a>`:""}${k.exp?`<a class="wa" target="_blank" rel="noopener" href="${esc(gcal({t:"انتهاء اشتراك: "+k.name,d:k.exp,n:[k.phone,k.email].filter(Boolean).join(" · ")}))}">📅 تاريخ الانتهاء في تقويم Google</a>`:""}</div>`:""}
  <div class="cons"><label><input type="checkbox" id="f_okm" ${k.okM!==false?"checked":""}> موافق على الإيميلات</label><label><input type="checkbox" id="f_okw" ${k.okW!==false?"checked":""}> موافق على واتساب</label></div>${k.unsub?`<div class="note" style="margin:6px 0">العميل ده ألغى الاشتراك من الرسائل. لو فعّلت الموافقة تاني الإلغاء بيتشال.</div>`:""}
@@ -755,7 +751,7 @@ function open(c){
   const em=$("f_email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){alert("الإيميل غير صحيح");return}
   const ph=wa($("f_phone").value),dp=ph&&C.find(x=>x.id!==k.id&&wa(x.phone)===ph);
   if(dp&&!confirm("الرقم ده موجود قبل كده باسم "+dp.name+". تحفظ برضه؟"))return;
-  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,tags:[...new Set($("f_tags").value.split(/[,،]/).map(x=>x.trim()).filter(Boolean))].slice(0,10),refBy:$("f_ref").value.trim(),log:(k.log||[]).slice()};if(k.unsub&&(u.okM||u.okW))u.unsub=false;
+  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,refBy:$("f_ref").value.trim(),log:(k.log||[]).slice()};if(k.unsub&&(u.okM||u.okW))u.unsub=false;
   const t=$("f_note").value.trim();if(t)u.log.push({t:new Date().toISOString().slice(0,10),x:t});
   let tx=null;
   if($("pay_on")&&$("pay_on").checked){
@@ -942,27 +938,6 @@ async function exportIcs(){
  if(!ev.length){alert("مفيش مهام أو متابعات أو تجديدات جاية");return}
  try{await d.save({filename:"biosyn-calendar.ics",data:new Blob([icsText(ev)],{type:"text/calendar"})})}catch(e){if(e&&e.code!=="declined")alert("تعذر التصدير")}
 }
-const MF={loaded:false,f:null};
-async function loadMfa(){if(!SB||MF.loaded)return;MF.loaded=true;try{const{data}=await SB.auth.mfa.listFactors();MF.f=((data&&data.totp)||[]).find(f=>f.status==="verified")||null}catch(e){MF.f=null}if(tab===5)render()}
-function mfaBlock(){loadMfa();return `<div class="hb" style="margin:8px 0"><div class="hl"><span>التحقق بخطوتين</span><span class="tag ${MF.f?"":"w"}">${MF.f?"مفعّل ✓":"مقفول"}</span></div><small class="lg">كود من تطبيق مصادقة (Google Authenticator أو Microsoft Authenticator) بيتطلب عند كل دخول. حتى لو حد عرف كلمة المرور مش هيقدر يدخل.</small><div class="row">${MF.f?`<button id="mf_off" style="color:var(--dg)">إيقاف</button>`:`<button class="pri" id="mf_on">تفعيل</button>`}</div></div>`}
-async function mfaVerify(factorId,code){const ch=await SB.auth.mfa.challenge({factorId});if(ch.error)return ch.error;const v=await SB.auth.mfa.verify({factorId,challengeId:ch.data.id,code});return v.error||null}
-function bindMfa(){
- if($("mf_on"))$("mf_on").onclick=async()=>{const r=await SB.auth.mfa.enroll({factorType:"totp",friendlyName:"Biosyn "+Date.now()});if(r.error){alert("تعذر التفعيل: "+r.error.message);return}
-  const f=r.data;$("md").innerHTML=`<h2 style="margin:0 0 6px;font-size:17px">تفعيل التحقق بخطوتين</h2><small class="lg">1) افتح تطبيق المصادقة على موبايلك وامسح الكود. 2) اكتب الرقم اللي بيظهر فيه.</small><div style="text-align:center;margin:8px 0"><img src="${esc(f.totp.qr_code)}" width="180" height="180" alt="QR"></div><small class="lg">أو اكتب المفتاح يدويًا:</small><div class="cpy"><code>${esc(f.totp.secret)}</code></div><label class="cl">الكود (6 أرقام)</label><input id="mfe_c" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><div class="row"><button class="pri" id="mfe_go">تأكيد</button><button id="mfe_x">إلغاء</button></div>`;
-  $("ov").classList.add("on");
-  $("mfe_x").onclick=async()=>{close();try{await SB.auth.mfa.unenroll({factorId:f.id})}catch(e){}};
-  $("mfe_go").onclick=async()=>{const code=$("mfe_c").value.trim();if(!/^\d{6}$/.test(code)){alert("اكتب 6 أرقام");return}
-   const er=await mfaVerify(f.id,code);if(er){alert("الكود غير صحيح");return}close();MF.loaded=false;render();alert("اتفعّل التحقق بخطوتين. هيتطلب منك الكود في كل دخول.")}};
- if($("mf_off"))$("mf_off").onclick=async()=>{if(!confirm("إيقاف التحقق بخطوتين؟ الحساب هيبقى أقل أمانًا."))return;const r=await SB.auth.mfa.unenroll({factorId:MF.f.id});if(r.error){alert("تعذر الإيقاف: "+r.error.message);return}MF.loaded=false;MF.f=null;render()};
-}
-async function mfaForm(){
- const{data:fs}=await SB.auth.mfa.listFactors();const f=((fs&&fs.totp)||[]).find(x=>x.status==="verified");
- if(!f){loginForm("تعذر التحقق بخطوتين");return}
- lg(LH+`<p style="text-align:center;color:var(--mu);margin:4px 0">اكتب الكود من تطبيق المصادقة</p><input id="mf_c" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:20px;letter-spacing:6px"><div class="neg" id="mf_m" style="min-height:22px;margin-top:8px;font-size:13px"></div><div class="row"><button class="pri" id="mf_go">تأكيد</button><button id="mf_lo">خروج</button></div>`);
- const go=async()=>{const code=$("mf_c").value.trim();if(!/^\d{6}$/.test(code)){$("mf_m").textContent="اكتب 6 أرقام";return}
-  const er=await mfaVerify(f.id,code);if(er){$("mf_m").textContent="الكود غير صحيح";return}boot()};
- $("mf_go").onclick=go;$("mf_c").onkeydown=e=>{if(e.key==="Enter")go()};$("mf_lo").onclick=signOut;$("mf_c").focus();
-}
 
 /* ===== مهام + ردود جاهزة + دمج المكررين ===== */
 const TK={rows:[],team:[],ok:false,loaded:false},QR={rows:[],loaded:false};
@@ -1044,15 +1019,15 @@ async function doMerge(keep,drop){
 }
 function close(){$("ov").classList.remove("on")}
 $("ov").onclick=e=>{if(e.target.id==="ov")close()};
-$("add").onclick=()=>open(null);$("q").oninput=render;$("ft").onchange=$("fd").onchange=$("fg").onchange=render;
+$("add").onclick=()=>open(null);$("q").oninput=render;$("ft").onchange=$("fd").onchange=render;
 $("exp").onclick=async()=>{
  const d=await window.claude.use("downloads").catch(()=>null);if(!d){alert("التصدير غير متاح هنا");return}
- const H=["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","الوسوم","التقييم","رشّحه","ملاحظات"];
+ const H=["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","التقييم","رشّحه","ملاحظات"];
  const q=v=>{let s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
- const R=filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.tags||[]).join("، "),score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")]);
+ const R=filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")]);
  try{await d.save({filename:"biosyn-contacts.csv",data:new Blob(["\ufeff"+[H,...R].map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv"})})}catch(e){if(e.code!=="declined")alert("تعذر التصدير")}
 };
-$("expx").onclick=()=>dlXlsx("biosyn-contacts.xlsx",[{name:"العملاء",H:["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","الوسوم","التقييم","رشّحه","ملاحظات"],R:filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,(c.tags||[]).join("، "),score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")])}]);
+$("expx").onclick=()=>dlXlsx("biosyn-contacts.xlsx",[{name:"العملاء",H:["الاسم","الموبايل","الإيميل","النوع","المرحلة","المصدر","الكورس","انتهاء الاشتراك","موعد المتابعة","التقييم","رشّحه","ملاحظات"],R:filt().map(c=>[c.name,c.phone,c.email,lbl(TY,c.type),lbl(ST,c.stage),c.src,c.course,c.exp,c.nxt,score(c)||"",c.refBy||"",(c.log||[]).map(l=>l.t+": "+l.x).join(" | ")])}]);
 [0,1,6,3,4,5].forEach(n=>$("t"+n).onclick=()=>goTab(n));
 document.querySelectorAll(".bar,.fl,.stats").forEach(e=>e.style.display="none");
 render();
@@ -1087,7 +1062,6 @@ async function loadUsers(){const{data}=await SB.from("profiles").select("*").ord
 async function boot(){
  if(recov)return;
  const{data:{session}}=await SB.auth.getSession();if(!session){loginForm();return}
- try{const{data:al}=await SB.auth.mfa.getAuthenticatorAssuranceLevel();if(al&&al.nextLevel==="aal2"&&al.currentLevel!=="aal2"){mfaForm();return}}catch(e){}
  const{data:pr,error}=await SB.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
  if(error||!pr||!pr.active){lg(LH+`<div class="empty">حسابك غير مفعّل. كلّم المدير يفعّله.</div><div class="row"><button id="lo2">تسجيل خروج</button></div>`);$("lo2").onclick=signOut;return}
  $("lg").classList.remove("on");if(booted)return;booted=true;
@@ -1101,7 +1075,7 @@ async function boot(){
  if(P.users)loadUsers();
  if(P.inbox)startInbox();loadTasks();
 }
-function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div>${mfaBlock()}<label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
+function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
 const ROLES=[["admin","مدير","كل الصلاحيات"],["cofounder","شريك مؤسس","كل الصلاحيات، زي المدير"],["accountant","محاسب","الحسابات والأرباح، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل"],["viewer","مشاهد","قراءة فقط"]];
 const PL=[["fin","الحسابات والأرباح"],["cw","إضافة وتعديل العملاء"],["cdel","حذف العملاء"],["camp","الحملات"],["imp","استيراد العملاء"],["bk","النسخ الاحتياطي والاسترجاع"],["inbox","صندوق الرسائل"],["users","إدارة الفريق والصلاحيات"]];
 const PERM={fin:["admin","cofounder","accountant"],cw:["admin","cofounder","moderator","support"],cdel:["admin","cofounder"],camp:["admin","cofounder","support"],imp:["admin","cofounder","support"],bk:["admin","cofounder"],users:["admin","cofounder"],inbox:["admin","cofounder","moderator","support"]};
@@ -1136,7 +1110,6 @@ function usersCard(){
  <details style="margin-top:10px"><summary class="lg" style="cursor:pointer">صلاحيات كل دور</summary><div class="tw" style="padding:6px 0 0"><table><tr><th></th>${ROLES.map(r=>`<th>${r[1]}</th>`).join("")}</tr>${PL.map(([k,n])=>`<tr><td style="white-space:normal">${n}</td>${ROLES.map(r=>`<td style="text-align:center">${roleHas(r[0],k)?"✓":"–"}</td>`).join("")}</tr>`).join("")}</table></div></details></div>`;
 }
 function bindAcct(v){
- bindMfa();
  if($("lo"))$("lo").onclick=signOut;
  if($("pw_go"))$("pw_go").onclick=async()=>{const p=$("pw1").value;if(p.length<8){alert("8 أحرف على الأقل");return}const{error}=await SB.auth.updateUser({password:p});alert(error?"تعذر التغيير: "+error.message:"تم تغيير كلمة المرور");$("pw1").value=""};
  const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert(/محمي|بنفسك|المالك/.test(error.message||"")?error.message:"تعذر التغيير");loadUsers()};
