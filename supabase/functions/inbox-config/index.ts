@@ -32,10 +32,20 @@ Deno.serve(async (req) => {
     wa_phone_number_id: x.wa_phone_number_id || "",
     page_id: x.page_id || "",
     ig_id: x.ig_id || "",
+    woo_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/woo-webhook`,
+    woo_secret: x.woo_secret,
     has: Object.fromEntries(SECRET.map((k) => [k, !!x[k]])),
   });
 
   if (body.action === "get") return json(200, view(s));
+
+  if (body.action === "woo_regen") {
+    const b = crypto.getRandomValues(new Uint8Array(18));
+    const woo_secret = [...b].map((n) => n.toString(16).padStart(2, "0")).join("");
+    const { data, error } = await db.from("channel_secrets").update({ woo_secret }).eq("id", 1).select("*").single();
+    if (error) return json(500, { error: "تعذر الحفظ" });
+    return json(200, view(data));
+  }
 
   if (body.action === "save") {
     const patch: Record<string, string | null> = {};

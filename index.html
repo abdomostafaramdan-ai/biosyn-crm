@@ -532,9 +532,15 @@ function chanCard(){
  <div>${f("cf_pi","Facebook Page ID",c.page_id,"")}</div><div>${f("cf_pt","Page Access Token (للماسنجر وإنستجرام)","","",'page_token')}</div>
  <div>${f("cf_ig","Instagram Account ID (اختياري)",c.ig_id,"")}</div><div>${f("cf_gv","Graph API Version",c.graph_version,"v25.0")}</div></div>
  <div class="row"><button class="pri" id="cf_sv">حفظ</button><button id="cf_ts">اختبار الاتصال</button></div>
- ${INB.cfgOut?`<div class="tw" style="padding:8px 0 0"><table>${Object.entries({whatsapp:"واتساب",messenger:"ماسنجر",instagram:"إنستجرام",webhook:"استقبال الرسائل"}).map(([k,n])=>`<tr><td>${n}</td><td style="white-space:normal">${esc(INB.cfgOut[k]||"")}</td></tr>`).join("")}</table></div>`:""}</div>`;
+ ${INB.cfgOut?`<div class="tw" style="padding:8px 0 0"><table>${Object.entries({whatsapp:"واتساب",messenger:"ماسنجر",instagram:"إنستجرام",webhook:"استقبال الرسائل"}).map(([k,n])=>`<tr><td>${n}</td><td style="white-space:normal">${esc(INB.cfgOut[k]||"")}</td></tr>`).join("")}</table></div>`:""}
+ <h4 style="margin-top:14px">ربط الموقع (WooCommerce)</h4>
+ <small class="lg">كل طلب مكتمل/قيد التنفيذ بيتحوّل لعميل + عملية دخل تلقائي. في ووردبريس: WooCommerce ← الإعدادات ← متقدم ← Webhooks ← إضافة. الموضوع: <b>Order updated</b> (وكرر بـ Order created لو حبيت)، وحط:</small>
+ <label class="cl">Delivery URL</label><div class="cpy"><code>${esc(c.woo_url)}</code><button data-cp="${esc(c.woo_url)}">نسخ</button></div>
+ <label class="cl">Secret</label><div class="cpy"><code>${esc(c.woo_secret)}</code><button data-cp="${esc(c.woo_secret)}">نسخ</button></div>
+ <div class="row"><button id="woo_rg">سر جديد</button></div></div>`;
 }
 function bindChan(v){
+ if($("woo_rg"))$("woo_rg").onclick=async()=>{if(!confirm("هيتغيّر السر وتحتاج تحدّثه في WooCommerce. متأكد؟"))return;const r=await cfgCall({action:"woo_regen"});if(r.error)alert(r.error);else{INB.cfg=r.data;render()}};
  v.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.cp);b.textContent="اتنسخ"}catch(e){}});
  if($("cf_sv"))$("cf_sv").onclick=async()=>{
   const body={action:"save",app_secret:$("cf_as").value,wa_phone_number_id:$("cf_wp").value,wa_token:$("cf_wt").value,page_id:$("cf_pi").value,page_token:$("cf_pt").value,ig_id:$("cf_ig").value,graph_version:$("cf_gv").value};
