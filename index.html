@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Biosyn CRM</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f766e"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" type="image/png" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Biosyn CRM">
 <style>
 :root{--bg:#f6f8f7;--card:#fff;--tx:#14201b;--mu:#66756e;--bd:#dde5e1;--ac:#0f766e;--ac2:#e0f2ef;--dg:#b42318;--wa:#168a4a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1714;--card:#17221e;--tx:#e8f0ec;--mu:#9bb0a7;--bd:#28372f;--ac:#2dd4bf;--ac2:#12342f;--dg:#f87171;--wa:#4ade80}}
@@ -211,6 +212,19 @@ async function dlCsv(file,H,R){
  try{await d.save({filename:file,data:new Blob(["\ufeff"+[H,...R].map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv"})})}catch(e){if(e.code!=="declined")alert("تعذر التصدير")}
 }
 async function fnCall(name,body){try{const{data,error}=await SB.functions.invoke(name,{body});if(error){let m="تعذر تنفيذ الطلب";try{const j=await error.context.json();if(j&&j.error)m=j.error}catch(e){}return{error:m}}return{data}}catch(e){return{error:"تعذر الاتصال بالسيرفر"}}}
+async function campDetails(k){
+ $("md").innerHTML=`<h2 style="margin:0 0 4px;font-size:17px">${esc(k.name)}</h2><div class="empty" style="padding:14px">جاري التحميل…</div>`;$("ov").classList.add("on");
+ const{data,error}=await SB.from("campaign_log").select("*").eq("campaign_id",k.id);
+ if(error){$("md").innerHTML=`<h2>${esc(k.name)}</h2><div class="empty">تعذر تحميل التفاصيل</div><div class="row"><button id="kd_x">إغلاق</button></div>`;$("kd_x").onclick=close;return}
+ const L=data||[],ok=L.filter(x=>x.status==="sent"),bad=L.filter(x=>x.status==="failed"),tot=k.n||L.length,pc=tot?Math.round(ok.length/tot*100):0;
+ const why={};bad.forEach(x=>{const m=String(x.error||"غير معروف").slice(0,120);why[m]=(why[m]||0)+1});
+ $("md").innerHTML=`<h2 style="margin:0 0 4px;font-size:17px">${esc(k.name)}</h2><small class="lg">${k.ch==="wa"?"واتساب":"إيميل"} · ${esc(k.date||"")} · ${k.status==="sent"?"اكتملت":k.status==="sending"?"إرسال ناقص":"مسودة"}</small>
+ <div class="kp" style="padding:8px 0">${kc("المستهدفين",tot)+kc("اتبعت",ok.length,"pos")+kc("فشل",bad.length,bad.length?"neg":"")+kc("نسبة النجاح",pc+"%")}</div>
+ ${bad.length?`<h4 style="margin:8px 0 2px">أسباب الفشل</h4>${Object.entries(why).sort((a,b)=>b[1]-a[1]).map(([m,n])=>`<div class="hb"><div class="hl"><span>${esc(m)}</span><b>${n}</b></div></div>`).join("")}`:""}
+ <h4 style="margin:10px 0 2px">المستلمين</h4><div class="tw" style="padding:0;max-height:260px;overflow:auto"><table><tr><th>الاسم</th><th>الحالة</th></tr>${L.slice(0,200).map(x=>`<tr><td>${esc((C.find(c=>c.id===x.contact_id)||{}).name||x.contact_id)}</td><td class="${x.status==="sent"?"pos":"neg"}">${x.status==="sent"?"اتبعت":"فشل"}</td></tr>`).join("")||'<tr><td colspan="2">لسه مفيش</td></tr>'}</table></div>
+ <div class="row"><button class="pri" id="kd_e">تصدير CSV</button><button id="kd_x">إغلاق</button></div>`;
+ $("kd_x").onclick=close;$("kd_e").onclick=()=>dlCsv("biosyn-campaign-report-"+(k.date||"")+".csv",["الاسم","الموبايل","الإيميل","الحالة","الخطأ"],L.map(x=>{const c=C.find(y=>y.id===x.contact_id)||{};return [c.name||x.contact_id,c.phone,c.email,x.status==="sent"?"اتبعت":"فشل",x.error||""]}));
+}
 async function runSend(id){const pg=()=>$("cg_pg");let last=null;
  for(let i=0;i<200;i++){const r=await fnCall("campaign-send",{campaign_id:id});
   if(r.error){alert("❌ "+r.error+(last?`\nاتبعت لحد دلوقتي: ${last.sent}`:""));break}
@@ -233,7 +247,7 @@ function camp(v){
  <div class="row"><button id="cg_t">تجربة على رقم/إيميل واحد</button><button class="pri" id="cg_go" ${R.length?"":"disabled"}>إرسال لكل المستلمين (${R.length})</button></div>
  <small class="lg" id="cg_pg">الإرسال محتاج ربط الواتساب/الإيميل من الإعدادات. جرّب على نفسك الأول. اللي مفيش عندهم موافقة بيتستبعدوا تلقائي.</small></div>
  ${CG.ch==="wa"&&R.length?`<div class="card2"><h4>إرسال يدوي (واتساب)</h4>${R.slice(0,30).map(c=>`<div class="hb"><div class="hl"><span>${esc(c.name)}</span><a class="wa" target="_blank" rel="noopener" data-w="${esc(c.id)}" href="#">إرسال</a></div></div>`).join("")}${R.length>30?`<small class="lg">أول 30 فقط، الباقي في ملف CSV</small>`:""}</div>`:""}
- <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
+ <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.sent!=null?`<a href="#" data-kd="${esc(k.id)}" class="wa">تفاصيل</a> `:""}${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
  const g=(id,k)=>{$(id).onchange=e=>{CG[k]=e.target.value;setTimeout(render,0)}};
  g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");g("cg_ex","ex");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
  $("cg_msg").oninput=e=>{CG.msg=e.target.value;if($("cg_pv")&&R[0])$("cg_pv").textContent=msgFor(R[0])};
@@ -250,6 +264,7 @@ function camp(v){
  if($("cg_t"))$("cg_t").onclick=async()=>{const to=prompt(CG.ch==="wa"?"رقم الواتساب (بالكود، مثال 2010...)":"الإيميل");if(!to)return;const k=await camp1();if(!k)return;const r=await fnCall("campaign-send",{campaign_id:k.id,test_to:to});alert(r.error?"❌ "+r.error:"✅ اتبعتت التجربة")};
  if($("cg_go"))$("cg_go").onclick=async()=>{if(!confirm("هتتبعت لـ "+R.length+" مستلم. متأكد؟"))return;const k=await camp1();if(k)runSend(k.id)};
  v.querySelectorAll("[data-sk]").forEach(a=>a.onclick=e=>{e.preventDefault();if(confirm("تكمّل إرسال الحملة دي؟"))runSend(a.dataset.sk)});
+ v.querySelectorAll("[data-kd]").forEach(a=>a.onclick=e=>{e.preventDefault();campDetails(K.find(x=>x.id===a.dataset.kd))});
  v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,ex:k.ex||"",sj:k.sj||"",msg:k.msg};render()});
  v.querySelectorAll("[data-dk]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الحملة؟"))return;const id=a.dataset.dk;K=K.filter(x=>x.id!==id);render();if(db){try{await db.collection("campaigns").doc(id).delete()}catch(x){}}});
 }
@@ -424,7 +439,18 @@ const ago=d=>{if(!d)return"";const s=(Date.now()-new Date(d))/1000;if(s<60)retur
 const hm=d=>new Date(d).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"});
 const deb=(fn,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
 const unreadTotal=()=>INB.convs.filter(c=>c.status!=="closed").reduce((a,c)=>a+(c.unread||0),0);
-function tabBadge(){const n=unreadTotal(),b=$("t6");if(b)b.textContent="الرسائل"+(n?" ("+n+")":"")}
+function tabBadge(){const n=unreadTotal(),b=$("t6");if(b)b.textContent="الرسائل"+(n?" ("+n+")":"");try{document.title=(n?"("+n+") ":"")+"Biosyn CRM"}catch(e){}}
+let SWR=null;try{if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").then(r=>{SWR=r}).catch(()=>{})}catch(e){}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.18)}catch(e){}}
+function toast(msg,fn){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:16px;left:12px;right:12px;max-width:420px;margin:auto;background:var(--tx);color:var(--bg);padding:12px 14px;border-radius:12px;z-index:99;cursor:pointer;box-shadow:0 6px 24px #0004;font-size:14px";document.body.appendChild(t)}
+ t.textContent=msg;t.style.display="block";t.onclick=()=>{t.style.display="none";if(fn)fn()};clearTimeout(t._h);t._h=setTimeout(()=>{t.style.display="none"},7000)}
+function notifyConv(cid,text){
+ const c=INB.convs.find(x=>x.id===cid),nm=c?cname(c):"محادثة جديدة";
+ if(!document.hidden&&tab===6&&INB.open===cid)return;
+ const go=()=>{window.focus();goTab(6);openConv(cid)};
+ beep();toast("💬 "+nm+": "+String(text||"").slice(0,80),go);
+ try{if("Notification" in window&&Notification.permission==="granted"&&document.hidden){const o={body:String(text||"").slice(0,120),tag:"biosyn-"+cid,icon:"icon-192.png"};if(SWR&&SWR.showNotification)SWR.showNotification("Biosyn CRM — "+nm,o);else{const n=new Notification("Biosyn CRM — "+nm,o);n.onclick=go}}}catch(e){}
+}
 async function loadConvs(){const{data,error}=await SB.from("conversations").select("*").order("last_message_at",{ascending:false}).limit(300);if(!error){INB.convs=data||[];tabBadge();if(tab===6)render()}}
 async function loadMsgs(){if(!INB.open)return;const id=INB.open;const{data}=await SB.from("messages").select("*").eq("conversation_id",id).order("created_at",{ascending:true}).limit(500);if(INB.open===id){INB.msgs=data||[];if(tab===6)render()}}
 const loadConvsD=deb(loadConvs,250),loadMsgsD=deb(loadMsgs,200);
@@ -433,7 +459,7 @@ async function startInbox(){
  if(INB.started||!P.inbox)return;INB.started=true;
  try{const{data}=await SB.rpc("inbox_team");INB.team=data||[]}catch(e){}
  await loadConvs();
- try{SB.channel("inbox-db").on("postgres_changes",{event:"*",schema:"public",table:"conversations"},()=>loadConvsD()).on("postgres_changes",{event:"*",schema:"public",table:"messages"},p=>{const r=p.new||p.old||{};if(r.conversation_id===INB.open)loadMsgsD();loadConvsD()}).subscribe()}catch(e){}
+ try{SB.channel("inbox-db").on("postgres_changes",{event:"*",schema:"public",table:"conversations"},p=>{const n=p.new||{};if(p.eventType==="UPDATE"&&n.assigned_to===ME.id){const o=INB.convs.find(x=>x.id===n.id);if(o&&o.assigned_to!==ME.id&&(document.hidden||tab!==6))notifyConv(n.id,"اتسندت لك المحادثة دي")}loadConvsD()}).on("postgres_changes",{event:"*",schema:"public",table:"messages"},p=>{const r=p.new||p.old||{};if(p.eventType==="INSERT"&&r.direction==="in"){const cv=INB.convs.find(x=>x.id===r.conversation_id);if(!cv||!cv.assigned_to||cv.assigned_to===ME.id)notifyConv(r.conversation_id,r.body)}if(r.conversation_id===INB.open)loadMsgsD();loadConvsD()}).subscribe()}catch(e){}
  try{PCH=SB.channel("inbox-presence",{config:{presence:{key:ME.id}}});
   PCH.on("presence",{event:"sync"},()=>{const st=PCH.presenceState(),m={};Object.keys(st).forEach(k=>{if(k!==ME.id&&st[k]&&st[k][0])m[k]=st[k][0]});INB.pres=m;if(tab===6)render()});
   PCH.subscribe(s=>{if(s==="SUBSCRIBED")presTrack(false)})}catch(e){}
@@ -472,14 +498,14 @@ function inbox(v){
  const ml=$("ib_ml"),atBottom=!ml||ml.scrollHeight-ml.scrollTop-ml.clientHeight<60,ae=document.activeElement,fx=ae&&ae.id==="ib_tx"?[ae.selectionStart,ae.selectionEnd]:null;
  const L=fconvs(),F=[["active","المفتوحة"],["mine","بتاعتي"],["unassigned","غير مسندة"],["closed","المقفولة"]];
  v.innerHTML=`<div class="ib${cur?" has":""}"><div class="il"><div class="fx" style="padding:10px 0 0;flex-wrap:wrap">${F.map(([k,n])=>`<button class="chip${INB.f===k?" on":""}" data-if="${k}">${n}</button>`).join("")}</div>
- <div class="fx" style="padding:8px 0 0"><select id="ib_ch"><option value="">كل القنوات</option>${Object.keys(CHN).map(k=>`<option value="${k}" ${INB.ch===k?"selected":""}>${CHN[k][0]}</option>`).join("")}</select><button id="ib_sim" style="white-space:nowrap">+ رسالة تجريبية</button></div>
+ <div class="fx" style="padding:8px 0 0"><select id="ib_ch"><option value="">كل القنوات</option>${Object.keys(CHN).map(k=>`<option value="${k}" ${INB.ch===k?"selected":""}>${CHN[k][0]}</option>`).join("")}</select><button id="ib_sim" style="white-space:nowrap">+ رسالة تجريبية</button>${"Notification" in window&&Notification.permission==="default"?`<button id="ib_np" style="white-space:nowrap">🔔 تفعيل التنبيهات</button>`:""}</div>
  <input id="ib_q" placeholder="بحث بالاسم أو الرقم أو الرسالة" value="${esc(INB.q)}" style="margin-top:8px">
  <div class="cl2">${L.map(convItem).join("")||'<div class="empty">مفيش محادثات هنا</div>'}</div></div>
  <div class="it">${cur?threadHtml(cur):'<div class="empty" style="padding-top:60px">اختار محادثة</div>'}</div></div>`;
  v.querySelectorAll("[data-if]").forEach(b=>b.onclick=()=>{INB.f=b.dataset.if;render()});
  $("ib_ch").onchange=e=>{INB.ch=e.target.value;setTimeout(render,0)};
  $("ib_q").oninput=e=>{INB.q=e.target.value;const p=e.target.selectionStart;render();const q=$("ib_q");if(q){q.focus();try{q.setSelectionRange(p,p)}catch(x){}}};
- $("ib_sim").onclick=simDialog;
+ $("ib_sim").onclick=simDialog;if($("ib_np"))$("ib_np").onclick=async()=>{try{await Notification.requestPermission()}catch(e){}render()};
  v.querySelectorAll("[data-cv]").forEach(e=>e.onclick=()=>openConv(e.dataset.cv));
  if(cur)bindThread(cur,atBottom);
  if(fx&&$("ib_tx")){const t=$("ib_tx");t.focus();try{t.setSelectionRange(fx[0],fx[1])}catch(e){}}
