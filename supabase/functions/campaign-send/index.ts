@@ -19,6 +19,10 @@ function audience(k: Record<string, any>, contacts: { id: string; data: Record<s
     if (k.st && (k.st === "subs" ? !(c.stage === "member" || c.stage === "renew") : c.stage !== k.st)) return false;
     if (k.ty && c.type !== k.ty) return false;
     if (k.co && !String(c.course || "").toLowerCase().includes(String(k.co).toLowerCase())) return false;
+    if (k.ex) {
+      const d = c.exp ? Math.ceil((new Date(c.exp).getTime() - Date.now()) / 864e5) : null;
+      if (d === null || d > Number(k.ex) || d < -30) return false;
+    }
     return k.ch === "wa" ? c.okW !== false && !!waN(c) : c.okM !== false && mailOk(c.email);
   });
 }

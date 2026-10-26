@@ -67,8 +67,10 @@ a.wa{color:var(--wa);text-decoration:none;font-weight:600}
 .mi .mb2{background:var(--bg);border:1px solid var(--bd)}.mo .mb2{background:var(--ac);color:var(--bg)}
 .mn{align-self:stretch;background:#fff8c5;color:#4a3b00;border-radius:10px;padding:6px 10px;font-size:14px;white-space:pre-wrap}.mn small{color:#7a6a2a}
 .cmp{margin-top:8px}.cpy{display:flex;gap:6px;align-items:center}.cpy code{flex:1;background:var(--ac2);border-radius:8px;padding:7px 9px;font-size:12px;word-break:break-all;direction:ltr;text-align:left}.cpy button{padding:6px 10px;font-size:13px}
+@media print{body>*:not(#ov){display:none!important}#ov{position:static!important;background:none!important;display:block!important;padding:0!important}#md{max-height:none!important;box-shadow:none!important;border:0!important;width:100%!important;max-width:none!important;overflow:visible!important}.noprint{display:none!important}.rep table{page-break-inside:avoid}}
+.rep h3{margin:14px 0 4px;font-size:15px}.rep table{width:100%;border-collapse:collapse;font-size:13px}.rep td,.rep th{border-bottom:1px solid var(--bd);padding:4px 6px;text-align:right}.gsb{float:left;font-size:15px;padding:2px 10px}
 </style></head><body>
-<header><h1>Biosyn <span>CRM</span> <span id="rb" class="tag" style="font-size:11px;vertical-align:middle"></span></h1>
+<header><h1><button class="gsb" id="gs" title="بحث شامل">🔍 بحث</button>Biosyn <span>CRM</span> <span id="rb" class="tag" style="font-size:11px;vertical-align:middle"></span></h1>
 <div class="stats"><div class="st"><b id="s1">0</b><small>إجمالي جهات الاتصال</small></div><div class="st"><b id="s2">0</b><small>مشتركين</small></div><div class="st"><b id="s3">0</b><small>تجديد قريب</small></div></div></header>
 <div id="warn" class="note" style="display:none">التخزين الدائم غير متاح في هذا العرض، البيانات مؤقتة حتى إغلاق الصفحة.</div>
 <div class="bar"><input id="q" placeholder="ابحث بالاسم أو الموبايل أو الإيميل"><button class="pri" id="add">+ إدخال عميل</button><button id="exp">تصدير CSV</button></div>
@@ -141,8 +143,8 @@ function dash(v){
  <div class="card2"><h4>الكورسات الأكثر اشتراكاً</h4>${hb(topN(crs,t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الباقات الأكثر اشتراكاً</h4>${hb(topN(sales.filter(t=>t.cat==="باقة اشتراك"),t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الفعاليات</h4>${hb(topN(sales.filter(t=>t.cat==="فعالية / ورشة"),t=>t.item),n=>n+" مشارك")}</div>
- <div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
- bindP();if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
+ ${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
+ bindP();bindRenew(v);if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 const fl=()=>{const q=AQ.trim().toLowerCase();return T.filter(inP).filter(t=>(!AK||t.kind===AK)&&(!AMt||t.method===AMt)&&(!q||[t.cat,t.item,t.note,t.ref].join(" ").toLowerCase().includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date)))};
 function bindL(){const f=fl();
@@ -161,14 +163,14 @@ function acct(v){
  const pend=sum(l.filter(t=>isI(t)&&st(t)==="pending")),rf=sum(l.filter(t=>isI(t)&&st(t)==="refund")),ty=T.filter(t=>yr(t)===Y);
  let rows="";for(let i=1;i<=12;i++){const m=ty.filter(t=>mo(t)===i),a=sum(INC(m)),b=sum(EXP(m));rows+=`<tr${a||b?"":' style="color:var(--mu)"'}><td>${MN[i-1]}</td><td>${fm(a)}</td><td>${fm(b)}</td><td class="${cls(a-b)}">${fm(a-b)}</td></tr>`}
  const yi=sum(INC(ty)),ye=sum(EXP(ty));
- v.innerHTML=pbar(`<button class="pri" id="at">+ عملية</button><button id="ae">تصدير</button>`)+`<div class="kp">${kc("إجمالي الدخل",fm(inc),"pos")+kc("مصاريف التشغيل",fm(ex),"neg")+kc("صافي الربح",fm(net),cls(net))+kc("هامش الربح",mg+"%")+kc("مستحقات معلّقة",fm(pend))+kc("مبالغ مستردة",fm(rf))}</div>
+ v.innerHTML=pbar(`<button class="pri" id="at">+ عملية</button><button id="ae">تصدير</button><button id="ar_">تقرير للطباعة</button>`)+`<div class="kp">${kc("إجمالي الدخل",fm(inc),"pos")+kc("مصاريف التشغيل",fm(ex),"neg")+kc("صافي الربح",fm(net),cls(net))+kc("هامش الربح",mg+"%")+kc("مستحقات معلّقة",fm(pend))+kc("مبالغ مستردة",fm(rf))}</div>
  <div class="ac"><h4>ملخص ${Y} شهر بشهر</h4><div class="tw" style="padding:0"><table><tr><th>الشهر</th><th>الدخل</th><th>المصروفات</th><th>الصافي</th></tr>${rows}<tr style="font-weight:700"><td>الإجمالي</td><td>${fm(yi)}</td><td>${fm(ye)}</td><td class="${cls(yi-ye)}">${fm(yi-ye)}</td></tr></table></div>
  <h4>الدخل حسب النوع</h4><div class="tw" style="padding:0"><table>${grp(INC(l),t=>t.cat)}</table></div>
  <h4>المصروفات حسب البند</h4><div class="tw" style="padding:0"><table>${grp(EXP(l),t=>t.cat)}</table></div>
  <h4>الدخل حسب طريقة الدفع</h4><div class="tw" style="padding:0"><table>${grp(INC(l),t=>t.method)}</table></div>
  <h4>العمليات</h4><div class="fx" style="padding:0 0 6px"><select id="ak"><option value="">دخل ومصروف</option><option value="in" ${AK==="in"?"selected":""}>دخل فقط</option><option value="out" ${AK==="out"?"selected":""}>مصروفات فقط</option></select><select id="amt"><option value="">كل طرق الدفع</option>${opts(MET,AMt)}</select></div>
  <input id="aq" placeholder="بحث في العمليات" value="${esc(AQ)}"><div class="tw" id="al" style="padding:6px 0 0"></div></div>`;
- bindP();bindL();$("at").onclick=()=>openT(null);$("ae").onclick=expT;
+ bindP();bindL();$("at").onclick=()=>openT(null);$("ae").onclick=expT;$("ar_").onclick=openReport;
  $("ak").onchange=e=>{AK=e.target.value;bindL()};$("amt").onchange=e=>{AMt=e.target.value;bindL()};$("aq").oninput=e=>{AQ=e.target.value;bindL()};
 }
 function openT(t){
@@ -197,11 +199,11 @@ function openT(t){
   if(!t&&!i&&$("g_rep")&&$("g_rep").checked){const[y,m,d]=o.date.split("-").map(Number);for(let n=m+1;n<=12;n++)saveT({...o,id:nid("t"),date:y+"-"+String(n).padStart(2,"0")+"-"+String(Math.min(d,28)).padStart(2,"0")},true)}
   close()};
 }
-let CG={ch:"wa",st:"",ty:"",co:"",sj:"",msg:"أهلاً {الاسم}،\n"};
+let CG={ch:"wa",st:"",ty:"",co:"",ex:"",sj:"",msg:"أهلاً {الاسم}،\n"};
 const nm=c=>String(c.name||"").trim().split(/\s+/)[0];
 const waN=c=>{let p=String(c.wa||c.phone||"").replace(/\D/g,"");if(p.startsWith("00"))p=p.slice(2);if(p[0]==="0")p="20"+p.slice(1);return p.length>=11?p:""};
 const okc=c=>CG.ch==="wa"?(c.okW!==false&&!!waN(c)):(c.okM!==false&&/^\S+@\S+\.\S+$/.test(c.email||""));
-const aud=()=>C.filter(c=>(c.stage!=="lost"||CG.st==="lost")&&(!CG.st||(CG.st==="subs"?(c.stage==="member"||c.stage==="renew"):c.stage===CG.st))&&(!CG.ty||c.type===CG.ty)&&(!CG.co||String(c.course||"").toLowerCase().includes(CG.co.toLowerCase())));
+const aud=()=>C.filter(c=>(c.stage!=="lost"||CG.st==="lost")&&(!CG.st||(CG.st==="subs"?(c.stage==="member"||c.stage==="renew"):c.stage===CG.st))&&(!CG.ty||c.type===CG.ty)&&(!CG.co||String(c.course||"").toLowerCase().includes(CG.co.toLowerCase()))&&(!CG.ex||(d=>d!==null&&d<=+CG.ex&&d>=-30)(days(c.exp))));
 const msgFor=c=>CG.msg.replace(/\{الاسم\}/g,nm(c));
 async function dlCsv(file,H,R){
  const d=await window.claude.use("downloads").catch(()=>null);if(!d){alert("التصدير غير متاح هنا");return}
@@ -221,6 +223,7 @@ function camp(v){
  <label class="cl">القناة</label><select id="cg_ch"><option value="wa" ${CG.ch==="wa"?"selected":""}>واتساب</option><option value="mail" ${CG.ch==="mail"?"selected":""}>إيميل</option></select>
  <div class="g2"><div><label class="cl">المرحلة</label><select id="cg_st"><option value="">كل المراحل</option><option value="subs" ${CG.st==="subs"?"selected":""}>المشتركين (مشترك + تجديد)</option>${opts(ST,CG.st)}</select></div><div><label class="cl">النوع</label><select id="cg_ty"><option value="">كل الأنواع</option>${opts(TY,CG.ty)}</select></div></div>
  <label class="cl">مهتم بكورس (اختياري)</label><input id="cg_co" value="${esc(CG.co)}">
+ <label class="cl">اشتراكه بينتهي خلال (اختياري)</label><select id="cg_ex"><option value="">أي وقت</option>${[7,30,60].map(n=>`<option value="${n}" ${String(CG.ex)===String(n)?"selected":""}>${n} يوم (وكمان اللي خلص من آخر 30 يوم)</option>`).join("")}</select>
  ${CG.ch==="mail"?`<label class="cl">عنوان الإيميل</label><input id="cg_sj" value="${esc(CG.sj)}">`:""}
  <label class="cl">نص الرسالة (استخدم {الاسم} لاسم العميل)</label><textarea id="cg_msg" rows="4">${esc(CG.msg)}</textarea>
  <div class="kp" style="padding:8px 0 0"><div class="st"><small>المستلمين</small><b class="pos" id="cg_n">${R.length}</b></div><div class="st"><small>مستبعدين (بدون بيانات أو موافقة)</small><b>${ex}</b></div></div>
@@ -232,22 +235,22 @@ function camp(v){
  ${CG.ch==="wa"&&R.length?`<div class="card2"><h4>إرسال يدوي (واتساب)</h4>${R.slice(0,30).map(c=>`<div class="hb"><div class="hl"><span>${esc(c.name)}</span><a class="wa" target="_blank" rel="noopener" data-w="${esc(c.id)}" href="#">إرسال</a></div></div>`).join("")}${R.length>30?`<small class="lg">أول 30 فقط، الباقي في ملف CSV</small>`:""}</div>`:""}
  <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
  const g=(id,k)=>{$(id).onchange=e=>{CG[k]=e.target.value;setTimeout(render,0)}};
- g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
+ g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");g("cg_ex","ex");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
  $("cg_msg").oninput=e=>{CG.msg=e.target.value;if($("cg_pv")&&R[0])$("cg_pv").textContent=msgFor(R[0])};
  v.querySelectorAll("[data-w]").forEach(a=>a.onclick=()=>{const c=C.find(x=>x.id===a.dataset.w);a.href="https://wa.me/"+waN(c)+"?text="+encodeURIComponent(msgFor(c))});
  $("cg_x").onclick=()=>dlCsv("biosyn-campaign-"+new Date().toISOString().slice(0,10)+".csv",["الاسم","المرحلة","واتساب","الإيميل","الرسالة"],R.map(c=>[c.name,lbl(ST,c.stage),waN(c),c.email,msgFor(c)]));
  $("cg_s").onclick=async()=>{const n=$("cg_nm").value.trim();if(!n){alert("اكتب اسم الحملة");return}
-  const k={id:nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};
+  const k={id:nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};
   K.push(k);render();if(db){try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code))}}};
- const camp1=async()=>{const n=$("cg_nm").value.trim()||("حملة "+new Date().toLocaleDateString("ar-EG")),sig=[CG.ch,CG.st,CG.ty,CG.co,CG.sj,CG.msg].join("|");
+ const camp1=async()=>{const n=$("cg_nm").value.trim()||("حملة "+new Date().toLocaleDateString("ar-EG")),sig=[CG.ch,CG.st,CG.ty,CG.co,CG.ex,CG.sj,CG.msg].join("|");
   if(CG.kid&&CG.ksig===sig){const e=K.find(x=>x.id===CG.kid);if(e)return e}
-  const k={id:CG.kid=nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};CG.ksig=sig;
+  const k={id:CG.kid=nid("k"),name:n,ch:CG.ch,st:CG.st,ty:CG.ty,co:CG.co,ex:CG.ex,sj:CG.sj,msg:CG.msg,n:R.length,date:new Date().toISOString().slice(0,10),status:"draft"};CG.ksig=sig;
   if(!db){alert("الإرسال بيحتاج السيرفر");return null}
   try{await db.collection("campaigns").doc(k.id).set(k)}catch(e){alert("تعذر الحفظ: "+(e.message||e.code));return null}K.push(k);return k};
  if($("cg_t"))$("cg_t").onclick=async()=>{const to=prompt(CG.ch==="wa"?"رقم الواتساب (بالكود، مثال 2010...)":"الإيميل");if(!to)return;const k=await camp1();if(!k)return;const r=await fnCall("campaign-send",{campaign_id:k.id,test_to:to});alert(r.error?"❌ "+r.error:"✅ اتبعتت التجربة")};
  if($("cg_go"))$("cg_go").onclick=async()=>{if(!confirm("هتتبعت لـ "+R.length+" مستلم. متأكد؟"))return;const k=await camp1();if(k)runSend(k.id)};
  v.querySelectorAll("[data-sk]").forEach(a=>a.onclick=e=>{e.preventDefault();if(confirm("تكمّل إرسال الحملة دي؟"))runSend(a.dataset.sk)});
- v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,sj:k.sj||"",msg:k.msg};render()});
+ v.querySelectorAll("[data-lk]").forEach(a=>a.onclick=e=>{e.preventDefault();const k=K.find(x=>x.id===a.dataset.lk);CG={ch:k.ch,st:k.st,ty:k.ty,co:k.co,ex:k.ex||"",sj:k.sj||"",msg:k.msg};render()});
  v.querySelectorAll("[data-dk]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الحملة؟"))return;const id=a.dataset.dk;K=K.filter(x=>x.id!==id);render();if(db){try{await db.collection("campaigns").doc(id).delete()}catch(x){}}});
 }
 const RN={admin:"مدير",cofounder:"شريك مؤسس",accountant:"محاسب",moderator:"مودريتور",support:"دعم ومبيعات",viewer:"مشاهد (قراءة فقط)",none:"بدون وصول"};
@@ -392,8 +395,8 @@ function stg(v){
 }
 function dashS(v){
  const dc=C.filter(due),lc=C.filter(late),fu=[...new Set([...dc,...lc])].slice(0,8);
- v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(P.camp?kc("حملات محفوظة",K.length):"")}</div><div class="ac"><div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
- v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
+ v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(P.camp?kc("حملات محفوظة",K.length):"")}</div><div class="ac">${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
+ bindRenew(v); v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 function applyRole(){
  $("rb").textContent=RN[ROLE];
@@ -669,6 +672,52 @@ function open(c){
   save(u);if(tx)saveT(tx,true);close();
  };
 }
+
+/* ===== تجديدات + تقرير + بحث شامل ===== */
+const renewList=()=>C.filter(c=>{const d=days(c.exp);return d!==null&&d>=-30&&d<=30&&c.stage!=="lost"}).sort((a,b)=>days(a.exp)-days(b.exp));
+function renewCard(){
+ const L=renewList();
+ return `<div class="card2"><h4>اشتراكات بتنتهي (30 يوم) <small>${L.length}</small></h4>${L.slice(0,8).map(c=>{const d=days(c.exp);return `<div class="hb" data-id="${esc(c.id)}" style="cursor:pointer"><div class="hl"><span>${esc(c.name)}<br><small>${esc(c.course||"")}</small></span><b class="${d<=7?"neg":""}">${d<0?"انتهى من "+(-d)+" يوم":d===0?"النهارده":"بعد "+d+" يوم"}</b></div></div>`}).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}${L.length>8?`<small class="lg">+${L.length-8} كمان</small>`:""}${P.camp&&L.length?`<div class="row"><button class="pri" id="rn_c">تجهيز حملة تجديد (${L.length})</button></div>`:""}</div>`;
+}
+function bindRenew(v){const b=v.querySelector("#rn_c");if(b)b.onclick=()=>{CG={ch:"wa",st:"subs",ty:"",co:"",ex:"30",sj:"تجديد اشتراكك في Biosyn Egypt",msg:"أهلاً {الاسم}،\nاشتراكك على Biosyn Egypt قرّب يخلص. جدّد دلوقتي وكمّل رحلتك معانا."};goTab(4)}}
+function openReport(){
+ const l=T.filter(inP),ty=T.filter(t=>yr(t)===Y),inc=sum(INC(l)),ex=sum(EXP(l)),net=inc-ex,mg=inc?Math.round(net/inc*100):0;
+ const pend=sum(l.filter(t=>isI(t)&&st(t)==="pending")),sales=INC(l).filter(t=>SALE.includes(t.cat));
+ const per=M?MN[M-1]+" "+Y:"سنة "+Y;
+ const top=(arr,f)=>topN(arr,f).map(([k,n,v])=>`<tr><td>${esc(k)}</td><td>${n}</td><td>${v}</td></tr>`).join("")||`<tr><td colspan="3">لا يوجد</td></tr>`;
+ let rows="";if(!M)for(let i=1;i<=12;i++){const m=ty.filter(t=>mo(t)===i),a=sum(INC(m)),b=sum(EXP(m));if(a||b)rows+=`<tr><td>${MN[i-1]}</td><td>${fm(a)}</td><td>${fm(b)}</td><td>${fm(a-b)}</td></tr>`}
+ const act=C.filter(c=>c.stage==="member"||c.stage==="renew").length;
+ $("md").innerHTML=`<div class="rep"><h2 style="margin:0">Biosyn Egypt — تقرير مالي</h2><small>${esc(per)} · أُنشئ ${new Date().toLocaleDateString("ar-EG")}</small>
+ <h3>الملخص</h3><table><tr><td>إجمالي الدخل</td><td>${fm(inc)}</td></tr><tr><td>مصاريف التشغيل</td><td>${fm(ex)}</td></tr><tr><td><b>صافي الربح</b></td><td><b>${fm(net)}</b> (${mg}%)</td></tr><tr><td>مستحقات معلّقة</td><td>${fm(pend)}</td></tr><tr><td>عدد الاشتراكات والمبيعات</td><td>${cnt(sales)}</td></tr><tr><td>مشتركين نشطين حاليًا</td><td>${act}</td></tr></table>
+ ${rows?`<h3>شهر بشهر</h3><table><tr><th>الشهر</th><th>الدخل</th><th>المصروفات</th><th>الصافي</th></tr>${rows}</table>`:""}
+ <h3>الدخل حسب النوع</h3><table>${grp(INC(l),t=>t.cat)}</table>
+ <h3>المصروفات حسب البند</h3><table>${grp(EXP(l),t=>t.cat)}</table>
+ <h3>الدخل حسب طريقة الدفع</h3><table>${grp(INC(l),t=>t.method)}</table>
+ <h3>الكورسات الأكثر اشتراكًا</h3><table><tr><th>الكورس</th><th>العدد</th><th>القيمة</th></tr>${top(sales.filter(t=>t.cat==="كورس مسجل"||t.cat==="كورس تفاعلي"),t=>t.item)}</table>
+ <h3>الباقات الأكثر اشتراكًا</h3><table><tr><th>الباقة</th><th>العدد</th><th>القيمة</th></tr>${top(sales.filter(t=>t.cat==="باقة اشتراك"),t=>t.item)}</table>
+ <div class="row noprint" style="margin-top:14px"><button class="pri" id="rp_p">طباعة / حفظ PDF</button><button id="rp_x">إغلاق</button></div></div>`;
+ $("ov").classList.add("on");$("rp_x").onclick=close;$("rp_p").onclick=()=>window.print();
+}
+function openSearch(){
+ $("md").innerHTML=`<h2 style="margin:0 0 6px;font-size:17px">بحث شامل</h2><input id="gs_q" placeholder="اسم، موبايل، إيميل، كورس، رقم فاتورة، محتوى رسالة…" autocomplete="off"><div id="gs_r" style="margin-top:8px"></div><div class="row"><button id="gs_x">إغلاق</button></div>`;
+ $("ov").classList.add("on");$("gs_x").onclick=close;const inp=$("gs_q");inp.focus();
+ const nz=x=>String(x||"").toLowerCase(),dg=x=>String(x||"").replace(/\D/g,"");
+ inp.oninput=()=>{const q=nz(inp.value.trim()),qd=dg(q);const R=$("gs_r");if(q.length<2){R.innerHTML="";return}
+  const cs=C.filter(c=>nz([c.name,c.email,c.course,c.src].join(" ")).includes(q)||(qd.length>=4&&[c.phone,c.wa].some(x=>dg(x).includes(qd)))).slice(0,8);
+  const ts=P.fin?T.filter(t=>nz([t.item,t.cat,t.ref,t.note,(C.find(c=>c.id===t.con)||{}).name].join(" ")).includes(q)).slice(0,8):[];
+  const vs=P.inbox?INB.convs.filter(c=>nz([c.name,c.last_preview].join(" ")).includes(q)||(qd.length>=4&&dg(c.external_id).includes(qd))).slice(0,8):[];
+  const sec=(t,a)=>a.length?`<h4 style="margin:10px 0 2px">${t}</h4>${a.join("")}`:"";
+  R.innerHTML=sec("العملاء",cs.map(c=>`<div class="hb" data-gc="${esc(c.id)}" style="cursor:pointer"><div class="hl"><span>${esc(c.name)}<br><small>${esc([c.phone,c.email].filter(Boolean).join(" · "))}</small></span><small>${esc(lbl(ST,c.stage))}</small></div></div>`))
+   +sec("العمليات",ts.map(t=>`<div class="hb" data-gt="${esc(t.id)}" style="cursor:pointer"><div class="hl"><span>${esc(t.item||t.cat||"")}<br><small>${esc(t.date)} · ${esc((C.find(c=>c.id===t.con)||{}).name||"")}</small></span><b>${fm(t.amt)}</b></div></div>`))
+   +sec("المحادثات",vs.map(c=>`<div class="hb" data-gv="${esc(c.id)}" style="cursor:pointer"><div class="hl"><span>${esc(cname(c))}<br><small>${esc((c.last_preview||"").slice(0,60))}</small></span><small>${esc((CHN[c.channel]||CHN.test)[0])}</small></div></div>`))
+   ||"";
+  if(!R.innerHTML)R.innerHTML='<div class="empty" style="padding:10px">مفيش نتائج</div>';
+  R.querySelectorAll("[data-gc]").forEach(e=>e.onclick=()=>{const c=C.find(x=>x.id===e.dataset.gc);close();open(c)});
+  R.querySelectorAll("[data-gt]").forEach(e=>e.onclick=()=>{const t=T.find(x=>x.id===e.dataset.gt);close();goTab(3);openT(t)});
+  R.querySelectorAll("[data-gv]").forEach(e=>e.onclick=()=>{close();goTab(6);openConv(e.dataset.gv)});
+ };
+}
+$("gs").onclick=openSearch;
 function close(){$("ov").classList.remove("on")}
 $("ov").onclick=e=>{if(e.target.id==="ov")close()};
 $("add").onclick=()=>open(null);$("q").oninput=render;$("ft").onchange=$("fd").onchange=render;
