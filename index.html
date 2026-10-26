@@ -188,7 +188,7 @@ function openT(t){
  $("ov").classList.add("on");$("b_x").onclick=close;
  const sy=()=>{const i=$("g_kind").value==="in";document.querySelectorAll(".ino").forEach(e=>e.style.display=i?"":"none");document.querySelectorAll(".oto").forEach(e=>e.style.display=i?"none":"")};
  $("g_kind").onchange=()=>{$("g_cat").innerHTML=opts($("g_kind").value==="in"?IN:OUT,"");sy()};sy();
- if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟")){delT(k.id);close()}};
+ if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟ هتلاقيها في سجل التعديلات لو حبيت ترجّعها.")){delT(k.id);close()}};
  $("g_save").onclick=()=>{const a=parseFloat($("g_amt").value);
   if(!(a>0)){alert("اكتب مبلغ صحيح");return}if(!$("g_date").value){alert("اختار التاريخ");return}
   const i=$("g_kind").value==="in",o={...k,kind:$("g_kind").value,amt:a,date:$("g_date").value,cat:$("g_cat").value,method:$("g_met").value,
@@ -335,9 +335,12 @@ async function doBackup(){
 const vC=c=>c&&idOK(c.id)&&typeof c.name==="string"&&c.name,vT=t=>t&&idOK(t.id)&&(t.kind==="in"||t.kind==="out")&&+t.amt>0&&/^\d{4}-\d\d-\d\d/.test(t.date||""),vK=k=>k&&idOK(k.id)&&typeof k.name==="string";
 async function readBackup(f){
  let d;try{d=JSON.parse(await f.text())}catch(e){alert("الملف مش نسخة احتياطية صالحة");return}
+ loadBackupObj(d,f.name);
+}
+function loadBackupObj(d,fname){
  if(!d||d.app!=="biosyn-crm"){alert("الملف مش نسخة احتياطية من السيستم ده");return}
  const A=(x,v)=>Array.isArray(x)?x.filter(v):[],all=["contacts","txns","campaigns"].reduce((a,k)=>a+(Array.isArray(d[k])?d[k].length:0),0);
- BK={file:f.name,date:d.date||"",c:A(d.contacts,vC),t:A(d.txns,vT),k:A(d.campaigns,vK),mode:"merge"};
+ BK={file:fname,date:d.date||"",c:A(d.contacts,vC),t:A(d.txns,vT),k:A(d.campaigns,vK),mode:"merge"};
  BK.bad=all-BK.c.length-BK.t.length-BK.k.length;render();
 }
 async function bkRun(){
@@ -356,19 +359,20 @@ function bkCard(){
  const lb=lastBk(),B=BK;
  return `<div class="card2"><h4>نسخة احتياطية</h4><small class="lg">${lb?"آخر نسخة: "+esc(lb):"لسه ماعملتش نسخة احتياطية"}. النسخة بتشمل العملاء والحسابات والحملات.</small>
  <div class="row"><button class="pri" id="bk_dl">تنزيل نسخة كاملة</button></div>
+ ${autoBkHtml()}
  ${B?`<h4 style="margin-top:14px">استرجاع: ${esc(B.file)}</h4><div class="kp" style="padding:4px 0">${kc("عملاء",B.c.length)+kc("عمليات مالية",B.t.length)+kc("حملات",B.k.length)+kc("عناصر تالفة (اتتخطت)",B.bad)}</div>
  <select id="bk_mode"><option value="merge" ${B.mode==="merge"?"selected":""}>دمج: يضيف ويحدّث من غير حذف</option><option value="replace" ${B.mode==="replace"?"selected":""}>استبدال كامل: يحذف الباقي</option></select>
  <div class="row"><button class="pri" id="bk_go" ${B.busy?"disabled":""}>${B.busy?"جاري الاسترجاع...":"استرجاع"}</button><button id="bk_x">إلغاء</button></div>`:`<label class="cl">استرجاع من نسخة</label><input type="file" id="bk_f" accept=".json,application/json">`}</div>`;
 }
 function stg(v){
- v.innerHTML=`<div class="ac" style="padding-top:12px">${acctCard()}${P.imp?imCard():""}${P.users?usersCard()+chanCard():""}${P.bk?bkCard():""}</div>`;
+ v.innerHTML=`<div class="ac" style="padding-top:12px">${acctCard()}${P.imp?imCard():""}${P.users?usersCard()+chanCard():""}${P.bk?bkCard():""}${P.users||P.fin?histCard():""}</div>`;
  const b=(id,fn)=>{if($(id))fn($(id))};
  b("im_f",e=>e.onchange=x=>{const f=x.target.files[0];if(f)readImport(f)});
  v.querySelectorAll("[data-m]").forEach(s=>s.onchange=e=>{IM.map[s.dataset.m]=+e.target.value;setTimeout(render,0)});
  b("im_st",e=>e.onchange=x=>{IM.stage=x.target.value;setTimeout(render,0)});b("im_src",e=>e.onchange=x=>{IM.src=x.target.value.trim();setTimeout(render,0)});
  b("im_mode",e=>e.onchange=x=>{IM.mode=x.target.value;setTimeout(render,0)});b("im_go",e=>e.onclick=imRun);b("im_x",e=>e.onclick=()=>{IM=null;render()});
  b("bk_dl",e=>e.onclick=doBackup);b("bk_f",e=>e.onchange=x=>{const f=x.target.files[0];if(f)readBackup(f)});
- b("bk_mode",e=>e.onchange=x=>{BK.mode=x.target.value;setTimeout(render,0)});b("bk_go",e=>e.onclick=bkRun);b("bk_x",e=>e.onclick=()=>{BK=null;render()});bindAcct(v);bindChan(v);
+ b("bk_mode",e=>e.onchange=x=>{BK.mode=x.target.value;setTimeout(render,0)});b("bk_go",e=>e.onclick=bkRun);b("bk_x",e=>e.onclick=()=>{BK=null;render()});bindAcct(v);bindChan(v);bindHist(v);
 }
 function dashS(v){
  const dc=C.filter(due),lc=C.filter(late),fu=[...new Set([...dc,...lc])].slice(0,8);
@@ -538,6 +542,45 @@ function bindChan(v){
  if($("cf_ts"))$("cf_ts").onclick=async()=>{$("cf_ts").disabled=true;$("cf_ts").textContent="جاري الاختبار…";const r=await cfgCall({action:"test"});if(r.error){alert(r.error)}else INB.cfgOut=r.data;render()};
 }
 
+/* ===== سجل التعديلات + المحذوفات + النسخ التلقائية ===== */
+const HIST={rows:null,f:"all",open:null,auto:null};
+const TBLN={contacts:"عميل",txns:"عملية مالية",campaigns:"حملة",profiles:"عضو فريق",conversations:"محادثة"};
+const ACTN={insert:["أضاف","pos"],update:["عدّل",""],delete:["حذف","neg"],restore:["رجّع","pos"]};
+const FLDN={name:"الاسم",phone:"الموبايل",wa:"واتساب",email:"الإيميل",stage:"المرحلة",type:"النوع",src:"المصدر",exp:"انتهاء الاشتراك",nxt:"موعد المتابعة",course:"الكورس",log:"الملاحظات",okM:"موافقة الإيميل",okW:"موافقة واتساب",amt:"المبلغ",date:"التاريخ",cat:"البند",item:"الاسم",qty:"العدد",status:"الحالة",method:"طريقة الدفع",note:"ملاحظة",ref:"المرجع",con:"جهة الاتصال",role:"الدور",active:"التفعيل",perms:"الصلاحيات",msg:"نص الرسالة",ch:"القناة"};
+async function loadHist(){const{data,error}=await SB.from("audit_log").select("id,at,actor_name,tbl,row_id,action,label,restored_at,old,new").order("at",{ascending:false}).limit(150);HIST.rows=error?[]:(data||[]);if(tab===5)render()}
+async function loadAuto(){const{data,error}=await SB.from("backups").select("id,at,counts").order("at",{ascending:false}).limit(14);HIST.auto=error?[]:(data||[]);if(tab===5)render()}
+function diffKeys(r){const o=(r.old&&(r.old.data||r.old))||{},n=(r.new&&(r.new.data||r.new))||{},skip=["updated_at","updated_by","id","created_at"];
+ return [...new Set([...Object.keys(o),...Object.keys(n)])].filter(k=>!skip.includes(k)&&JSON.stringify(o[k])!==JSON.stringify(n[k]))}
+const canRestore=r=>r.action==="delete"&&!r.restored_at&&(r.tbl==="contacts"&&P.cdel||r.tbl==="txns"&&P.fin||r.tbl==="campaigns"&&P.camp);
+function histCard(){
+ if(HIST.rows===null){loadHist();return `<div class="card2"><h4>سجل التعديلات</h4><div class="empty" style="padding:10px">جاري التحميل…</div></div>`}
+ const L=HIST.rows.filter(r=>HIST.f==="all"||(HIST.f==="del"?r.action==="delete":r.tbl===HIST.f));
+ return `<div class="card2"><h4>سجل التعديلات والمحذوفات</h4><small class="lg">كل إضافة وتعديل وحذف بيتسجل بمين عمله وإمتى. أي حاجة اتحذفت تقدر ترجّعها من هنا.</small>
+ <div class="fx" style="padding:8px 0 0;flex-wrap:wrap">${[["all","الكل"],["del","المحذوفات"],["contacts","العملاء"],["txns","الحسابات"],["profiles","الفريق"]].map(([k,n])=>`<button class="chip${HIST.f===k?" on":""}" data-hf="${k}">${n}</button>`).join("")}<button id="hs_r" class="chip">تحديث</button></div>
+ <div style="margin-top:8px">${L.slice(0,80).map(r=>{const a=ACTN[r.action]||[r.action,""],ks=r.action==="update"?diffKeys(r):[];
+  return `<div class="hb" style="border-bottom:1px solid var(--bd);padding-bottom:6px"><div class="hl"><span><b>${esc(r.actor_name||"النظام")}</b> <span class="${a[1]}">${a[0]}</span> ${TBLN[r.tbl]||esc(r.tbl)}: ${esc(r.label||r.row_id)}</span><small>${ago(r.at)}</small></div>
+  ${ks.length?`<small class="lg">اتغيّر: ${esc(ks.map(k=>FLDN[k]||k).join("، "))}</small>`:""}
+  ${r.restored_at?'<small class="tag">اترجع ✓</small>':canRestore(r)?`<div class="row" style="margin-top:4px"><button data-rs="${r.id}" style="font-size:13px;padding:4px 10px">↩ استرجاع</button></div>`:""}</div>`}).join("")||'<div class="empty" style="padding:10px">مفيش حاجة هنا</div>'}</div></div>`;
+}
+function autoBkHtml(){
+ if(!P.users)return"";
+ if(HIST.auto===null){loadAuto();return '<div class="empty" style="padding:8px">جاري تحميل النسخ التلقائية…</div>'}
+ return `<h4 style="margin-top:14px">النسخ التلقائية (يومياً، آخر 14 نسخة)</h4>
+ ${HIST.auto.map(b=>`<div class="hb"><div class="hl"><span>${new Date(b.at).toLocaleString("ar-EG",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}<br><small>${(b.counts&&b.counts.contacts)||0} عميل · ${(b.counts&&b.counts.txns)||0} عملية · ${(b.counts&&b.counts.campaigns)||0} حملة</small></span><span style="display:flex;gap:6px"><button data-ab="${b.id}" style="font-size:13px;padding:4px 10px">تنزيل</button><button data-ar="${b.id}" style="font-size:13px;padding:4px 10px">استرجاع</button></span></div></div>`).join("")||'<small class="lg">لسه مفيش نسخ تلقائية. أول نسخة بتتعمل الساعة 1:15 بالليل بتوقيت UTC.</small>'}
+ <div class="row"><button id="ab_now">عمل نسخة على السيرفر دلوقتي</button></div>`;
+}
+async function getAuto(id){const{data,error}=await SB.from("backups").select("data,at").eq("id",id).single();if(error||!data){alert("تعذر تحميل النسخة");return null}return data}
+function bindHist(v){
+ v.querySelectorAll("[data-hf]").forEach(b=>b.onclick=()=>{HIST.f=b.dataset.hf;render()});
+ if($("hs_r"))$("hs_r").onclick=()=>{HIST.rows=null;render()};
+ v.querySelectorAll("[data-rs]").forEach(b=>b.onclick=async()=>{b.disabled=true;const{error}=await SB.rpc("restore_deleted",{log_id:+b.dataset.rs});
+  if(error){alert(error.message||"تعذر الاسترجاع");b.disabled=false;return}alert("اترجع ✓");HIST.rows=null;render()});
+ v.querySelectorAll("[data-ab]").forEach(b=>b.onclick=async()=>{const d=await getAuto(b.dataset.ab);if(!d)return;const dl=await window.claude.use("downloads").catch(()=>null);if(!dl)return;
+  try{await dl.save({filename:"biosyn-auto-backup-"+String(d.at).slice(0,10)+".json",data:new Blob([JSON.stringify(d.data)],{type:"application/json"})})}catch(e){}});
+ v.querySelectorAll("[data-ar]").forEach(b=>b.onclick=async()=>{const d=await getAuto(b.dataset.ar);if(!d)return;loadBackupObj(d.data,"نسخة تلقائية "+String(d.at).slice(0,16).replace("T"," "));});
+ if($("ab_now"))$("ab_now").onclick=async()=>{$("ab_now").disabled=true;const{error}=await SB.rpc("backup_now");if(error){alert(error.message||"تعذر عمل النسخة");$("ab_now").disabled=false;return}HIST.auto=null;render()};
+}
+
 function render(){
  const f=filt();
  $("s1").textContent=C.length;$("s2").textContent=C.filter(c=>c.stage==="member"||c.stage==="renew").length;$("s3").textContent=C.filter(due).length;
@@ -565,7 +608,7 @@ function open(c){
  if(!P.cw){$("md").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);["b_save","b_del"].forEach(i=>{if($(i))$(i).style.display="none"})}
  if(!P.cdel&&$("b_del"))$("b_del").style.display="none";
  $("b_x").onclick=close;
- if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟")){del(k.id);close()}};
+ if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟ هتلاقيه في سجل التعديلات لو حبيت ترجّعه.")){del(k.id);close()}};
  $("b_save").onclick=()=>{
   const n=$("f_name").value.trim();if(!n){alert("اكتب الاسم");return}
   const em=$("f_email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){alert("الإيميل غير صحيح");return}
@@ -595,7 +638,7 @@ window.claude=window.claude||{use:async n=>n==="downloads"?{save:async({filename
 async function fetchAll(n){const out=[];for(let f=0;;f+=1000){const{data,error}=await SB.from(n).select("id,data").range(f,f+999);if(error)throw error;out.push(...data);if(data.length<1000)break}return out}
 const mkDb=()=>({collection:n=>({
  doc:id=>({
-  set:async d=>{const{error}=await SB.from(n).upsert({id,data:d,updated_by:ME.id});if(error)throw error},
+  set:async d=>{const{error}=await SB.from(n).upsert({id,data:d,updated_by:ME.id});if(error){if(error.code==="23514")throw new Error("البيانات مش صحيحة: اتأكد من الاسم والإيميل والتواريخ والمبلغ");throw error}},
   delete:async()=>{const{data,error}=await SB.from(n).delete().eq("id",id).select("id");if(error)throw error;if(!data||!data.length)throw new Error("not allowed")}}),
  onSnapshot:(ok,bad)=>{let t=0;
   const load=async()=>{try{const rows=await fetchAll(n);ok({docs:rows.map(r=>({id:r.id,data:()=>r.data}))})}catch(e){bad&&bad(e)}};

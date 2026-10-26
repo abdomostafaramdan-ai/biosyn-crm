@@ -1,0 +1,17 @@
+# يمنع مشروع Supabase المجاني إنه يتوقف من قلة الاستخدام (بيبعت طلب بسيط كل 3 أيام)
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: "23 7 */3 * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://vscfjvpccgkgojuktvjn.supabase.co/rest/v1/contacts?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzY2ZqdnBjY2drZ29qdWt0dmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjMzMzYsImV4cCI6MjEwODUzOTMzNn0.2WqewPFESw-aACGgs3AbacYJPhz-55zKeqyEEzlTlyM")
+          echo "Supabase answered: $code"
+          test "$code" -lt 500
