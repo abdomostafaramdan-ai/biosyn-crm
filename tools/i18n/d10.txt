@@ -1,0 +1,8 @@
+تذكير بالمستحقات|Dues reminder
+يُرسل مرة واحدة لكل عملية دخل معلّقة مضى عليها العدد المحدد من الأيام. استخدم {الاسم} و{المبلغ} في النص.|Sent once for each pending income entry older than the set number of days. Use {الاسم} and {المبلغ} in the text.
+التقرير الأسبوعي|Weekly report
+يصل بالبريد الإلكتروني إلى من لديه صلاحية الحسابات: ملخص الدخل والمصروفات والمستحقات والمتابعات للأسبوع.|Emailed to everyone with accounts access: a weekly summary of income, expenses, dues and follow-ups.
+يوم الإرسال (0 الأحد … 6 السبت)|Send day (0 Sunday … 6 Saturday)
+بعد كم يوماً من تسجيل العملية المعلّقة|Days after the pending entry was recorded
+تذكير بالمستحقات المعلّقة|Pending dues reminder
+التقرير الأسبوعي بالبريد|Weekly email report

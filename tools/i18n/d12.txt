@@ -1,0 +1,41 @@
+نقل إلى مرحلة|Move to stage
+بداية ساعات العمل|Working hours start
+بتوقيت القاهرة|Cairo time
+نهاية ساعات العمل|Working hours end
+اعتبار يوم الجمعة إجازة|Treat Friday as a day off
+رد تلقائي طوال اليوم|auto-reply all day
+شكراً لتواصلكم مع Biosyn Egypt|Thank you for contacting Biosyn Egypt
+نحن خارج ساعات العمل حالياً|We are currently outside working hours
+وسيرد عليكم أحد أعضاء الفريق في أقرب وقت ممكن|and a team member will reply as soon as possible
+تاريخ المتابعة|Follow-up date
+هل أنت متأكد|Are you sure
+يمكن استعادتهم من سجل المحذوفات|they can be restored from the deleted log
+لم يُحدَّد هدف بعد|No goal set yet
+المتوقع بنهاية الشهر بوتيرة الأيام الماضية|Projected by month-end at the current pace
+مستحقات معلّقة هذا الشهر|Pending dues this month
+المتبقي|Remaining
+بالجنيه|EGP
+يُرسل مرة واحدة لكل عملية دخل معلّقة مضى عليها العدد المحدد من الأيام|Sent once for each pending income entry older than the set number of days
+استخدم {الاسم} و{المبلغ} في النص|Use {الاسم} and {المبلغ} in the text
+يصل بالبريد الإلكتروني إلى من لديه صلاحية الحسابات|Emailed to everyone with accounts access
+ملخص الدخل والمصروفات والمستحقات والمتابعات للأسبوع|a weekly summary of income, expenses, dues and follow-ups
+يوم الإرسال|Send day
+الأحد …|Sunday …
+السبت|Saturday
+استيراد المدفوعات|Import payments
+يتعرف على الأعمدة تلقائياً|Detects columns automatically
+العميل…|client…
+ويربط كل عملية بالعميل عبر الجوال أو البريد أو الاسم|links each entry to a client by phone, email or name
+ويتخطى العمليات المكررة|and skips duplicates
+استيراد مدفوعات|Import payments
+الوصف|Description
+الكورس|course
+الباقة|plan
+جوال أو بريد أو اسم|phone, email or name
+تخطي العمليات المكررة|Skip duplicate entries
+نفس التاريخ والمبلغ والمرجع أو العميل|same date, amount, and reference or client
+بلا مبلغ|no amount
+تاريخ|date
+هل تريد المتابعة|Continue
+نسبة العملاء الذين دفعوا مجدداً بعد كل عدد من الأشهر من أول دفعة لهم|Share of clients who paid again after each number of months since their first payment
+أشهر|months

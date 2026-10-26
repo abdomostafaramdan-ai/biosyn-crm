@@ -1,0 +1,9 @@
+متوسط زمن أول رد|Avg. first response
+إعدادات صندوق الرسائل|Inbox settings
+إسناد المحادثات الجديدة تلقائياً إلى أقل أعضاء الفريق انشغالاً|Auto-assign new conversations to the least busy team member
+رد تلقائي خارج ساعات العمل|Auto-reply outside working hours
+بداية ساعات العمل (0-23، بتوقيت القاهرة)|Working hours start (0-23, Cairo time)
+نهاية ساعات العمل (0-23)|Working hours end (0-23)
+اعتبار يوم الجمعة إجازة (رد تلقائي طوال اليوم)|Treat Friday as a day off (auto-reply all day)
+نص الرد التلقائي|Auto-reply text
+شكراً لتواصلكم مع Biosyn Egypt. نحن خارج ساعات العمل حالياً، وسيرد عليكم أحد أعضاء الفريق في أقرب وقت ممكن.|Thank you for contacting Biosyn Egypt. We are currently outside working hours, and a team member will reply as soon as possible.

@@ -1,0 +1,33 @@
+استيراد المدفوعات (CSV / Excel)|Import payments (CSV / Excel)
+يتعرف على الأعمدة تلقائياً (التاريخ، المبلغ، البند، العميل…) ويربط كل عملية بالعميل عبر الجوال أو البريد أو الاسم، ويتخطى العمليات المكررة.|Detects columns automatically (date, amount, category, client…), links each entry to a client by phone, email or name, and skips duplicates.
+استيراد مدفوعات:|Import payments:
+التاريخ|Date
+المبلغ|Amount
+النوع (دخل/مصروف)|Type (income/expense)
+البند|Category
+الوصف / الكورس / الباقة|Description / course / plan
+طريقة الدفع|Payment method
+العميل (جوال أو بريد أو اسم)|Client (phone, email or name)
+المرجع|Reference
+ملاحظات|Notes
+النوع الافتراضي|Default type
+الحالة الافتراضية للدخل|Default income status
+تخطي العمليات المكررة (نفس التاريخ والمبلغ والمرجع أو العميل)|Skip duplicate entries (same date, amount, and reference or client)
+عمليات جديدة|New entries
+مكررة|Duplicates
+غير صالحة (بلا مبلغ/تاريخ)|Invalid (no amount/date)
+عميل غير موجود|Client not found
+جديدة|New
+غير صالحة|Invalid
+سيتم استيراد|About to import
+عملية مالية. هل تريد المتابعة؟|financial entries. Continue?
+تم حفظ|Saved
+عملية|entries
+الاحتفاظ حسب شهر أول دفعة|Retention by first-payment month
+نسبة العملاء الذين دفعوا مجدداً بعد كل عدد من الأشهر من أول دفعة لهم.|Share of clients who paid again after each number of months since their first payment.
+شهر أول دفعة|First-payment month
+بعد شهر|After 1 month
+بعد شهرين|After 2 months
+بعد 3 أشهر|After 3 months
+بعد 4 أشهر|After 4 months
+بعد 5 أشهر|After 5 months

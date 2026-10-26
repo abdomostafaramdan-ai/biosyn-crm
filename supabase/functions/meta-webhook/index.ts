@@ -89,6 +89,46 @@ async function optOut(db: any, s: Record<string, any>, v: string, from: string) 
   } catch (e) { console.error("optOut failed", e); }
 }
 
+// رد تلقائي خارج ساعات العمل (بتوقيت القاهرة): مرة واحدة كل 12 ساعة لكل محادثة
+async function oohReply(db: any, s: Record<string, any>, v: string, channel: string, to: string, convId: string | undefined) {
+  try {
+    if (!convId) return;
+    const { data: row } = await db.from("app_settings").select("value").eq("key", "inbox").maybeSingle();
+    const cfg = row?.value || {};
+    if (!cfg.ooh_on || !String(cfg.ooh_text || "").trim()) return;
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Cairo", hour: "numeric", hour12: false, weekday: "short" }).formatToParts(new Date());
+    const hour = Number(parts.find((p) => p.type === "hour")?.value) % 24;
+    const wd = parts.find((p) => p.type === "weekday")?.value;
+    const st = Number(cfg.ooh_start ?? 9), en = Number(cfg.ooh_end ?? 18);
+    const off = (cfg.ooh_fri && wd === "Fri") || (st <= en ? (hour < st || hour >= en) : (hour >= en && hour < st));
+    if (!off) return;
+    const since = new Date(Date.now() - 12 * 3600e3).toISOString();
+    const { data: recent } = await db.from("messages").select("id").eq("conversation_id", convId).eq("direction", "out").gte("created_at", since).limit(1);
+    if (recent && recent.length) return;
+    const text = String(cfg.ooh_text).slice(0, 1000);
+    let err: string | null = null, ext: string | null = null;
+    if (channel === "whatsapp") {
+      if (!s.wa_phone_number_id || !s.wa_token) return;
+      const r = await fetch(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}/messages`, {
+        method: "POST", headers: { Authorization: `Bearer ${s.wa_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", to, type: "text", text: { body: text } }),
+      });
+      const j = await r.json();
+      if (!r.ok) err = j?.error?.message || "فشل الإرسال"; else ext = j?.messages?.[0]?.id || null;
+    } else {
+      if (!s.page_id || !s.page_token) return;
+      const r = await fetch(`https://graph.facebook.com/${v}/${s.page_id}/messages?access_token=${encodeURIComponent(s.page_token)}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipient: { id: to }, messaging_type: "RESPONSE", message: { text } }),
+      });
+      const j = await r.json();
+      if (!r.ok) err = j?.error?.message || "فشل الإرسال"; else ext = j?.message_id || null;
+    }
+    // لا نغيّر صف المحادثة: حتى لا يُحتسب كردّ بشري ولا يوقف عدّاد غير المقروء
+    await db.from("messages").insert({ conversation_id: convId, direction: "out", body: text, sender: null, external_id: ext, status: err ? "failed" : "sent", error: err, attachments: [] });
+  } catch (e) { console.error("ooh failed", e); }
+}
+
 Deno.serve(async (req) => {
   const db = serviceDb();
   const s = await getSecrets(db);
@@ -116,11 +156,13 @@ Deno.serve(async (req) => {
         for (const c of val.contacts || []) names[c.wa_id] = c.profile?.name || "";
         for (const msg of val.messages || []) {
           if (msg.type === "text" && STOP.test(String(msg.text?.body || "").trim())) await optOut(db, s, v, msg.from);
-          await ingest(db, {
+          const ing: any = await ingest(db, {
             channel: "whatsapp", external_id: msg.from, name: names[msg.from] || "", body: waBody(msg),
             msg_id: msg.id, at: new Date(Number(msg.timestamp) * 1000).toISOString(),
             attachments: await waMedia(db, s, v, msg),
           });
+          const stopMsg = msg.type === "text" && STOP.test(String(msg.text?.body || "").trim());
+          if (!ing.duplicate && msg.type !== "reaction" && !stopMsg && Date.now() - Number(msg.timestamp) * 1000 < 3600e3) await oohReply(db, s, v, "whatsapp", msg.from, ing.conversation_id);
         }
         for (const st of val.statuses || []) {
           const map: Record<string, string> = { sent: "sent", delivered: "delivered", read: "read", failed: "failed" };
@@ -134,7 +176,7 @@ Deno.serve(async (req) => {
         if (!ev.message || ev.message.is_echo) continue;
         const psid = ev.sender?.id;
         if (!psid) continue;
-        await ingest(db, {
+        const ing: any = await ingest(db, {
           channel, external_id: psid, body: fbBody(ev.message), msg_id: ev.message.mid, attachments: await fbMedia(db, ev.message),
           at: ev.timestamp ? new Date(ev.timestamp).toISOString() : undefined,
         }, async () => {
@@ -144,6 +186,7 @@ Deno.serve(async (req) => {
           const j = await r.json();
           return channel === "messenger" ? [j.first_name, j.last_name].filter(Boolean).join(" ") : (j.name || j.username || "");
         });
+        if (!ing.duplicate && (!ev.timestamp || Date.now() - ev.timestamp < 3600e3)) await oohReply(db, s, v, channel, psid, ing.conversation_id);
       }
     }
   } catch (e) {

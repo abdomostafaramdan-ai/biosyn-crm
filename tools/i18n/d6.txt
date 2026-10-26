@@ -1,0 +1,7 @@
+سبب الخسارة|Loss reason
+أسباب الخسارة|Loss reasons
+السعر مرتفع|Price too high
+لا حاجة حالياً|No current need
+اشترك لدى منافس|Subscribed with a competitor
+لا يرد|Not responding
+غير مهتم|Not interested

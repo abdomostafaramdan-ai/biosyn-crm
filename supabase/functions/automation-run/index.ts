@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       db.from("automation_log").upsert({ rule_id: r.id, key, contact_id, status, error, at: new Date().toISOString() }, { onConflict: "rule_id,key" });
 
     // قائمة المستهدفين لقواعد الرسائل
-    const targets: { key: string; cid: string }[] = [];
+    const targets: { key: string; cid: string; amt?: number }[] = [];
     if (r.kind === "welcome") {
       const since = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
       const { data: tx } = await db.from("txns").select("id,data");
@@ -57,9 +57,22 @@ Deno.serve(async (req) => {
         const n = diffDays(d.exp);
         if (n >= 0 && n <= r.days) targets.push({ key: `r:${cid}:${d.exp}`, cid });
       }
+    } else if (r.kind === "dues") {
+      const upto = new Date(Date.now() - r.days * 864e5).toISOString().slice(0, 10);
+      const { data: tx } = await db.from("txns").select("id,data");
+      for (const t of tx || []) {
+        const d = t.data || {};
+        if (d.kind === "in" && d.status === "pending" && d.con && Number(d.amt) > 0 && String(d.date || "") <= upto) targets.push({ key: "d:" + t.id, cid: d.con, amt: Number(d.amt) });
+      }
     }
 
-    if (r.kind === "welcome" || r.kind === "renew") {
+    if (r.kind === "report") {
+      await runReport(db, s, r, res, dry, viaCron, seen, mark, contacts);
+      results.push(res);
+      continue;
+    }
+
+    if (r.kind === "welcome" || r.kind === "renew" || r.kind === "dues") {
       const todo = targets.filter((t) => !seen.has(t.key));
       res.due = todo.length;
       if (dry) { results.push(res); continue; }
@@ -77,7 +90,7 @@ Deno.serve(async (req) => {
           if ((wantWa && !waReady) || (wantMail && !mailReady)) { res.note = "القناة غير مجهّزة في الإعدادات"; continue; } // نسيبه يتكرر لحد ما تتجهز
           await mark(t.key, t.cid, "skipped", "لا توجد وسيلة تواصل"); res.skipped++; continue;
         }
-        const err = await sendMsg(ch, c, s, String(r.msg), { subject: r.subject || undefined, contactId: t.cid, template: ch === "wa" ? (s.wa_template_auto || s.wa_template) || undefined : undefined });
+        const err = await sendMsg(ch, c, s, String(r.msg).replace(/\{المبلغ\}/g, Math.round(t.amt || 0).toLocaleString("en-US")), { subject: r.subject || undefined, contactId: t.cid, template: ch === "wa" ? (s.wa_template_auto || s.wa_template) || undefined : undefined });
         await mark(t.key, t.cid, err ? "failed" : "sent", err);
         err ? res.failed++ : res.sent++;
         n++;
@@ -118,3 +131,53 @@ Deno.serve(async (req) => {
   }
   return json(200, { dry, results });
 });
+
+// التقرير الأسبوعي: ملخص آخر 7 أيام يصل بالبريد لمن لديه صلاحية الحسابات
+async function runReport(
+  db: ReturnType<typeof serviceDb>, s: Record<string, any>, r: Rule, res: Res, dry: boolean, viaCron: boolean,
+  seen: Set<string>, mark: (k: string, c: string | null, st: string, e?: string | null) => unknown,
+  contacts: Map<string, Record<string, any>>,
+) {
+  const today = todayStr();
+  const key = "p:" + today;
+  if (viaCron && new Date().getUTCDay() !== r.days) { res.note = "ليس يوم الإرسال"; return; }
+  if (viaCron && seen.has(key)) { res.skipped++; return; }
+  const { data: ps } = await db.from("profiles").select("email,role,active,perms");
+  const to = (ps || []).filter((p) => p.active && mailOk(p.email) &&
+    (p.perms && typeof p.perms === "object" && "fin" in p.perms ? p.perms.fin === true : ["admin", "cofounder", "accountant"].includes(p.role))).map((p) => p.email as string);
+  res.due = to.length;
+  if (dry) return;
+  if (!(s.resend_key && s.mail_from)) { res.note = "البريد غير مجهّز في الإعدادات"; return; }
+  if (!to.length) { res.note = "لا يوجد مستلمون"; return; }
+  const from = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+  const { data: tx } = await db.from("txns").select("data");
+  let inc = 0, exp = 0, pend = 0, n = 0;
+  for (const t of tx || []) {
+    const d = t.data || {}; const a = Number(d.amt) || 0;
+    if (d.kind === "in") { if (d.status === "pending") pend += a; else if ((d.status || "paid") === "paid" && String(d.date) >= from) { inc += a; n++; } }
+    else if (String(d.date) >= from) exp += a;
+  }
+  let renewals = 0, late = 0;
+  for (const [, d] of contacts) {
+    if (d.stage === "lost") continue;
+    if (d.exp) { const k = diffDays(d.exp); if (k <= 14) renewals++; }
+    if (d.nxt && diffDays(d.nxt) <= 0) late++;
+  }
+  const { count: openConv } = await db.from("conversations").select("id", { count: "exact", head: true }).neq("status", "closed").neq("channel", "test");
+  const { count: overdue } = await db.from("tasks").select("id", { count: "exact", head: true }).eq("done", false).lt("due", today);
+  const f = (x: number) => Math.round(x).toLocaleString("en-US") + " ج";
+  const rows: [string, string][] = [
+    ["الدخل (آخر 7 أيام)", `${f(inc)} — ${n} عملية`], ["المصروفات", f(exp)], ["الصافي", f(inc - exp)],
+    ["مستحقات معلّقة", f(pend)], ["اشتراكات تنتهي خلال 14 يوماً أو منتهية", String(renewals)],
+    ["متابعات متأخرة", String(late)], ["محادثات مفتوحة", String(openConv ?? 0)], ["مهام متأخرة", String(overdue ?? 0)],
+  ];
+  const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;font-size:15px;line-height:1.8"><h2 style="margin:0 0 8px">ملخص الأسبوع — ${from} إلى ${today}</h2><table style="border-collapse:collapse;width:100%">${rows.map(([a, b]) => `<tr><td style="border-bottom:1px solid #ddd;padding:6px 8px">${a}</td><td style="border-bottom:1px solid #ddd;padding:6px 8px"><b>${b}</b></td></tr>`).join("")}</table><p style="color:#777;font-size:12px">تقرير آلي من Biosyn CRM.</p></div>`;
+  const text = rows.map(([a, b]) => `${a}: ${b}`).join("\n");
+  const rsp = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { Authorization: `Bearer ${s.resend_key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: s.mail_from, to, subject: r.subject || "التقرير الأسبوعي — Biosyn CRM", html, text }),
+  });
+  const j = await rsp.json().catch(() => ({}));
+  if (rsp.ok) { res.sent = to.length; await mark(key, null, "sent"); }
+  else { res.failed = 1; res.note = j?.message || "فشل الإرسال"; await mark(key + ":f", null, "failed", res.note); }
+}

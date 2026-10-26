@@ -1,0 +1,21 @@
+طرق العرض المحفوظة|Saved views
+حفظ العرض الحالي|Save current view
+حذف العرض|Delete view
+تحديد عدة عملاء|Select multiple clients
+إنهاء التحديد|Done selecting
+محدد|selected
+نقل إلى مرحلة…|Move to stage…
+تحديد موعد متابعة|Set follow-up date
+تصدير المحدد|Export selected
+حذف المحدد|Delete selected
+اسم العرض|View name
+اختر عرضاً أولاً|Choose a view first
+حدد عميلاً واحداً على الأقل|Select at least one client
+صيغة التاريخ غير صحيحة|Invalid date format
+تاريخ المتابعة (YYYY-MM-DD)|Follow-up date (YYYY-MM-DD)
+هل أنت متأكد؟|Are you sure?
+نقل|Move
+عميل إلى|clients to
+سيتم حذف|About to delete
+عميل (يمكن استعادتهم من سجل المحذوفات). هل أنت متأكد؟|clients (they can be restored from the deleted log). Are you sure?
+تحديد الكل|Select all

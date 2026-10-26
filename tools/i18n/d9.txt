@@ -1,0 +1,12 @@
+هدف الإيراد الشهري|Monthly revenue goal
+لم يُحدَّد هدف بعد.|No goal set yet.
+تعديل الهدف|Edit goal
+تحديد هدف|Set goal
+المحقق|Achieved
+من|of
+المتوقع بنهاية الشهر بوتيرة الأيام الماضية:|Projected by month-end at the current pace:
+من الهدف|of goal
+مستحقات معلّقة هذا الشهر:|Pending dues this month:
+تم تحقيق الهدف|Goal reached
+المتبقي:|Remaining:
+هدف الإيراد الشهري (بالجنيه)|Monthly revenue goal (EGP)
