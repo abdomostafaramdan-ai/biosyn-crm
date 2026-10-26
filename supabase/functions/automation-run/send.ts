@@ -45,14 +45,14 @@ export async function sendMsg(
       return r.ok ? null : (j?.error?.message || "فشل الإرسال");
     }
     const u = o.contactId ? await unsubUrl(s, o.contactId) : "";
-    const foot = u ? `<a href="${u}" style="color:#777">إلغاء الاشتراك من الرسائل</a>` : "لو مش عايز تستقبل رسائلنا رد بكلمة إلغاء.";
+    const foot = u ? `<a href="${u}" style="color:#777">إلغاء الاشتراك من الرسائل</a>` : "إن لم ترغب في تلقي رسائلنا فردّ بكلمة إلغاء.";
     const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;font-size:15px;line-height:1.7">${esc(text).replace(/\n/g, "<br>")}<hr style="border:none;border-top:1px solid #ddd;margin:18px 0"><small style="color:#777">${foot}</small></div>`;
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${s.resend_key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: s.mail_from, to: [o.to || c.email], subject: o.subject || "رسالة من Biosyn Egypt", html,
-        text: text + "\n\n" + (u ? "لإلغاء الاشتراك: " + u : "لو مش عايز تستقبل رسائلنا رد بكلمة إلغاء."),
+        text: text + "\n\n" + (u ? "لإلغاء الاشتراك: " + u : "إن لم ترغب في تلقي رسائلنا فردّ بكلمة إلغاء."),
         ...(u ? { headers: { "List-Unsubscribe": `<${u}>` } } : {}),
       }),
     });

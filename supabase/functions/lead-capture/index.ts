@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     db.from("lead_hits").select("id", { count: "exact", head: true }).eq("ip", ip).gte("at", since),
     db.from("lead_hits").select("id", { count: "exact", head: true }).gte("at", since),
   ]);
-  if ((mine.count || 0) >= 8 || (all.count || 0) >= 300) return out({ error: "طلبات كتير. جرّب بعد شوية" }, 429);
+  if ((mine.count || 0) >= 8 || (all.count || 0) >= 300) return out({ error: "طلبات كثيرة. حاول بعد قليل" }, 429);
   await db.from("lead_hits").insert({ ip });
   if (Math.random() < 0.02) await db.from("lead_hits").delete().lt("at", new Date(Date.now() - 864e5).toISOString());
 
@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
   const phoneRaw = clip(b.phone, 30);
   const phone = last10(phoneRaw).length >= 8 ? phoneRaw : "";
   if (!name) return out({ error: "اكتب الاسم" }, 400);
-  if (!email && !phone) return out({ error: "اكتب رقم موبايل أو إيميل صحيح" }, 400);
+  if (!email && !phone) return out({ error: "اكتب رقم جوال أو بريداً إلكترونياً صحيحاً" }, 400);
   const course = clip(b.course, 120), message = clip(b.message, 500);
   const src = SRC.includes(clip(b.src, 30)) ? clip(b.src, 30) : "الموقع";
   const utm = [b.utm_source, b.utm_medium, b.utm_campaign].map((x) => clip(x, 40)).filter(Boolean).join("/");

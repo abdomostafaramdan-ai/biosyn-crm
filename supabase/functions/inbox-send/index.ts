@@ -16,12 +16,12 @@ Deno.serve(async (req) => {
     .filter((a: any) => a && typeof a.path === "string" && a.path.startsWith("out/") && !a.path.includes("..") && typeof a.mime === "string")
     .map((a: any) => ({ path: a.path, mime: String(a.mime).slice(0, 100), name: String(a.name || "file").slice(0, 120), size: Number(a.size) || 0 }));
   const convId = String(body.conversation_id || "");
-  if (!text && !atts.length) return json(400, { error: "اكتب الرسالة أو أرفق ملف" });
+  if (!text && !atts.length) return json(400, { error: "اكتب الرسالة أو أرفق ملفاً" });
   if (text.length > 4000) return json(400, { error: "الرسالة طويلة جداً" });
 
   const db = serviceDb();
   const { data: conv } = await db.from("conversations").select("*").eq("id", convId).maybeSingle();
-  if (!conv) return json(404, { error: "المحادثة مش موجودة" });
+  if (!conv) return json(404, { error: "المحادثة غير موجودة" });
 
   const s = await getSecrets(db);
   const v = s.graph_version || "v25.0";
@@ -31,11 +31,11 @@ Deno.serve(async (req) => {
   if (conv.channel !== "test") {
     const lastIn = conv.last_inbound_at ? new Date(conv.last_inbound_at).getTime() : 0;
     if (Date.now() - lastIn > DAY) {
-      return json(422, { error: "عدّت أكتر من 24 ساعة على آخر رسالة من العميل. Meta مش بتسمح برد عادي بعد كده (واتساب محتاج رسالة قالب معتمدة)." });
+      return json(422, { error: "مضى أكثر من 24 ساعة على آخر رسالة من العميل. Meta لا تسمح بردّ عادي بعد ذلك (واتساب يحتاج رسالة قالب معتمدة)." });
     }
     try {
       if (conv.channel === "whatsapp") {
-        if (!s.wa_phone_number_id || !s.wa_token) return json(400, { error: "واتساب مش متوصل. كمّل إعداده من الإعدادات ← ربط القنوات" });
+        if (!s.wa_phone_number_id || !s.wa_token) return json(400, { error: "واتساب غير متصل. أكمل إعداده من الإعدادات ← ربط القنوات" });
         const sendWa = async (payload: Record<string, unknown>) => {
           const r = await fetch(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}/messages`, {
             method: "POST",
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
         }
         if (!err && text && (!atts.length || atts[0].mime.startsWith("audio/"))) await sendWa({ type: "text", text: { body: text } });
       } else {
-        if (!s.page_id || !s.page_token) return json(400, { error: "فيسبوك/إنستجرام مش متوصل. كمّل إعداده من الإعدادات ← ربط القنوات" });
+        if (!s.page_id || !s.page_token) return json(400, { error: "فيسبوك/إنستجرام غير متصل. أكمل إعداده من الإعدادات ← ربط القنوات" });
         const sendFb = async (message: Record<string, unknown>) => {
           const r = await fetch(`https://graph.facebook.com/${v}/${s.page_id}/messages?access_token=${encodeURIComponent(s.page_token)}`, {
             method: "POST",

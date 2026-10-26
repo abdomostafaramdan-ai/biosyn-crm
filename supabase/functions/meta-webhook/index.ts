@@ -79,12 +79,12 @@ async function optOut(db: any, s: Record<string, any>, v: string, from: string) 
     const { data: c } = await db.from("contacts").select("id,data").or(`data->>phone.ilike.*${l},data->>wa.ilike.*${l}`).limit(5);
     for (const r of c || []) {
       if (r.data.unsub) continue;
-      await db.from("contacts").update({ data: { ...r.data, okM: false, okW: false, unsub: true, log: [...(r.data.log || []), { t: new Date().toISOString().slice(0, 10), x: "ألغى الاشتراك برد على واتساب" }].slice(-100) } }).eq("id", r.id);
+      await db.from("contacts").update({ data: { ...r.data, okM: false, okW: false, unsub: true, log: [...(r.data.log || []), { t: new Date().toISOString().slice(0, 10), x: "ألغى الاشتراك بالرد على واتساب" }].slice(-100) } }).eq("id", r.id);
     }
     if (s.wa_phone_number_id && s.wa_token)
       await fetch(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}/messages`, {
         method: "POST", headers: { Authorization: `Bearer ${s.wa_token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ messaging_product: "whatsapp", to: from, type: "text", text: { body: "تم إلغاء اشتراكك في رسائلنا الإعلانية. لو غيّرت رأيك ابعتلنا في أي وقت." } }),
+        body: JSON.stringify({ messaging_product: "whatsapp", to: from, type: "text", text: { body: "تم إلغاء اشتراكك في رسائلنا الإعلانية. إن غيّرت رأيك فراسلنا في أي وقت." } }),
       });
   } catch (e) { console.error("optOut failed", e); }
 }

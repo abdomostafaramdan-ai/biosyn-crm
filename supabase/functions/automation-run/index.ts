@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
 
   const results: Res[] = [];
   for (const r of (rules || []) as Rule[]) {
-    if (!r.enabled && !dry) { results.push({ rule: r.name, kind: r.kind, due: 0, sent: 0, failed: 0, skipped: 0, note: "القاعدة مقفولة" }); continue; }
+    if (!r.enabled && !dry) { results.push({ rule: r.name, kind: r.kind, due: 0, sent: 0, failed: 0, skipped: 0, note: "القاعدة معطّلة" }); continue; }
     const { data: lg } = await db.from("automation_log").select("key").eq("rule_id", r.id);
     const seen = new Set((lg || []).map((x) => x.key));
     const res: Res = { rule: r.name, kind: r.kind, due: 0, sent: 0, failed: 0, skipped: 0 };
@@ -63,19 +63,19 @@ Deno.serve(async (req) => {
       const todo = targets.filter((t) => !seen.has(t.key));
       res.due = todo.length;
       if (dry) { results.push(res); continue; }
-      if (!String(r.msg || "").trim()) { res.note = "نص الرسالة فاضي"; results.push(res); continue; }
+      if (!String(r.msg || "").trim()) { res.note = "نص الرسالة فارغ"; results.push(res); continue; }
       let n = 0;
       for (const t of todo) {
         if (n >= CAP) break;
         const c = contacts.get(t.cid);
-        if (!c || c.unsub) { await mark(t.key, t.cid, "skipped", c ? "ألغى الاشتراك" : "العميل اتحذف"); res.skipped++; continue; }
+        if (!c || c.unsub) { await mark(t.key, t.cid, "skipped", c ? "ألغى الاشتراك" : "العميل حُذف"); res.skipped++; continue; }
         const wantWa = (r.ch === "wa" || r.ch === "auto") && !!waN(c);
         const wantMail = (r.ch === "mail" || r.ch === "auto") && mailOk(c.email);
         let ch: "wa" | "mail" | null = null;
         if (wantWa && waReady) ch = "wa"; else if (wantMail && mailReady) ch = "mail";
         if (!ch) {
-          if ((wantWa && !waReady) || (wantMail && !mailReady)) { res.note = "القناة مش مجهّزة في الإعدادات"; continue; } // نسيبه يتكرر لحد ما تتجهز
-          await mark(t.key, t.cid, "skipped", "مفيش وسيلة تواصل"); res.skipped++; continue;
+          if ((wantWa && !waReady) || (wantMail && !mailReady)) { res.note = "القناة غير مجهّزة في الإعدادات"; continue; } // نسيبه يتكرر لحد ما تتجهز
+          await mark(t.key, t.cid, "skipped", "لا توجد وسيلة تواصل"); res.skipped++; continue;
         }
         const err = await sendMsg(ch, c, s, String(r.msg), { subject: r.subject || undefined, contactId: t.cid, template: ch === "wa" ? (s.wa_template_auto || s.wa_template) || undefined : undefined });
         await mark(t.key, t.cid, err ? "failed" : "sent", err);
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
       res.due = due.length;
       if (!dry) for (const c of due.slice(0, CAP)) {
         const key = `f:${c.id}:${c.last_message_at}`;
-        const { error } = await db.from("tasks").insert({ title: `تابع مع ${c.name || "عميل"} — مردّش من ${r.days} أيام`, due: todayStr(), contact_id: c.contact_id });
+        const { error } = await db.from("tasks").insert({ title: `تابع مع ${c.name || "عميل"} — لم يردّ منذ ${r.days} أيام`, due: todayStr(), contact_id: c.contact_id });
         await mark(key, c.contact_id, error ? "failed" : "done", error?.message || null);
         error ? res.failed++ : res.sent++;
       }
@@ -100,8 +100,8 @@ Deno.serve(async (req) => {
       for (const [cid, d] of contacts) {
         if (!d.exp) continue;
         const n = diffDays(d.exp);
-        if (d.stage === "member" && n >= 0 && n <= r.days) ups.push({ cid, to: "renew", key: `s:${cid}:renew:${d.exp}`, why: `قرّب انتهاء الاشتراك (${d.exp})` });
-        else if ((d.stage === "member" || d.stage === "renew") && n < -30) ups.push({ cid, to: "lost", key: `s:${cid}:lost:${d.exp}`, why: `الاشتراك انتهى من أكتر من 30 يوم (${d.exp})` });
+        if (d.stage === "member" && n >= 0 && n <= r.days) ups.push({ cid, to: "renew", key: `s:${cid}:renew:${d.exp}`, why: `اقترب انتهاء الاشتراك (${d.exp})` });
+        else if ((d.stage === "member" || d.stage === "renew") && n < -30) ups.push({ cid, to: "lost", key: `s:${cid}:lost:${d.exp}`, why: `انتهى الاشتراك منذ أكثر من 30 يوماً (${d.exp})` });
       }
       const due = ups.filter((u) => !seen.has(u.key));
       res.due = due.length;

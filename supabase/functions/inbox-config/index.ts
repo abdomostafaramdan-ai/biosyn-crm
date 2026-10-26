@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
       if (typeof val === "string" && val.trim()) patch[k] = val.trim();
     }
     for (const k of (Array.isArray(body.clear) ? body.clear : []) as string[]) if (FIELDS.includes(k) && k !== "graph_version") patch[k] = null;
-    if (patch.graph_version && !/^v\d{2}\.0$/.test(patch.graph_version)) return json(400, { error: "إصدار Graph API لازم يكون زي v25.0" });
+    if (patch.graph_version && !/^v\d{2}\.0$/.test(patch.graph_version)) return json(400, { error: "يجب أن يكون إصدار Graph API مثل v25.0" });
     if (!Object.keys(patch).length) return json(200, view(s));
     const { data, error } = await db.from("channel_secrets").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", 1).select("*").single();
     if (error) return json(500, { error: "تعذر الحفظ" });
@@ -76,13 +76,13 @@ Deno.serve(async (req) => {
     if (s.wa_phone_number_id && s.wa_token) {
       const j = await call(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}?fields=display_phone_number,verified_name`, { Authorization: `Bearer ${s.wa_token}` });
       out.whatsapp = j._err ? "❌ " + j._err : `✅ ${j.verified_name || ""} ${j.display_phone_number || ""}`;
-    } else out.whatsapp = "— مش متوصل";
+    } else out.whatsapp = "— غير متصل";
     if (s.page_id && s.page_token) {
       const j = await call(`https://graph.facebook.com/${v}/${s.page_id}?fields=name,instagram_business_account{username}&access_token=${encodeURIComponent(s.page_token)}`);
       out.messenger = j._err ? "❌ " + j._err : `✅ صفحة ${j.name || ""}`;
-      out.instagram = j._err ? "❌ " + j._err : j.instagram_business_account ? `✅ @${j.instagram_business_account.username || ""}` : "— الصفحة مش مربوطة بحساب إنستجرام Professional";
-    } else { out.messenger = "— مش متوصل"; out.instagram = "— مش متوصل"; }
-    out.webhook = s.app_secret ? "✅ App Secret متسجل" : "❌ لازم تحط App Secret عشان الرسائل الواردة تتقبل";
+      out.instagram = j._err ? "❌ " + j._err : j.instagram_business_account ? `✅ @${j.instagram_business_account.username || ""}` : "— الصفحة غير مربوطة بحساب إنستجرام Professional";
+    } else { out.messenger = "— غير متصل"; out.instagram = "— غير متصل"; }
+    out.webhook = s.app_secret ? "✅ App Secret مسجّل" : "❌ يجب أن تضع App Secret حتى تُقبل الرسائل الواردة";
     return json(200, out);
   }
 

@@ -22,9 +22,9 @@ export async function requirePerm(req: Request, perm: string): Promise<{ uid: st
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data: who } = await user.auth.getUser(auth.replace(/^Bearer\s+/i, ""));
-  if (!who?.user) return json(401, { error: "سجّل دخول الأول" });
+  if (!who?.user) return json(401, { error: "سجّل الدخول أولاً" });
   const { data: ok } = await user.rpc("has_perm", { p: perm });
-  if (ok !== true) return json(403, { error: "مش عندك صلاحية" });
+  if (ok !== true) return json(403, { error: "ليس لديك صلاحية" });
   return { uid: who.user.id };
 }
 

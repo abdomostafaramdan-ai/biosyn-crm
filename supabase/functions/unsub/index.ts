@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   const { data: c } = await db.from("contacts").select("data").eq("id", id).maybeSingle();
   if (c && !c.data.unsub) {
     const d = c.data;
-    await db.from("contacts").update({ data: { ...d, okM: false, okW: false, unsub: true, log: [...(d.log || []), { t: new Date().toISOString().slice(0, 10), x: "ألغى الاشتراك من رابط الإيميل" }].slice(-100) } }).eq("id", id);
+    await db.from("contacts").update({ data: { ...d, okM: false, okW: false, unsub: true, log: [...(d.log || []), { t: new Date().toISOString().slice(0, 10), x: "ألغى الاشتراك من رابط البريد الإلكتروني" }].slice(-100) } }).eq("id", id);
   }
   return out({ ok: true });
 });

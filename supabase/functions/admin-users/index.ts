@@ -30,11 +30,11 @@ Deno.serve(async (req) => {
 
   const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: who } = await admin.auth.getUser(jwt);
-  if (!who?.user) return json(401, { error: "سجّل دخول الأول" });
+  if (!who?.user) return json(401, { error: "سجّل الدخول أولاً" });
 
   const { data: me } = await admin.from("profiles").select("role,active,perms").eq("id", who.user.id).maybeSingle();
   const canUsers = me && me.active && (me.perms && typeof me.perms.users === "boolean" ? me.perms.users : MANAGERS.includes(me.role));
-  if (!canUsers) return json(403, { error: "مش عندك صلاحية إدارة الفريق" });
+  if (!canUsers) return json(403, { error: "ليس لديك صلاحية إدارة الفريق" });
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json(400, { error: "طلب غير صالح" }); }
@@ -54,19 +54,19 @@ Deno.serve(async (req) => {
     });
     if (error || !created?.user) {
       const dup = /already|registered|exists/i.test(error?.message || "");
-      return json(dup ? 409 : 400, { error: dup ? "الإيميل ده عنده حساب بالفعل" : "تعذر إنشاء الحساب" });
+      return json(dup ? 409 : 400, { error: dup ? "هذا البريد الإلكتروني لديه حساب بالفعل" : "تعذر إنشاء الحساب" });
     }
     const { error: pe } = await admin.from("profiles")
       .update({ role, name, active: true, email, perms }).eq("id", created.user.id);
-    if (pe) return json(500, { error: "اتعمل الحساب لكن تعذر تحديد الدور" });
+    if (pe) return json(500, { error: "أُنشئ الحساب لكن تعذر تحديد الدور" });
     return json(200, { id: created.user.id, email, role, password });
   }
 
   if (body.action === "reset_password") {
     const id = String(body.user_id || "");
     const { data: target } = await admin.from("profiles").select("is_owner").eq("id", id).maybeSingle();
-    if (!target) return json(404, { error: "المستخدم مش موجود" });
-    if (target.is_owner && id !== who.user.id) return json(403, { error: "حساب المالك محمي، والمالك بس يقدر يغيّر كلمة مروره" });
+    if (!target) return json(404, { error: "المستخدم غير موجود" });
+    if (target.is_owner && id !== who.user.id) return json(403, { error: "حساب المالك محمي، والمالك وحده يستطيع تغيير كلمة مروره" });
     const password = tempPassword();
     const { error } = await admin.auth.admin.updateUserById(id, { password });
     if (error) return json(400, { error: "تعذر تغيير كلمة المرور" });

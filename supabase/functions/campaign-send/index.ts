@@ -33,15 +33,15 @@ Deno.serve(async (req) => {
   const s = await getSecrets(db);
 
   const { data: row } = await db.from("campaigns").select("id,data").eq("id", String(body.campaign_id || "")).maybeSingle();
-  if (!row) return json(404, { error: "الحملة مش موجودة. احفظها الأول" });
+  if (!row) return json(404, { error: "الحملة غير موجودة. احفظها أولاً" });
   const k = { ...row.data, id: row.id };
   if (k.ch !== "wa" && k.ch !== "mail") return json(400, { error: "قناة غير معروفة" });
-  if (!String(k.msg || "").trim()) return json(400, { error: "نص الرسالة فاضي" });
+  if (!String(k.msg || "").trim()) return json(400, { error: "نص الرسالة فارغ" });
 
   if (k.ch === "wa" && !(s.wa_phone_number_id && s.wa_token && s.wa_template))
-    return json(400, { error: "واتساب مش جاهز: محتاج Phone Number ID و Access Token واسم قالب معتمد (الإعدادات ← ربط القنوات)" });
+    return json(400, { error: "واتساب غير جاهز: يلزم Phone Number ID و Access Token واسم قالب معتمد (الإعدادات ← ربط القنوات)" });
   if (k.ch === "mail" && !(s.resend_key && s.mail_from))
-    return json(400, { error: "الإيميل مش جاهز: محتاج Resend API Key وإيميل المرسل (الإعدادات ← ربط القنوات)" });
+    return json(400, { error: "البريد الإلكتروني غير جاهز: يلزم Resend API Key وبريد المرسل (الإعدادات ← ربط القنوات)" });
 
   // تجربة على رقم/إيميل واحد من غير تسجيل
   if (body.test_to) {
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     return err ? json(502, { error: err }) : json(200, { test: true });
   }
 
-  if (k.status === "sent") return json(409, { error: "الحملة دي اتبعتت قبل كده" });
+  if (k.status === "sent") return json(409, { error: "هذه الحملة أُرسلت من قبل" });
 
   const { data: all } = await db.from("contacts").select("id,data");
   const rec = audience(k, all || []);
