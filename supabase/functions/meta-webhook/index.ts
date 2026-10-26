@@ -69,6 +69,26 @@ async function fbMedia(db: any, message: Record<string, any>): Promise<Attachmen
   return out;
 }
 
+const STOP = /^(إلغاء|الغاء|إلغاء الاشتراك|الغاء الاشتراك|ايقاف|إيقاف|stop|unsubscribe|cancel)[\s.!،]*$/i;
+const last10 = (x: string) => (x || "").replace(/\D/g, "").slice(-10);
+// العميل كتب "إلغاء": نقفل الموافقات ونرد عليه برسالة تأكيد (جوه نافذة الـ 24 ساعة)
+async function optOut(db: any, s: Record<string, any>, v: string, from: string) {
+  try {
+    const l = last10(from);
+    if (l.length < 9) return;
+    const { data: c } = await db.from("contacts").select("id,data").or(`data->>phone.ilike.*${l},data->>wa.ilike.*${l}`).limit(5);
+    for (const r of c || []) {
+      if (r.data.unsub) continue;
+      await db.from("contacts").update({ data: { ...r.data, okM: false, okW: false, unsub: true, log: [...(r.data.log || []), { t: new Date().toISOString().slice(0, 10), x: "ألغى الاشتراك برد على واتساب" }].slice(-100) } }).eq("id", r.id);
+    }
+    if (s.wa_phone_number_id && s.wa_token)
+      await fetch(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}/messages`, {
+        method: "POST", headers: { Authorization: `Bearer ${s.wa_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", to: from, type: "text", text: { body: "تم إلغاء اشتراكك في رسائلنا الإعلانية. لو غيّرت رأيك ابعتلنا في أي وقت." } }),
+      });
+  } catch (e) { console.error("optOut failed", e); }
+}
+
 Deno.serve(async (req) => {
   const db = serviceDb();
   const s = await getSecrets(db);
@@ -95,6 +115,7 @@ Deno.serve(async (req) => {
         const names: Record<string, string> = {};
         for (const c of val.contacts || []) names[c.wa_id] = c.profile?.name || "";
         for (const msg of val.messages || []) {
+          if (msg.type === "text" && STOP.test(String(msg.text?.body || "").trim())) await optOut(db, s, v, msg.from);
           await ingest(db, {
             channel: "whatsapp", external_id: msg.from, name: names[msg.from] || "", body: waBody(msg),
             msg_id: msg.id, at: new Date(Number(msg.timestamp) * 1000).toISOString(),

@@ -1,7 +1,7 @@
 // إعداد ربط القنوات (لإدارة الفريق) + رسالة تجريبية (لأي حد عنده صندوق الرسائل)
 import { CORS, json, serviceDb, requirePerm, getSecrets, ingest } from "./inbox.ts";
 
-const FIELDS = ["graph_version", "app_secret", "wa_phone_number_id", "wa_token", "page_id", "page_token", "ig_id", "resend_key", "mail_from", "wa_template", "wa_lang"];
+const FIELDS = ["graph_version", "app_secret", "wa_phone_number_id", "wa_token", "page_id", "page_token", "ig_id", "resend_key", "mail_from", "wa_template", "wa_lang", "wa_template_auto"];
 const SECRET = ["app_secret", "wa_token", "page_token", "resend_key"];
 
 Deno.serve(async (req) => {
@@ -35,6 +35,8 @@ Deno.serve(async (req) => {
     mail_from: x.mail_from || "",
     wa_template: x.wa_template || "",
     wa_lang: x.wa_lang || "ar",
+    wa_template_auto: x.wa_template_auto || "",
+    lead_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/lead-capture`,
     woo_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/woo-webhook`,
     woo_secret: x.woo_secret,
     has: Object.fromEntries(SECRET.map((k) => [k, !!x[k]])),

@@ -138,14 +138,14 @@ function dash(v){
  const ml=[...Array(12)].map((_,i)=>{const m=ty.filter(t=>mo(t)===i+1);return [sum(INC(m)),sum(EXP(m))]}),mx=Math.max(1,...ml.flat());
  const fu=[...new Set([...dc,...lc])].slice(0,8);
  const lbd=lastBk(),oldB=!lbd||(Date.now()-new Date(lbd))>7*864e5;
- v.innerHTML=pbar()+(oldB?`<div class="note" id="bkn" style="margin:8px 14px 0;border-radius:10px;cursor:pointer">مفيش نسخة احتياطية حديثة. اضغط هنا لعمل نسخة كاملة.</div>`:"")+`<div class="kp">${kc("الاشتراكات والمبيعات",cnt(sales))+kc("إجمالي الدخل",fm(inc),"pos")+kc("مصاريف التشغيل",fm(ex),"neg")+kc("صافي الربح · "+mg+"%",fm(net),cls(net))+kc("مستحقات معلّقة",fm(pend))+kc("مشتركين نشطين",act)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")}</div>
+ v.innerHTML=pbar(`<button id="insb">تحليلات العملاء</button>`)+(oldB?`<div class="note" id="bkn" style="margin:8px 14px 0;border-radius:10px;cursor:pointer">مفيش نسخة احتياطية حديثة. اضغط هنا لعمل نسخة كاملة.</div>`:"")+`<div class="kp">${kc("الاشتراكات والمبيعات",cnt(sales))+kc("إجمالي الدخل",fm(inc),"pos")+kc("مصاريف التشغيل",fm(ex),"neg")+kc("صافي الربح · "+mg+"%",fm(net),cls(net))+kc("مستحقات معلّقة",fm(pend))+kc("مشتركين نشطين",act)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")}</div>
  <div class="ac"><div class="card2"><h4>الدخل والمصروفات ${Y}</h4><div class="mc">${ml.map((m,i)=>`<div class="mcol"><div class="mb"><u style="height:${m[0]/mx*100}%"></u><s style="height:${m[1]/mx*100}%"></s></div><small>${i+1}</small></div>`).join("")}</div><small class="lg"><b class="pos">■</b> دخل &nbsp; <b class="neg">■</b> مصروف</small></div>
  <div class="card2"><h4>المبيعات حسب النوع</h4>${hb(SALE.map(c=>{const s=sales.filter(t=>t.cat===c);return [c,sum(s),cnt(s)+" عملية"]}))}</div>
  <div class="card2"><h4>الكورسات الأكثر اشتراكاً</h4>${hb(topN(crs,t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الباقات الأكثر اشتراكاً</h4>${hb(topN(sales.filter(t=>t.cat==="باقة اشتراك"),t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الفعاليات</h4>${hb(topN(sales.filter(t=>t.cat==="فعالية / ورشة"),t=>t.item),n=>n+" مشارك")}</div>
  ${taskCard()}${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
- bindP();bindRenew(v);bindTasks(v);if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
+ bindP();if($("insb"))$("insb").onclick=openInsights;bindRenew(v);bindTasks(v);if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 const fl=()=>{const q=AQ.trim().toLowerCase();return T.filter(inP).filter(t=>(!AK||t.kind===AK)&&(!AMt||t.method===AMt)&&(!q||[t.cat,t.item,t.note,t.ref].join(" ").toLowerCase().includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date)))};
 function bindL(){const f=fl();
@@ -206,8 +206,8 @@ function openT(t){
  <label>جهة الاتصال (اختياري)</label><select id="g_con"><option value="">—</option>${C.map(c=>`<option value="${esc(c.id)}" ${c.id===k.con?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
  <label>ملاحظة</label><input id="g_note" value="${esc(k.note)}">
  ${t?"":`<label class="oto"><input type="checkbox" id="g_rep" style="width:auto"> كرر شهرياً حتى آخر السنة</label>`}
- <div class="row"><button class="pri" id="g_save">حفظ</button><button id="b_x">إغلاق</button></div>${t?`<div class="row"><button id="b_del" style="color:var(--dg)">حذف</button></div>`:""}`;
- $("ov").classList.add("on");$("b_x").onclick=close;
+ <div class="row"><button class="pri" id="g_save">حفظ</button><button id="b_x">إغلاق</button></div>${t?`<div class="row">${k.kind==="in"?`<button id="b_rc">إيصال</button>`:""}<button id="b_del" style="color:var(--dg)">حذف</button></div>`:""}`;
+ $("ov").classList.add("on");$("b_x").onclick=close;if($("b_rc"))$("b_rc").onclick=()=>openReceipt(k);
  const sy=()=>{const i=$("g_kind").value==="in";document.querySelectorAll(".ino").forEach(e=>e.style.display=i?"":"none");document.querySelectorAll(".oto").forEach(e=>e.style.display=i?"none":"")};
  $("g_kind").onchange=()=>{$("g_cat").innerHTML=opts($("g_kind").value==="in"?IN:OUT,"");sy()};sy();
  if($("b_del"))$("b_del").onclick=()=>{if(confirm("متأكد من الحذف؟ هتلاقيها في سجل التعديلات لو حبيت ترجّعها.")){delT(k.id);close()}};
@@ -222,7 +222,7 @@ function openT(t){
 let CG={ch:"wa",st:"",ty:"",co:"",ex:"",sj:"",msg:"أهلاً {الاسم}،\n"};
 const nm=c=>String(c.name||"").trim().split(/\s+/)[0];
 const waN=c=>{let p=String(c.wa||c.phone||"").replace(/\D/g,"");if(p.startsWith("00"))p=p.slice(2);if(p[0]==="0")p="20"+p.slice(1);return p.length>=11?p:""};
-const okc=c=>CG.ch==="wa"?(c.okW!==false&&!!waN(c)):(c.okM!==false&&/^\S+@\S+\.\S+$/.test(c.email||""));
+const okc=c=>!c.unsub&&(CG.ch==="wa"?(c.okW!==false&&!!waN(c)):(c.okM!==false&&/^\S+@\S+\.\S+$/.test(c.email||"")));
 const aud=()=>C.filter(c=>(c.stage!=="lost"||CG.st==="lost")&&(!CG.st||(CG.st==="subs"?(c.stage==="member"||c.stage==="renew"):c.stage===CG.st))&&(!CG.ty||c.type===CG.ty)&&(!CG.co||String(c.course||"").toLowerCase().includes(CG.co.toLowerCase()))&&(!CG.ex||(d=>d!==null&&d<=+CG.ex&&d>=-30)(days(c.exp))));
 const msgFor=c=>CG.msg.replace(/\{الاسم\}/g,nm(c));
 async function dlCsv(file,H,R){
@@ -251,6 +251,7 @@ async function runSend(id){const pg=()=>$("cg_pg");let last=null;
   if(!last.remaining){alert(`✅ خلصت: اتبعت ${last.sent} من ${last.total}${last.failed?`، وفشل ${last.failed}`:""}`);break}}
  render()}
 function camp(v){
+ loadAut();
  const A=aud(),R=A.filter(okc),ex=A.length-R.length;
  v.innerHTML=`<div class="ac" style="padding-top:12px"><div class="card2" style="margin-top:0"><h4>حملة جديدة</h4>
  <label class="cl">القناة</label><select id="cg_ch"><option value="wa" ${CG.ch==="wa"?"selected":""}>واتساب</option><option value="mail" ${CG.ch==="mail"?"selected":""}>إيميل</option></select>
@@ -266,7 +267,8 @@ function camp(v){
  <div class="row"><button id="cg_t">تجربة على رقم/إيميل واحد</button><button class="pri" id="cg_go" ${R.length?"":"disabled"}>إرسال لكل المستلمين (${R.length})</button></div>
  <small class="lg" id="cg_pg">الإرسال محتاج ربط الواتساب/الإيميل من الإعدادات. جرّب على نفسك الأول. اللي مفيش عندهم موافقة بيتستبعدوا تلقائي.</small></div>
  ${CG.ch==="wa"&&R.length?`<div class="card2"><h4>إرسال يدوي (واتساب)</h4>${R.slice(0,30).map(c=>`<div class="hb"><div class="hl"><span>${esc(c.name)}</span><a class="wa" target="_blank" rel="noopener" data-w="${esc(c.id)}" href="#">إرسال</a></div></div>`).join("")}${R.length>30?`<small class="lg">أول 30 فقط، الباقي في ملف CSV</small>`:""}</div>`:""}
- <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.sent!=null?`<a href="#" data-kd="${esc(k.id)}" class="wa">تفاصيل</a> `:""}${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div></div>`;
+ <div class="card2"><h4>الحملات المحفوظة (${K.length})</h4>${K.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(k=>`<div class="hb"><div class="hl"><span>${esc(k.name)} · ${k.ch==="wa"?"واتساب":"إيميل"} · ${k.n} مستلم</span><span><a href="#" data-lk="${esc(k.id)}" class="wa">تحميل</a> ${k.sent!=null?`<a href="#" data-kd="${esc(k.id)}" class="wa">تفاصيل</a> `:""}${k.status!=="sent"&&P.camp?`<a href="#" data-sk="${esc(k.id)}" class="wa">${k.status==="sending"?"كمّل الإرسال":"إرسال"}</a>`:""} <a href="#" data-dk="${esc(k.id)}" style="color:var(--dg)">حذف</a></span></div><small class="lg">${esc(k.date)} · ${k.status==="sent"?"اتبعتت":k.status==="sending"?"إرسال ناقص":"مسودة"}${k.sent!=null?` · ✓ ${k.sent}${k.failed?` · ✗ ${k.failed}`:""}`:""}</small></div>`).join("")||`<div class="empty" style="padding:10px">لا توجد حملات</div>`}</div>${autoCard()}</div>`;
+ bindAut(v);
  const g=(id,k)=>{$(id).onchange=e=>{CG[k]=e.target.value;setTimeout(render,0)}};
  g("cg_ch","ch");g("cg_st","st");g("cg_ty","ty");g("cg_co","co");g("cg_ex","ex");if($("cg_sj"))$("cg_sj").oninput=e=>{CG.sj=e.target.value};
  $("cg_msg").oninput=e=>{CG.msg=e.target.value;if($("cg_pv")&&R[0])$("cg_pv").textContent=msgFor(R[0])};
@@ -625,20 +627,23 @@ function chanCard(){
  <div>${f("cf_ig","Instagram Account ID (اختياري)",c.ig_id,"")}</div><div>${f("cf_gv","Graph API Version",c.graph_version,"v25.0")}</div></div>
   <h4 style="margin-top:12px">إرسال الحملات</h4><small class="lg">إيميل: حساب Resend (مجاني 100 رسالة/يوم) ودومين متوثّق. واتساب: لازم قالب معتمد من Meta بمتغيرين: {{1}} اسم العميل، و{{2}} نص الرسالة.</small>
  ${f("cf_rk","Resend API Key","","",'resend_key')}
- <div class="g2"><div>${f("cf_mf","إيميل المرسل (مثال: Biosyn <hello@biosynegypt.com>)",c.mail_from,"")}</div><div>${f("cf_wtn","اسم قالب واتساب المعتمد",c.wa_template,"")}</div><div>${f("cf_wl","لغة القالب",c.wa_lang,"ar")}</div></div>
+ <div class="g2"><div>${f("cf_mf","إيميل المرسل (مثال: Biosyn <hello@biosynegypt.com>)",c.mail_from,"")}</div><div>${f("cf_wtn","اسم قالب واتساب المعتمد",c.wa_template,"")}</div><div>${f("cf_wl","لغة القالب",c.wa_lang,"ar")}</div><div>${f("cf_wta","قالب واتساب للأتمتة (رسائل خدمية، اختياري)",c.wa_template_auto,"")}</div></div>
  <div class="row"><button class="pri" id="cf_sv">حفظ</button><button id="cf_ts">اختبار الاتصال</button></div>
  ${INB.cfgOut?`<div class="tw" style="padding:8px 0 0"><table>${Object.entries({whatsapp:"واتساب",messenger:"ماسنجر",instagram:"إنستجرام",webhook:"استقبال الرسائل"}).map(([k,n])=>`<tr><td>${n}</td><td style="white-space:normal">${esc(INB.cfgOut[k]||"")}</td></tr>`).join("")}</table></div>`:""}
  <h4 style="margin-top:14px">ربط الموقع (WooCommerce)</h4>
  <small class="lg">كل طلب مكتمل/قيد التنفيذ بيتحوّل لعميل + عملية دخل تلقائي. في ووردبريس: WooCommerce ← الإعدادات ← متقدم ← Webhooks ← إضافة. الموضوع: <b>Order updated</b> (وكرر بـ Order created لو حبيت)، وحط:</small>
  <label class="cl">Delivery URL</label><div class="cpy"><code>${esc(c.woo_url)}</code><button data-cp="${esc(c.woo_url)}">نسخ</button></div>
  <label class="cl">Secret</label><div class="cpy"><code>${esc(c.woo_secret)}</code><button data-cp="${esc(c.woo_secret)}">نسخ</button></div>
- <div class="row"><button id="woo_rg">سر جديد</button></div></div>`;
+ <div class="row"><button id="woo_rg">سر جديد</button></div>
+ <h4 style="margin-top:14px">نموذج تسجيل للموقع</h4>
+ <small class="lg">انسخ الكود ده والصقه في صفحة الموقع (في ووردبريس: بلوك «HTML مخصص»). أي حد يملأه بيدخل عندك عميل محتمل جديد مع مصدره، ومهمة رد في قايمة المهام. ممكن تغيّر قيمة المصدر المخفية (src) لـ فيسبوك أو إنستجرام حسب الصفحة. بيقبل إعلانات utm تلقائي.</small>
+ <label class="cl">الكود</label><textarea readonly rows="6" id="lead_code" style="direction:ltr;font-size:12px">${esc(leadSnippet(c.lead_url))}</textarea><div class="row"><button data-cp="${esc(leadSnippet(c.lead_url))}">نسخ الكود</button></div></div>`;
 }
 function bindChan(v){
  if($("woo_rg"))$("woo_rg").onclick=async()=>{if(!confirm("هيتغيّر السر وتحتاج تحدّثه في WooCommerce. متأكد؟"))return;const r=await cfgCall({action:"woo_regen"});if(r.error)alert(r.error);else{INB.cfg=r.data;render()}};
  v.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.cp);b.textContent="اتنسخ"}catch(e){}});
  if($("cf_sv"))$("cf_sv").onclick=async()=>{
-  const body={action:"save",app_secret:$("cf_as").value,wa_phone_number_id:$("cf_wp").value,wa_token:$("cf_wt").value,page_id:$("cf_pi").value,page_token:$("cf_pt").value,ig_id:$("cf_ig").value,graph_version:$("cf_gv").value,resend_key:$("cf_rk").value,mail_from:$("cf_mf").value,wa_template:$("cf_wtn").value,wa_lang:$("cf_wl").value};
+  const body={action:"save",app_secret:$("cf_as").value,wa_phone_number_id:$("cf_wp").value,wa_token:$("cf_wt").value,page_id:$("cf_pi").value,page_token:$("cf_pt").value,ig_id:$("cf_ig").value,graph_version:$("cf_gv").value,resend_key:$("cf_rk").value,mail_from:$("cf_mf").value,wa_template:$("cf_wtn").value,wa_lang:$("cf_wl").value,wa_template_auto:$("cf_wta").value};
   $("cf_sv").disabled=true;const r=await cfgCall(body);if(r.error){alert(r.error);$("cf_sv").disabled=false;return}INB.cfg=r.data;INB.cfgOut=null;render();alert("اتحفظ")};
  if($("cf_ts"))$("cf_ts").onclick=async()=>{$("cf_ts").disabled=true;$("cf_ts").textContent="جاري الاختبار…";const r=await cfgCall({action:"test"});if(r.error){alert(r.error)}else INB.cfgOut=r.data;render()};
 }
@@ -702,14 +707,14 @@ function open(c){
  <div><label>النوع</label><select id="f_type">${opts(TY,k.type)}</select></div><div><label>المرحلة</label><select id="f_stage">${opts(ST,k.stage)}</select></div>
  <div><label>المصدر</label><select id="f_src">${opts(SR,k.src)}</select></div><div><label>انتهاء الاشتراك</label><input id="f_exp" type="date" value="${esc(k.exp)}"></div></div>
  <div class="g2"><div><label>الكورس المهتم به</label><input id="f_course" value="${esc(k.course)}"></div><div><label>موعد المتابعة</label><input id="f_nxt" type="date" value="${esc(k.nxt)}"></div></div>
- <div class="cons"><label><input type="checkbox" id="f_okm" ${k.okM!==false?"checked":""}> موافق على الإيميلات</label><label><input type="checkbox" id="f_okw" ${k.okW!==false?"checked":""}> موافق على واتساب</label></div>
+ <div class="cons"><label><input type="checkbox" id="f_okm" ${k.okM!==false?"checked":""}> موافق على الإيميلات</label><label><input type="checkbox" id="f_okw" ${k.okW!==false?"checked":""}> موافق على واتساب</label></div>${k.unsub?`<div class="note" style="margin:6px 0">العميل ده ألغى الاشتراك من الرسائل. لو فعّلت الموافقة تاني الإلغاء بيتشال.</div>`:""}
  ${P.fin&&P.cw?`<div class="card2" style="margin:8px 0"><label class="oto" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="pay_on" style="width:auto"> <b>تسجيل دفع اشتراك لهذا العميل (بينزل في الحسابات)</b></label>
  <div id="pay_box" style="display:none"><div class="g2"><div><label>الاشتراك / الكورس</label><input id="pay_item" list="pay_dl" placeholder="اختار أو اكتب"><datalist id="pay_dl">${[...new Set([...PLANS,...COURSES,...T.map(x=>x.item).filter(Boolean)])].map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
  <div><label>القيمة (جنيه)</label><input id="pay_amt" type="number" min="0" step="any" inputmode="decimal"></div>
  <div><label>تاريخ الدفع</label><input id="pay_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div><label>طريقة الدفع</label><select id="pay_met">${opts(MET,"")}</select></div>
  <div><label>الحالة</label><select id="pay_st">${opts(STS,"paid")}</select></div><div><label>البند</label><select id="pay_cat">${opts(SALE,"باقة اشتراك")}</select></div></div>
  <small class="lg">لو الاشتراك باقة (شهرية/ربع/نصف/سنوية) بيتحسب تاريخ الانتهاء ويتحوّل العميل لـ "مشترك" تلقائي.</small></div></div>`:""}
- ${P.fin&&!isNew?(()=>{const L=T.filter(x=>x.con===k.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));return L.length?`<div class="log"><b>مدفوعاته</b>`+L.map(x=>`<div>${esc(x.date)} — ${esc(x.item||x.cat||"")} — ${fm(x.amt)}${x.status!=="paid"?" ("+esc(lbl(STS,x.status))+")":""}</div>`).join("")+`</div>`:""})():""}
+ ${P.fin&&!isNew?(()=>{const L=T.filter(x=>x.con===k.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));return L.length?`<div class="log"><b>مدفوعاته</b>`+L.map(x=>`<div>${esc(x.date)} — ${esc(x.item||x.cat||"")} — ${fm(x.amt)}${x.status!=="paid"?" ("+esc(lbl(STS,x.status))+")":""} ${x.kind==="in"?`<a href="#" data-rc="${esc(x.id)}" class="wa">إيصال</a>`:""}</div>`).join("")+`</div>`:""})():""}
  ${!isNew&&TK.ok?(()=>{const L=TK.rows.filter(t=>!t.done&&t.contact_id===k.id).sort(tsort);return `<div class="card2" style="margin:8px 0"><b>مهام متابعة</b>${L.map(trow).join("")}<div class="row"><button type="button" id="b_tk">+ مهمة متابعة</button></div></div>`})():""}
  ${!isNew&&P.inbox?(()=>{const l10=x=>String(x||"").replace(/\D/g,"").slice(-10),p10=l10(k.phone)||l10(k.wa),L=INB.convs.filter(c=>c.contact_id===k.id||(p10.length===10&&(c.channel==="whatsapp"||c.channel==="test")&&l10(c.external_id)===p10)).slice(0,6);
   return L.length?`<div class="card2" style="margin:8px 0"><b>محادثاته</b>${L.map(c=>`<div class="hb" data-oc="${esc(c.id)}" style="cursor:pointer"><div class="hl"><span>${esc((CHN[c.channel]||CHN.test)[0])}<br><small class="lg">${esc((c.last_preview||"").slice(0,60))}</small></span><small>${esc(hm(c.last_message_at))}</small></div></div>`).join("")}</div>`:""})():""}
@@ -733,7 +738,7 @@ function open(c){
   const em=$("f_email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){alert("الإيميل غير صحيح");return}
   const ph=wa($("f_phone").value),dp=ph&&C.find(x=>x.id!==k.id&&wa(x.phone)===ph);
   if(dp&&!confirm("الرقم ده موجود قبل كده باسم "+dp.name+". تحفظ برضه؟"))return;
-  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,log:(k.log||[]).slice()};
+  const u={...k,name:n,phone:$("f_phone").value.trim(),email:$("f_email").value.trim(),type:$("f_type").value,stage:$("f_stage").value,src:$("f_src").value,exp:$("f_exp").value,course:$("f_course").value.trim(),nxt:$("f_nxt").value,wa:$("f_wa").value.trim(),okM:$("f_okm").checked,okW:$("f_okw").checked,log:(k.log||[]).slice()};if(k.unsub&&(u.okM||u.okW))u.unsub=false;
   const t=$("f_note").value.trim();if(t)u.log.push({t:new Date().toISOString().slice(0,10),x:t});
   let tx=null;
   if($("pay_on")&&$("pay_on").checked){
@@ -796,6 +801,94 @@ function openSearch(){
  };
 }
 $("gs").onclick=openSearch;
+
+/* ===== الأتمتة + التحليلات + الإيصالات + نموذج الموقع ===== */
+const AUT={rules:null,log:null,loaded:false,open:""};
+const AKN={welcome:["ترحيب بعد الدفع","بيتبعت لكل دفعة جديدة مسجلة في آخر 3 أيام، مرة واحدة لكل دفعة."],renew:["تذكير بالتجديد","بيتبعت مرة واحدة لكل اشتراك قبل انتهائه بالأيام اللي تحددها."],followup:["متابعة من غير رد","لو آخر رسالة من فريقكم ومفيش رد، بيتعمل مهمة متابعة في قايمة المهام."],stage:["تحديث المرحلة تلقائياً","المشترك ينتقل لـ«تجديد قريب» قبل الانتهاء، ولـ«متوقف» بعد انتهاء الاشتراك بـ30 يوم."]};
+async function loadAut(){if(!SB||!P.camp||AUT.loaded)return;AUT.loaded=true;
+ const[a,b]=await Promise.all([SB.from("automations").select("*").order("created_at",{ascending:true}),SB.from("automation_log").select("*").order("at",{ascending:false}).limit(30)]);
+ if(!a.error)AUT.rules=a.data||[];if(!b.error)AUT.log=b.data||[];if(tab===4)render()}
+function autoCard(){
+ if(!P.camp||!SB)return "";
+ if(!AUT.rules)return `<div class="card2"><h4>الأتمتة</h4><div class="empty" style="padding:10px">جاري التحميل…</div></div>`;
+ const rl=r=>{const d=(AKN[r.kind]||["",""])[1],msg=r.kind==="welcome"||r.kind==="renew",dl=r.kind==="renew"?"قبل الانتهاء بكام يوم":r.kind==="followup"?"من غير رد لمدة (يوم)":"قبل الانتهاء بكام يوم ينتقل لتجديد قريب";
+  return `<details class="hb" data-ad="${esc(r.id)}" ${AUT.open===r.id?"open":""}><summary class="hl" style="cursor:pointer"><span>${esc(r.name)}</span><span class="tag ${r.enabled?"":"w"}">${r.enabled?"شغّالة":"مقفولة"}</span></summary>
+  <small class="lg">${esc(d)}</small>
+  <label class="oto" style="display:block;margin:6px 0"><input type="checkbox" id="au_en_${esc(r.id)}" style="width:auto" ${r.enabled?"checked":""}> شغّالة (بتتنفذ تلقائي كل يوم الصبح)</label>
+  ${r.kind==="welcome"?"":`<label class="cl">${dl}</label><input type="number" min="0" max="365" id="au_d_${esc(r.id)}" value="${esc(r.days)}">`}
+  ${msg?`<label class="cl">القناة</label><select id="au_c_${esc(r.id)}"><option value="auto" ${r.ch==="auto"?"selected":""}>تلقائي (واتساب لو متاح وإلا إيميل)</option><option value="wa" ${r.ch==="wa"?"selected":""}>واتساب فقط</option><option value="mail" ${r.ch==="mail"?"selected":""}>إيميل فقط</option></select>
+  <label class="cl">عنوان الإيميل</label><input id="au_s_${esc(r.id)}" value="${esc(r.subject||"")}">
+  <label class="cl">نص الرسالة (استخدم {الاسم})</label><textarea id="au_m_${esc(r.id)}" rows="3">${esc(r.msg||"")}</textarea>`:""}
+  <div class="row"><button class="pri" data-au-s="${esc(r.id)}">حفظ</button><button data-au-p="${esc(r.id)}">معاينة مين هيتأثر</button><button data-au-r="${esc(r.id)}">شغّلها دلوقتي</button></div></details>`};
+ const nr=Object.fromEntries(AUT.rules.map(r=>[r.id,r.name])),SN={sent:"تم",done:"تم",failed:"فشل",skipped:"اتخطّى"};
+ const lg=(AUT.log||[]).slice(0,15).map(l=>{const c=C.find(x=>x.id===l.contact_id);return `<div class="hb"><div class="hl"><span>${esc(nr[l.rule_id]||"")}${c?" · "+esc(c.name):""}<br><small>${esc(new Date(l.at).toLocaleString("ar-EG"))}${l.error?" · "+esc(l.error):""}</small></span><span class="tag ${l.status==="failed"?"w":""}">${SN[l.status]||esc(l.status)}</span></div></div>`}).join("");
+ return `<div class="card2"><h4>الأتمتة</h4><small class="lg">القواعد مقفولة لحد ما تفعّلها. بتتنفذ لوحدها كل يوم الصبح، وكل رسالة بتتبعت مرة واحدة بس لكل مناسبة. اللي ألغى الاشتراك مش بيوصله حاجة. رسائل واتساب بتستخدم قالب الأتمتة (أو قالب الحملات لو فاضي).</small>${AUT.rules.map(rl).join("")}
+ <h4 style="margin-top:12px">آخر التنفيذات</h4>${lg||`<div class="empty" style="padding:10px">لسه مفيش تنفيذات</div>`}</div>`}
+function bindAut(v){
+ v.querySelectorAll("[data-ad]").forEach(d=>d.ontoggle=()=>{if(d.open)AUT.open=d.dataset.ad;else if(AUT.open===d.dataset.ad)AUT.open=""});
+ const rule=id=>(AUT.rules||[]).find(r=>r.id===id);
+ v.querySelectorAll("[data-au-s]").forEach(b=>b.onclick=async()=>{const id=b.dataset.auS,r=rule(id);if(!r)return;
+  const g=x=>$("au_"+x+"_"+id),p={enabled:g("en").checked};
+  if(g("d"))p.days=Math.max(0,Math.min(365,parseInt(g("d").value)||0));
+  if(g("c")){p.ch=g("c").value;p.subject=g("s").value.trim()||null;p.msg=g("m").value.trim()||null;if(p.enabled&&!p.msg){alert("اكتب نص الرسالة قبل التفعيل");return}}
+  b.disabled=true;const{error}=await SB.from("automations").update(p).eq("id",id);b.disabled=false;
+  if(error){alert("تعذر الحفظ: "+error.message);return}Object.assign(r,p);AUT.open=id;render()});
+ const run=async(id,dry)=>{const r=await fnCall("automation-run",{rule_id:id,dry});if(r.error){alert("❌ "+r.error);return}
+  const x=(r.data.results||[])[0];if(!x){alert("مفيش نتيجة");return}
+  if(dry)alert("هيتأثر "+x.due+" عميل/عنصر دلوقتي. لسه مفيش حاجة اتبعتت.");
+  else{alert((x.note?x.note+"\n":"")+"تم: "+x.sent+" · فشل: "+x.failed+" · اتخطّى: "+x.skipped);AUT.loaded=false;loadAut()}};
+ v.querySelectorAll("[data-au-p]").forEach(b=>b.onclick=()=>run(b.dataset.auP,true));
+ v.querySelectorAll("[data-au-r]").forEach(b=>b.onclick=()=>{const r=rule(b.dataset.auR);if(!r)return;if(!r.enabled){alert("فعّل القاعدة الأول واحفظها");return}if(confirm("هتتنفذ دلوقتي على اللي مستحق. متأكد؟"))run(r.id,false)});
+}
+
+const leadSnippet=u=>`<form id="bio-lead" style="max-width:420px">
+<input type="hidden" name="src" value="الموقع">
+<input name="name" placeholder="الاسم" required style="width:100%;margin:4px 0;padding:10px;box-sizing:border-box">
+<input name="phone" type="tel" placeholder="رقم الموبايل (واتساب)" style="width:100%;margin:4px 0;padding:10px;box-sizing:border-box">
+<input name="email" type="email" placeholder="الإيميل" style="width:100%;margin:4px 0;padding:10px;box-sizing:border-box">
+<input name="course" placeholder="الكورس المهتم به (اختياري)" style="width:100%;margin:4px 0;padding:10px;box-sizing:border-box">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+<label style="display:block;margin:6px 0"><input type="checkbox" name="consent"> أوافق على استقبال رسائل من Biosyn Egypt عبر الإيميل والواتساب</label>
+<button style="padding:10px 22px">إرسال</button><p class="bio-msg" role="status"></p></form>
+<script>
+document.getElementById("bio-lead").addEventListener("submit",async function(e){e.preventDefault();var f=e.target,b={},q=new URLSearchParams(location.search),m=f.querySelector(".bio-msg");
+new FormData(f).forEach(function(v,k){b[k]=v});["utm_source","utm_medium","utm_campaign"].forEach(function(k){if(q.get(k))b[k]=q.get(k)});b.consent=f.consent.checked;
+try{var r=await fetch("${u}",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});var j=await r.json();
+if(r.ok){f.reset();m.textContent="وصلنا طلبك وهنتواصل معاك قريب"}else m.textContent=j.error||"حصل خطأ"}catch(x){m.textContent="تعذر الإرسال، جرّب تاني"}});
+<\/script>`;
+
+function openInsights(){
+ const paid=T.filter(t=>isI(t)&&st(t)==="paid"),rev={};paid.forEach(t=>{if(t.con)rev[t.con]=(rev[t.con]||0)+(+t.amt||0)});
+ const fin=!!P.fin,pc=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+ const src={};C.forEach(c=>{const k=c.src||"غير محدد",o=src[k]=src[k]||{n:0,cv:0,r:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0});
+ const srows=Object.entries(src).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}</td><td>${pc(o.cv,o.n)}</td>${fin?`<td>${fm(o.r)}</td>`:""}</tr>`).join("");
+ const fun=ST.map(([k,n])=>`<tr><td>${esc(n)}</td><td>${C.filter(c=>c.stage===k).length}</td></tr>`).join("");
+ const plan=paid.filter(t=>t.cat==="باقة اشتراك"&&t.con),byC={};plan.forEach(t=>{(byC[t.con]=byC[t.con]||[]).push(t)});
+ const A=Object.keys(byC).length,B=Object.values(byC).filter(a=>a.length>=2).length,rr=A?B/A:0;
+ const subs=C.filter(c=>c.stage==="member"||c.stage==="renew"),dd=c=>c.exp?days(c.exp):null;
+ const act=subs.filter(c=>dd(c)!==null&&dd(c)>=0).length,soon=subs.filter(c=>dd(c)!==null&&dd(c)>=0&&dd(c)<=30).length,gone=C.filter(c=>c.exp&&dd(c)<0).length;
+ const lastAmt=c=>{const a=(byC[c.id]||[]).slice().sort((x,y)=>String(y.date).localeCompare(String(x.date)))[0];return a?+a.amt||0:0};
+ const avgPlan=plan.length?sum(plan)/plan.length:0;
+ const now=new Date(),fc=[0,1,2].map(i=>{const d=new Date(now.getFullYear(),now.getMonth()+i,1),y=d.getFullYear(),m=d.getMonth(),L=subs.filter(c=>c.exp&&(x=>x.getFullYear()===y&&x.getMonth()===m)(new Date(c.exp+"T00:00:00")));
+  const amt=L.reduce((a,c)=>a+(lastAmt(c)||avgPlan),0);return [MN[m]+" "+y,L.length,amt]});
+ const pay=Object.values(rev),ltv=pay.length?pay.reduce((a,b)=>a+b,0)/pay.length:0;
+ $("md").innerHTML=`<div class="rep"><h2 style="margin:0">تحليلات العملاء</h2><small>${esc(new Date().toLocaleDateString("ar-EG"))}</small>
+ <h3>مصادر العملاء</h3><table><tr><th>المصدر</th><th>عملاء</th><th>اشتركوا</th><th>التحويل</th>${fin?"<th>الدخل</th>":""}</tr>${srows||`<tr><td colspan="5">لا يوجد</td></tr>`}</table>
+ <h3>مراحل العملاء</h3><table>${fun}</table>
+ <h3>الاحتفاظ بالمشتركين</h3><table><tr><td>مشتركين نشطين (اشتراكهم ساري)</td><td>${act}</td></tr><tr><td>اشتراكهم بينتهي خلال 30 يوم</td><td>${soon}</td></tr><tr><td>اشتراكهم انتهى</td><td>${gone}</td></tr>${fin?`<tr><td>معدل التجديد (اشتروا باقة أكتر من مرة)</td><td>${A?pc(B,A)+" ("+B+" من "+A+")":"لسه مفيش بيانات كفاية"}</td></tr><tr><td>متوسط ما دفعه العميل الواحد</td><td>${pay.length?fm(ltv):"—"}</td></tr>`:""}</table>
+ <h3>الاشتراكات المنتهية قريباً${fin?" والدخل المتوقع":""}</h3><table><tr><th>الشهر</th><th>اشتراكات بتنتهي</th>${fin?"<th>لو جددوا كلهم</th>"+(A>=3?"<th>بمعدل تجديدكم</th>":""):""}</tr>${fc.map(f=>`<tr><td>${esc(f[0])}</td><td>${f[1]}</td>${fin?`<td>${fm(f[2])}</td>`+(A>=3?`<td>${fm(f[2]*rr)}</td>`:""):""}</tr>`).join("")}</table>
+ <div class="row noprint" style="margin-top:14px"><button class="pri" id="in_p">طباعة / حفظ PDF</button><button id="in_x">إغلاق</button></div></div>`;
+ $("ov").classList.add("on");$("in_x").onclick=close;$("in_p").onclick=()=>window.print();
+}
+function openReceipt(t){
+ if(!t)return;const c=C.find(x=>x.id===t.con)||{},no=t.ref||String(t.id).slice(-6).toUpperCase();
+ $("md").innerHTML=`<div class="rep"><h2 style="margin:0">Biosyn Egypt</h2><small>إيصال دفع</small>
+ <table style="margin-top:12px"><tr><td>رقم الإيصال</td><td>${esc(no)}</td></tr><tr><td>التاريخ</td><td>${esc(t.date)}</td></tr><tr><td>العميل</td><td>${esc(c.name||"—")}</td></tr><tr><td>البند</td><td>${esc(t.item||t.cat||"")}</td></tr><tr><td>العدد</td><td>${esc(t.qty||1)}</td></tr><tr><td>طريقة الدفع</td><td>${esc(t.method||"—")}</td></tr><tr><td>الحالة</td><td>${esc(lbl(STS,st(t)))}</td></tr><tr><td><b>المبلغ</b></td><td><b>${fm(t.amt)}</b></td></tr></table>
+ <p style="margin-top:14px">شكراً لثقتك في Biosyn Egypt · www.biosynegypt.com</p>
+ <div class="row noprint" style="margin-top:14px"><button class="pri" id="rc_p">طباعة / حفظ PDF</button><button id="rc_x">إغلاق</button></div></div>`;
+ $("ov").classList.add("on");$("rc_x").onclick=close;$("rc_p").onclick=()=>window.print();
+}
+$("md").addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-rc]");if(a){e.preventDefault();openReceipt(T.find(x=>x.id===a.dataset.rc))}});
 
 /* ===== مهام + ردود جاهزة + دمج المكررين ===== */
 const TK={rows:[],team:[],ok:false,loaded:false},QR={rows:[],loaded:false};

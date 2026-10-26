@@ -1,17 +1,8 @@
 // إرسال حملة (واتساب بقالب معتمد / إيميل عبر Resend). بيشتغل على دفعات صغيرة ويكمل من حيث وقف.
 import { CORS, json, serviceDb, requirePerm, getSecrets } from "./inbox.ts";
+import { sendMsg, waN, mailOk } from "./send.ts";
 
 const BATCH = 30;
-const nm = (c: Record<string, any>) => String(c.name || "").trim().split(/\s+/)[0];
-const waN = (c: Record<string, any>) => {
-  let p = String(c.wa || c.phone || "").replace(/\D/g, "");
-  if (p.startsWith("00")) p = p.slice(2);
-  if (p[0] === "0") p = "20" + p.slice(1);
-  return p.length >= 11 ? p : "";
-};
-const mailOk = (e: unknown) => /^\S+@\S+\.\S+$/.test(String(e || ""));
-const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 // نفس منطق تحديد الجمهور والموافقات في الواجهة (السيرفر هو المرجع)
 function audience(k: Record<string, any>, contacts: { id: string; data: Record<string, any> }[]) {
   return contacts.filter(({ data: c }) => {
@@ -23,44 +14,13 @@ function audience(k: Record<string, any>, contacts: { id: string; data: Record<s
       const d = c.exp ? Math.ceil((new Date(c.exp).getTime() - Date.now()) / 864e5) : null;
       if (d === null || d > Number(k.ex) || d < -30) return false;
     }
+    if (c.unsub) return false;
     return k.ch === "wa" ? c.okW !== false && !!waN(c) : c.okM !== false && mailOk(c.email);
   });
 }
 
-async function sendOne(k: Record<string, any>, c: Record<string, any>, s: Record<string, any>, to?: string): Promise<string | null> {
-  const text = String(k.msg || "").replace(/\{الاسم\}/g, nm(c));
-  try {
-    if (k.ch === "wa") {
-      const v = s.graph_version || "v25.0";
-      const r = await fetch(`https://graph.facebook.com/${v}/${s.wa_phone_number_id}/messages`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${s.wa_token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messaging_product: "whatsapp", to: to || waN(c), type: "template",
-          template: {
-            name: s.wa_template, language: { code: s.wa_lang || "ar" },
-            components: [{ type: "body", parameters: [
-              { type: "text", text: nm(c) || "صديقنا" },
-              { type: "text", text: text.replace(/\s*[\r\n\t]+\s*/g, " ").replace(/ {4,}/g, "   ").trim().slice(0, 900) },
-            ] }],
-          },
-        }),
-      });
-      const j = await r.json();
-      return r.ok ? null : (j?.error?.message || "فشل الإرسال");
-    }
-    const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;font-size:15px;line-height:1.7">${esc(text).replace(/\n/g, "<br>")}<hr style="border:none;border-top:1px solid #ddd;margin:18px 0"><small style="color:#777">لو مش عايز تستقبل رسائلنا رد على الإيميل ده بكلمة "إلغاء".</small></div>`;
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${s.resend_key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: s.mail_from, to: [to || c.email], subject: k.sj || "رسالة من Biosyn Egypt", html, text: text + "\n\nلو مش عايز تستقبل رسائلنا رد بكلمة إلغاء." }),
-    });
-    const j = await r.json();
-    return r.ok ? null : (j?.message || j?.error?.message || "فشل الإرسال");
-  } catch {
-    return "تعذر الاتصال";
-  }
-}
+const sendOne = (k: Record<string, any>, c: Record<string, any>, s: Record<string, any>, to?: string, cid?: string) =>
+  sendMsg(k.ch, c, s, String(k.msg || ""), { subject: k.sj, to, contactId: cid });
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -101,7 +61,7 @@ Deno.serve(async (req) => {
 
   let sent = 0, failed = 0;
   for (const r of todo.slice(0, BATCH)) {
-    const err = await sendOne(k, r.data, s);
+    const err = await sendOne(k, r.data, s, undefined, r.id);
     await db.from("campaign_log").upsert({ campaign_id: row.id, contact_id: r.id, status: err ? "failed" : "sent", error: err, at: new Date().toISOString() });
     err ? failed++ : sent++;
     await new Promise((res) => setTimeout(res, k.ch === "wa" ? 80 : 600)); // Resend: حد 2 طلب/ثانية
