@@ -143,8 +143,8 @@ function dash(v){
  <div class="card2"><h4>الكورسات الأكثر اشتراكاً</h4>${hb(topN(crs,t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الباقات الأكثر اشتراكاً</h4>${hb(topN(sales.filter(t=>t.cat==="باقة اشتراك"),t=>t.item),n=>n+" اشتراك")}</div>
  <div class="card2"><h4>الفعاليات</h4>${hb(topN(sales.filter(t=>t.cat==="فعالية / ورشة"),t=>t.item),n=>n+" مشارك")}</div>
- ${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
- bindP();bindRenew(v);if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
+ ${taskCard()}${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
+ bindP();bindRenew(v);bindTasks(v);if($("bkn"))$("bkn").onclick=()=>goTab(5);v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 const fl=()=>{const q=AQ.trim().toLowerCase();return T.filter(inP).filter(t=>(!AK||t.kind===AK)&&(!AMt||t.method===AMt)&&(!q||[t.cat,t.item,t.note,t.ref].join(" ").toLowerCase().includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date)))};
 function bindL(){const f=fl();
@@ -395,7 +395,7 @@ function stg(v){
 }
 function dashS(v){
  const dc=C.filter(due),lc=C.filter(late),fu=[...new Set([...dc,...lc])].slice(0,8);
- v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(P.camp?kc("حملات محفوظة",K.length):"")}</div><div class="ac">${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
+ v.innerHTML=`<div class="kp">${kc("كل العملاء",C.length)+kc("مشتركين نشطين",C.filter(c=>c.stage==="member"||c.stage==="renew").length,"pos")+kc("عملاء محتملين",C.filter(c=>c.stage==="lead"||c.stage==="interested").length)+kc("تجديدات قريبة",dc.length,dc.length?"neg":"")+kc("متابعات متأخرة",lc.length,lc.length?"neg":"")+(P.camp?kc("حملات محفوظة",K.length):"")}</div><div class="ac">${taskCard()}${renewCard()}<div class="card2"><h4>تحتاج متابعة</h4>${fu.map(card).join("")||`<div class="empty" style="padding:10px">لا يوجد</div>`}</div></div>`;
  bindRenew(v); v.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>open(C.find(x=>x.id===e.dataset.id)));
 }
 function applyRole(){
@@ -462,11 +462,11 @@ function threadHtml(c){
  ${vw.length?`<div class="pres">${ty.length?"✍️ "+esc(ty.map(p=>p.name).join("، "))+" بيكتب دلوقتي…":"👁 "+esc(vw.map(p=>p.name).join("، "))+" فاتح المحادثة دي"}</div>`:""}
  <div class="ml" id="ib_ml">${INB.msgs.map(msgHtml).join("")||'<div class="empty">لا توجد رسائل</div>'}</div>
  ${old&&!INB.note?`<div class="note" style="border-radius:8px;margin:6px 0">عدّت أكتر من 24 ساعة على آخر رسالة من العميل، فـMeta مش هتسمح برد عادي. تقدر تكتب ملاحظة داخلية.</div>`:""}
- <div class="cmp"><textarea id="ib_tx" rows="2" placeholder="${INB.note?"ملاحظة داخلية (الفريق بس يشوفها)":"اكتب ردك… (Enter للإرسال)"}">${esc(INB.draft)}</textarea>
+ <div class="cmp"><div class="row" style="margin:0 0 6px"><button type="button" id="ib_qr" style="font-size:13px">⚡ ردود جاهزة</button></div><textarea id="ib_tx" rows="2" placeholder="${INB.note?"ملاحظة داخلية (الفريق بس يشوفها)":"اكتب ردك… (Enter للإرسال)"}">${esc(INB.draft)}</textarea>
  <div class="row" style="margin-top:6px;align-items:center"><label style="display:flex;gap:6px;align-items:center;font-size:13px;flex:1"><input type="checkbox" id="ib_nt" ${INB.note?"checked":""} style="width:auto">ملاحظة داخلية</label><button class="pri" id="ib_go" ${INB.busy?"disabled":""}>${INB.busy?"جاري…":INB.note?"حفظ الملاحظة":"إرسال"}</button></div></div></div>`}
 function inbox(v){
  if(!P.inbox){v.innerHTML='<div class="empty">مش عندك صلاحية صندوق الرسائل</div>';return}
- startInbox();
+ startInbox();loadQR();
  const cur=INB.open&&INB.convs.find(c=>c.id===INB.open);
  if(INB.open&&!cur&&INB.convs.length){INB.open=null;INB.msgs=[]}
  const ml=$("ib_ml"),atBottom=!ml||ml.scrollHeight-ml.scrollTop-ml.clientHeight<60,ae=document.activeElement,fx=ae&&ae.id==="ib_tx"?[ae.selectionStart,ae.selectionEnd]:null;
@@ -508,6 +508,7 @@ function bindThread(c,atBottom){
  tx.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendIb(c)}};
  $("ib_nt").onchange=e=>{INB.note=e.target.checked;render();const t=$("ib_tx");if(t)t.focus()};
  $("ib_go").onclick=()=>sendIb(c);
+ $("ib_qr").onclick=()=>qrDialog(c);
  if(document.activeElement===document.body&&INB.draft){tx.focus();tx.setSelectionRange(tx.value.length,tx.value.length)}
 }
 async function sendIb(c){
@@ -637,10 +638,12 @@ function open(c){
  <div><label>الحالة</label><select id="pay_st">${opts(STS,"paid")}</select></div><div><label>البند</label><select id="pay_cat">${opts(SALE,"باقة اشتراك")}</select></div></div>
  <small class="lg">لو الاشتراك باقة (شهرية/ربع/نصف/سنوية) بيتحسب تاريخ الانتهاء ويتحوّل العميل لـ "مشترك" تلقائي.</small></div></div>`:""}
  ${P.fin&&!isNew?(()=>{const L=T.filter(x=>x.con===k.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));return L.length?`<div class="log"><b>مدفوعاته</b>`+L.map(x=>`<div>${esc(x.date)} — ${esc(x.item||x.cat||"")} — ${fm(x.amt)}${x.status!=="paid"?" ("+esc(lbl(STS,x.status))+")":""}</div>`).join("")+`</div>`:""})():""}
+ ${!isNew&&TK.ok?(()=>{const L=TK.rows.filter(t=>!t.done&&t.contact_id===k.id).sort(tsort);return `<div class="card2" style="margin:8px 0"><b>مهام متابعة</b>${L.map(trow).join("")}<div class="row"><button type="button" id="b_tk">+ مهمة متابعة</button></div></div>`})():""}
  <label>ملاحظة جديدة</label><textarea id="f_note" rows="2"></textarea>
  ${(k.log||[]).length?`<div class="log">`+k.log.slice().reverse().map(l=>`<div><b>${esc(l.t)}</b> — ${esc(l.x)}</div>`).join("")+`</div>`:""}
  <div class="row"><button class="pri" id="b_save">حفظ</button>${w?`<a class="wa" href="${w}" target="_blank" rel="noopener"><button type="button">واتساب</button></a>`:""}<button id="b_x">إغلاق</button></div>
- ${isNew?"":`<div class="row"><button id="b_del" style="color:var(--dg)">حذف</button></div>`}`;
+ ${isNew?"":`<div class="row">${P.cw&&P.cdel?`<button id="b_mg">دمج مع عميل مكرر</button>`:""}<button id="b_del" style="color:var(--dg)">حذف</button></div>`}`;
+ bindTasks($("md"));if($("b_tk"))$("b_tk").onclick=()=>taskDialog(k.id);if($("b_mg"))$("b_mg").onclick=()=>openMerge(k);
  $("ov").classList.add("on");
  if(!P.cw){$("md").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);["b_save","b_del"].forEach(i=>{if($(i))$(i).style.display="none"})}
  if(!P.cdel&&$("b_del"))$("b_del").style.display="none";
@@ -718,6 +721,84 @@ function openSearch(){
  };
 }
 $("gs").onclick=openSearch;
+
+/* ===== مهام + ردود جاهزة + دمج المكررين ===== */
+const TK={rows:[],team:[],ok:false,loaded:false},QR={rows:[],loaded:false};
+async function loadTasks(){
+ if(!SB||!(P.cw||P.inbox||P.fin))return;TK.ok=true;
+ const r=await SB.from("tasks").select("*").order("created_at",{ascending:false});
+ if(!r.error)TK.rows=r.data||[];
+ if(!TK.team.length){const t=await SB.rpc("task_team");if(!t.error)TK.team=t.data||[]}
+ TK.loaded=true;if(tab===0||$("ov").classList.contains("on"))render()
+}
+const todayS=()=>new Date().toISOString().slice(0,10);
+const whoN=id=>{const t=TK.team.find(x=>x.id===id);return id===(ME&&ME.id)?"انت":t?(t.name||t.email):""};
+function trow(t){
+ const c=t.contact_id&&C.find(x=>x.id===t.contact_id),late=t.due&&t.due<todayS();
+ return `<div class="hb"><div class="hl"><label style="display:flex;gap:8px;align-items:center;flex:1"><input type="checkbox" data-tk="${esc(t.id)}" style="width:auto"><span>${esc(t.title)}<br><small class="${late?"neg":"lg"}">${t.due?esc(t.due)+(late?" · متأخرة":""):"من غير موعد"}${c?" · "+esc(c.name):""}${t.assigned_to&&t.assigned_to!==(ME&&ME.id)?" · "+esc(whoN(t.assigned_to)):""}</small></span></label><a href="#" data-td="${esc(t.id)}" style="color:var(--dg)">×</a></div></div>`}
+const tsort=(a,b)=>(a.due||"9999").localeCompare(b.due||"9999");
+function taskCard(){
+ if(!TK.ok)return "";
+ const op=TK.rows.filter(t=>!t.done),mine=op.filter(t=>t.assigned_to===ME.id).sort(tsort),oth=op.filter(t=>t.assigned_to!==ME.id).sort(tsort);
+ return `<div class="card2"><h4>مهامي <small>${mine.length}</small></h4>${mine.slice(0,8).map(trow).join("")||`<div class="empty" style="padding:10px">مفيش مهام</div>`}
+ ${oth.length?`<small class="lg">مهام باقي الفريق (${oth.length})</small>${oth.slice(0,4).map(trow).join("")}`:""}<div class="row"><button class="pri" id="tk_add">+ مهمة</button></div></div>`}
+function bindTasks(root){
+ root.querySelectorAll("[data-tk]").forEach(b=>b.onchange=async()=>{const id=b.dataset.tk;b.disabled=true;
+  const{error}=await SB.from("tasks").update({done:true,done_at:new Date().toISOString()}).eq("id",id);
+  if(error){alert("تعذر التحديث");b.disabled=false;return}const t=TK.rows.find(x=>x.id===id);if(t)t.done=true;render()});
+ root.querySelectorAll("[data-td]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف المهمة؟"))return;
+  const id=a.dataset.td;const{error}=await SB.from("tasks").delete().eq("id",id);if(error){alert("تعذر الحذف (بس صاحب المهمة أو الإدارة يقدروا يحذفوا)");return}TK.rows=TK.rows.filter(x=>x.id!==id);render()});
+ const ad=root.querySelector("#tk_add");if(ad)ad.onclick=()=>taskDialog(null);
+}
+function taskDialog(cid){
+ const tm=TK.team.length?TK.team:[{id:ME.id,name:ME.name,email:ME.email}],tm2=new Date(Date.now()+864e5).toISOString().slice(0,10);
+ $("md").innerHTML=`<h2 style="margin:0 0 4px;font-size:17px">مهمة جديدة</h2><label>المهمة</label><input id="tk_t" placeholder="مثال: كلّم العميل عن التجديد">
+ <div class="g2"><div><label>الموعد</label><input id="tk_d" type="date" value="${tm2}"></div><div><label>مسندة لـ</label><select id="tk_a">${tm.map(t=>`<option value="${esc(t.id)}" ${t.id===ME.id?"selected":""}>${esc(t.id===ME.id?"انا":(t.name||t.email))}</option>`).join("")}</select></div></div>
+ <label>العميل (اختياري)</label><select id="tk_c"><option value="">—</option>${C.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"ar")).map(c=>`<option value="${esc(c.id)}" ${c.id===cid?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+ <div class="row"><button class="pri" id="tk_s">حفظ</button><button id="tk_x">إغلاق</button></div>`;
+ $("ov").classList.add("on");$("tk_x").onclick=close;$("tk_t").focus();
+ $("tk_s").onclick=async()=>{const title=$("tk_t").value.trim();if(!title){alert("اكتب المهمة");return}
+  $("tk_s").disabled=true;
+  const{data,error}=await SB.from("tasks").insert({title,due:$("tk_d").value||null,assigned_to:$("tk_a").value||null,contact_id:$("tk_c").value||null}).select().single();
+  if(error){alert("تعذر الحفظ: "+(error.message||""));$("tk_s").disabled=false;return}
+  TK.rows.unshift(data);close();render()};
+}
+/* ردود جاهزة */
+async function loadQR(){if(!SB||!P.inbox||QR.loaded)return;QR.loaded=true;const r=await SB.from("quick_replies").select("*").order("created_at",{ascending:true});if(!r.error){QR.rows=r.data||[];if(tab===6)render()}}
+function qrDialog(c){
+ const first=String(cname(c)).trim().split(/\s+/)[0];
+ $("md").innerHTML=`<h2 style="margin:0 0 4px;font-size:17px">ردود جاهزة</h2><small class="lg">اضغط على الرد لإدراجه في الرسالة. {الاسم} بيتبدل باسم العميل.</small>
+ <div id="qr_l">${QR.rows.map(q=>`<div class="hb"><div class="hl"><a href="#" data-qi="${esc(q.id)}" style="flex:1"><b>${esc(q.title)}</b><br><small class="lg">${esc(q.body.slice(0,80))}</small></a><a href="#" data-qd="${esc(q.id)}" style="color:var(--dg)">×</a></div></div>`).join("")||'<div class="empty" style="padding:10px">لسه مفيش ردود</div>'}</div>
+ <h4 style="margin:12px 0 2px">رد جديد</h4><input id="qr_t" placeholder="عنوان (مثال: سعر الباقات)"><textarea id="qr_b" rows="3" placeholder="نص الرد">${esc(INB.draft||"")}</textarea>
+ <div class="row"><button class="pri" id="qr_s">حفظ كرد جاهز</button><button id="qr_x">إغلاق</button></div>`;
+ $("ov").classList.add("on");$("qr_x").onclick=close;
+ $("md").querySelectorAll("[data-qi]").forEach(a=>a.onclick=e=>{e.preventDefault();const q=QR.rows.find(x=>x.id===a.dataset.qi);INB.draft=(INB.draft?INB.draft+"\n":"")+q.body.replace(/\{الاسم\}/g,first);close();render();const t=$("ib_tx");if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length)}});
+ $("md").querySelectorAll("[data-qd]").forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm("حذف الرد؟"))return;const{error}=await SB.from("quick_replies").delete().eq("id",a.dataset.qd);if(error){alert("تعذر الحذف");return}QR.rows=QR.rows.filter(x=>x.id!==a.dataset.qd);qrDialog(c)});
+ $("qr_s").onclick=async()=>{const title=$("qr_t").value.trim(),body=$("qr_b").value.trim();if(!title||!body){alert("اكتب العنوان والنص");return}
+  const{data,error}=await SB.from("quick_replies").insert({title,body}).select().single();if(error){alert("تعذر الحفظ: "+(error.message||""));return}QR.rows.push(data);qrDialog(c)};
+}
+/* دمج عميلين مكررين */
+function openMerge(k){
+ $("md").innerHTML=`<h2 style="margin:0 0 4px;font-size:17px">دمج مع عميل مكرر</h2><small class="lg">هيتدمج العميل التاني جوه "${esc(k.name)}": بياناته ومدفوعاته ومحادثاته ومهامه، وبعدها يتحذف (وتقدر ترجّعه من سجل التعديلات).</small>
+ <input id="mg_q" placeholder="ابحث بالاسم أو الموبايل أو الإيميل" style="margin-top:8px"><div id="mg_r"></div><div class="row"><button id="mg_x">إلغاء</button></div>`;
+ $("ov").classList.add("on");$("mg_x").onclick=close;const dg=x=>String(x||"").replace(/\D/g,"");
+ $("mg_q").oninput=()=>{const q=$("mg_q").value.trim().toLowerCase(),qd=dg(q);const R=$("mg_r");if(q.length<2){R.innerHTML="";return}
+  const L=C.filter(c=>c.id!==k.id&&(String([c.name,c.email].join(" ")).toLowerCase().includes(q)||(qd.length>=4&&[c.phone,c.wa].some(x=>dg(x).includes(qd))))).slice(0,8);
+  R.innerHTML=L.map(c=>`<div class="hb" data-mg="${esc(c.id)}" style="cursor:pointer"><div class="hl"><span>${esc(c.name)}<br><small>${esc([c.phone,c.email].filter(Boolean).join(" · "))}</small></span><small>${esc(lbl(ST,c.stage))}</small></div></div>`).join("")||'<div class="empty" style="padding:10px">مفيش نتائج</div>';
+  R.querySelectorAll("[data-mg]").forEach(e=>e.onclick=()=>{const d=C.find(x=>x.id===e.dataset.mg);if(confirm(`دمج "${d.name}" جوه "${k.name}"؟`))doMerge(k,d)})};
+}
+async function doMerge(keep,drop){
+ const u={...keep};["phone","wa","email","course","src","nxt"].forEach(x=>{if(!u[x]&&drop[x])u[x]=drop[x]});
+ if(drop.exp&&(!u.exp||drop.exp>u.exp))u.exp=drop.exp;
+ if((u.stage==="lead"||u.stage==="interested"||u.stage==="lost")&&(drop.stage==="member"||drop.stage==="renew"))u.stage=drop.stage;
+ u.okM=keep.okM!==false&&drop.okM!==false;u.okW=keep.okW!==false&&drop.okW!==false;
+ u.log=[...(keep.log||[]),...(drop.log||[]).map(l=>({...l,x:"(من "+drop.name+") "+l.x})),{t:todayS(),x:"اتدمج معاه: "+drop.name}].sort((a,b)=>String(a.t).localeCompare(String(b.t)));
+ await save(u);
+ for(const t of T.filter(x=>x.con===drop.id))await saveT({...t,con:u.id},true);
+ if(P.inbox){try{await SB.from("conversations").update({contact_id:u.id}).eq("contact_id",drop.id)}catch(e){}INB.convs.forEach(c=>{if(c.contact_id===drop.id)c.contact_id=u.id})}
+ if(TK.ok){try{await SB.from("tasks").update({contact_id:u.id}).eq("contact_id",drop.id)}catch(e){}TK.rows.forEach(t=>{if(t.contact_id===drop.id)t.contact_id=u.id})}
+ await del(drop.id);close();alert("اتدمج ✓");
+}
 function close(){$("ov").classList.remove("on")}
 $("ov").onclick=e=>{if(e.target.id==="ov")close()};
 $("add").onclick=()=>open(null);$("q").oninput=render;$("ft").onchange=$("fd").onchange=render;
@@ -773,7 +854,7 @@ async function boot(){
  if(P.camp)db.collection("campaigns").onSnapshot(mk(0,x=>{K=x}),()=>{});
  if(P.fin)db.collection("txns").onSnapshot(mk(0,x=>{T=x}),()=>{});
  if(P.users)loadUsers();
- if(P.inbox)startInbox();
+ if(P.inbox)startInbox();loadTasks();
 }
 function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
 const ROLES=[["admin","مدير","كل الصلاحيات"],["cofounder","شريك مؤسس","كل الصلاحيات، زي المدير"],["accountant","محاسب","الحسابات والأرباح، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل"],["viewer","مشاهد","قراءة فقط"]];
