@@ -65,3 +65,6 @@ create policy campaigns_del  on public.campaigns for delete to authenticated usi
 drop policy if exists txns_all on public.txns;
 create policy txns_all on public.txns for all to authenticated
   using (public.has_perm('fin')) with check (public.has_perm('fin'));
+
+-- لم تعد مستخدمة بعد has_perm
+revoke execute on function public.app_role() from authenticated;
