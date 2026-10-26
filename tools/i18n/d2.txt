@@ -1,0 +1,231 @@
+اشتراكات بتنتهي|اشتراكات توشك على الانتهاء|Expiring subscriptions
+اشتراكات بتنتهي (30 يوم)|اشتراكات تنتهي (30 يوماً)|Subscriptions expiring (30 days)
+اشتراكك على|اشتراكك على|Your subscription on
+اشتراكه بينتهي خلال (اختياري)|ينتهي اشتراكه خلال (اختياري)|Subscription ends within (optional)
+اشتراكهم انتهى|انتهى اشتراكهم|Subscription has expired
+اشتراكهم بينتهي خلال 30 يوم|ينتهي اشتراكهم خلال 30 يوماً|Subscription ends within 30 days
+اشتركوا|اشتركوا|Subscribed
+اضغط على الرد لإدراجه في الرسالة|اضغط على الرد لإدراجه في الرسالة|Click a reply to insert it into the message
+اكتب إيميلك الأول|اكتب بريدك الإلكتروني أولاً|Enter your email first
+اكتب اسم الحملة||Enter the campaign name
+اكتب الاسم||Enter the name
+اكتب الرسالة||Write the message
+اكتب العنوان والنص||Enter the title and text
+اكتب المهمة||Enter the task
+اكتب ردك||Write your reply
+اكتب قيمة الاشتراك||Enter the subscription amount
+اكتب كلمة مرور جديدة||Enter a new password
+اكتب مبلغ صحيح||Enter a valid amount
+اكتب نص الرسالة قبل التفعيل|اكتب نص الرسالة قبل التفعيل|Write the message text before activating
+اكتملت||Completed
+الآن||Now
+الأتمتة||Automation
+الأسخن||Hottest
+الأعمدة بتتعرّف تلقائي (اسم، موبايل، واتساب، إيميل...) وتقدر تعدّلها قبل الاستيراد. المكرر بيتكشف بالموبايل أو الإيميل|يتم التعرف على الأعمدة تلقائياً (الاسم، الجوال، واتساب، البريد...) ويمكنك تعديلها قبل الاستيراد. يُكتشف التكرار عبر الجوال أو البريد الإلكتروني|Columns are detected automatically (name, mobile, WhatsApp, email...) and you can adjust them before import. Duplicates are detected by mobile or email
+الإجمالي||Total
+الإرسال بيحتاج السيرفر|الإرسال يحتاج إلى الخادم|Sending requires the server
+الإرسال محتاج ربط الواتساب/الإيميل من الإعدادات. جرّب على نفسك الأول. اللي مفيش عندهم موافقة بيتستبعدوا تلقائي|يحتاج الإرسال إلى ربط واتساب/البريد من الإعدادات. جرّبه على نفسك أولاً. يُستبعد تلقائياً من لم يوافقوا على الاستقبال|Sending requires linking WhatsApp/email in Settings. Try it on yourself first. Those without consent are excluded automatically
+الإعداد ناقص: حط|الإعداد ناقص: أدخل|Incomplete setup: enter
+الإعدادات||Settings
+الإيصالات||Receipts
+الإيميل|البريد الإلكتروني|Email
+الإيميل أو كلمة المرور غير صحيحة|البريد الإلكتروني أو كلمة المرور غير صحيحة|Incorrect email or password
+الإيميل غير صحيح|البريد الإلكتروني غير صحيح|Invalid email
+الاحتفاظ بالمشتركين||Subscriber retention
+الاسم||Name
+الاسم بالكامل||Full name
+الاشتراك / الكورس||Subscription / Course
+الاشتراكات المنتهية قريباً||Subscriptions expiring soon
+الاشتراكات والمبيعات||Subscriptions and sales
+الباقات الأكثر اشتراكاً||Most subscribed plans
+الباقات الأكثر اشتراكًا|الباقات الأكثر اشتراكًا|Most subscribed plans
+الباقة||Plan
+البند||Item
+البيانات مش صحيحة: اتأكد من الاسم والإيميل والتواريخ والمبلغ|البيانات غير صحيحة: تأكد من الاسم والبريد والتواريخ والمبلغ|Invalid data: check the name, email, dates and amount
+التاريخ||Date
+التحليلات||Analytics
+التحويل||Conversion
+التخزين الدائم غير متاح في هذا العرض، البيانات مؤقتة حتى إغلاق الصفحة||Persistent storage is unavailable in this view; data is temporary until the page is closed
+الترشيحات||Referrals
+التصدير غير متاح هنا||Export is unavailable here
+التفعيل||Activation
+التقييم||Score
+التنزيل غير متاح هنا||Download is unavailable here
+الحالة||Status
+الحالة)||Status)
+الحسابات||Accounts
+الحسابات والأرباح||Accounts and profits
+الحسابات والأرباح، والعملاء قراءة فقط|الحسابات والأرباح، والعملاء للقراءة فقط|Accounts and profits; clients read-only
+الحقول السرية مش بتظهر بعد الحفظ. سيبها فاضية لو مش عايز تغيّرها|لا تظهر الحقول السرية بعد الحفظ. اتركها فارغة إن لم ترد تغييرها|Secret fields are not shown after saving. Leave them empty if you do not want to change them
+الحملات||Campaigns
+الحملات المحفوظة||Saved campaigns
+الخطأ||Error
+الدخل||Income
+الدخل حسب النوع||Income by type
+الدخل حسب طريقة الدفع||Income by payment method
+الدخل والمصروفات||Income and expenses
+الدور||Role
+الدور)||Role)
+الرئيسية||Home
+الرسائل||Messages
+الرسالة||Message
+الرقم ده موجود قبل كده باسم|هذا الرقم موجود مسبقاً باسم|This number already exists under the name
+السلام عليكم، عايز أعرف تفاصيل الاشتراك السنوي|السلام عليكم، أود معرفة تفاصيل الاشتراك السنوي|Hello, I would like to know the details of the annual subscription
+السنة كاملة||Full year
+الشهر||Month
+الصافي||Net
+الصلاحيات||Permissions
+الصلاحيات دي حسب الدور. أي تغيير هنا بيتطبق على الشخص ده بس|هذه الصلاحيات حسب الدور. أي تغيير هنا يُطبَّق على هذا الشخص فقط|These permissions follow the role. Any change here applies to this person only
+العائد||Return
+العدد||Count
+العدد (اشتراكات / مشاركين)||Count (subscriptions / participants)
+العضو||Member
+العملاء||Clients
+العملاء (إضافة وتعديل) وصندوق الرسائل|العملاء (إضافة وتعديل) وصندوق الرسائل|Clients (add and edit) and the message inbox
+العملاء والحملات والاستيراد وصندوق الرسائل||Clients, campaigns, import and the message inbox
+العمليات||Transactions
+العميل||Client
+العميل (اختياري)||Client (optional)
+العميل ده ألغى الاشتراك من الرسائل. لو فعّلت الموافقة تاني الإلغاء بيتشال|هذا العميل ألغى اشتراكه في الرسائل. إذا فعّلت الموافقة مجدداً فسيُرفع الإلغاء|This client unsubscribed from messages. If you enable consent again, the unsubscription is lifted
+الفريق||Team
+الفعاليات||Events
+القناة||Channel
+القناة الإعلانية (لحساب تكلفة العميل لو البند تسويق)|القناة الإعلانية (لحساب تكلفة العميل إذا كان البند تسويقاً)|Ad channel (to calculate cost per client if the item is marketing)
+القواعد مقفولة لحد ما تفعّلها. بتتنفذ لوحدها كل يوم الصبح، وكل رسالة بتتبعت مرة واحدة بس لكل مناسبة. اللي ألغى الاشتراك مش بيوصله حاجة. رسائل واتساب بتستخدم قالب الأتمتة (أو قالب الحملات لو فاضي)|القواعد معطّلة حتى تفعّلها. تُنفَّذ تلقائياً كل صباح، وتُرسل كل رسالة مرة واحدة فقط لكل مناسبة. من ألغى اشتراكه لا يصله شيء. تستخدم رسائل واتساب قالب الأتمتة (أو قالب الحملات إذا كان فارغاً)|Rules are off until you enable them. They run automatically every morning, and each message is sent only once per occasion. Anyone who unsubscribed receives nothing. WhatsApp messages use the automation template (or the campaign template if empty)
+القيمة||Value
+القيمة (جنيه)||Value (EGP)
+الكل||All
+الكوبونات||Coupons
+الكود||Code
+الكورس||Course
+الكورس المهتم به||Interested course
+الكورس المهتم به (اختياري)||Interested course (optional)
+الكورسات الأكثر اشتراكاً||Most subscribed courses
+الكورسات الأكثر اشتراكًا|الكورسات الأكثر اشتراكًا|Most subscribed courses
+المالك||Owner
+المبلغ||Amount
+المبلغ (جنيه)||Amount (EGP)
+المبيعات حسب النوع||Sales by type
+المتابعة في تقويم|المتابعة في التقويم|Follow-up in calendar
+المحادثات||Conversations
+المحذوفات||Deleted items
+المرجع||Reference
+المرحلة||Stage
+المرحلة الافتراضية||Default stage
+المستلمين||Recipients
+المستهدفين||Target audience
+المشترك ينتقل لـ|ينتقل المشترك إلى|The subscriber moves to
+المشتركين (مشترك||Subscribers (subscriber
+المصدر||Source
+المصدر الافتراضي||Default source
+المصروفات||Expenses
+المصروفات حسب البند||Expenses by item
+المفاتيح||Keys
+المفتوحة||Open
+المقفولة||Closed
+الملاحظات||Notes
+الملخص||Summary
+الملف فاضي أو مفيهوش صفوف بيانات|الملف فارغ أو لا يحتوي على صفوف بيانات|The file is empty or has no data rows
+الملف مش نسخة احتياطية صالحة|الملف ليس نسخة احتياطية صالحة|The file is not a valid backup
+الملف مش نسخة احتياطية من السيستم ده|الملف ليس نسخة احتياطية من هذا النظام|The file is not a backup of this system
+المهمة||Task
+الموبايل|الجوال|Mobile
+الموعد||Appointment
+الموقع||Website
+المُرشِّح||Referrer
+النسخ الاحتياطي والاسترجاع|النسخ الاحتياطي والاستعادة|Backup and restore
+النسخ التلقائية||Automatic backups
+النسخ التلقائية (يومياً، آخر 14 نسخة)||Automatic backups (daily, last 14)
+النسخة بتشمل العملاء والحسابات والحملات|تشمل النسخة العملاء والحسابات والحملات|The backup includes clients, accounts and campaigns
+النظام||System
+النهارده|اليوم|Today
+النوع||Type
+انا|أنا|Me
+انت|أنت|You
+انتهاء||Expiry
+انتهاء اشتراك:||Subscription expiry:
+انتهاء الاشتراك||Subscription expiry
+انتهى الاشتراك||Subscription expired
+انتهى من||ended on
+انسخ الكود ده والصقه في صفحة الموقع (في ووردبريس: بلوك|انسخ هذا الكود والصقه في صفحة الموقع (في ووردبريس: بلوك|Copy this code and paste it into your website page (in WordPress: block
+ايميل|بريد إلكتروني|Email
+باقة اشتراك||Subscription plan
+باقة ربع سنوية||Quarterly plan
+باقة سنوية||Annual plan
+باقة شهرية||Monthly plan
+باقة نصف سنوية||Semi-annual plan
+بتاعتي|الخاصة بي|Mine
+بتظهر في الصندوق كأن عميل بعتها، عشان تجرّب الرد والإسناد مع الفريق قبل ربط|تظهر في الصندوق كأن عميلاً أرسلها، لتجرّب الرد والإسناد مع الفريق قبل الربط|It appears in the inbox as if a client sent it, so you can try replying and assigning with the team before linking
+بحث||Search
+بحث بالاسم أو الرقم أو محتوى الرسائل||Search by name, number or message content
+بحث شامل||Global search
+بحث في العمليات||Search transactions
+بدون وصول||No access
+بريد||Mail
+بعد||After
+بعد الإضافة تقدر تخصّص صلاحياته من زرار|بعد الإضافة يمكنك تخصيص صلاحياته من زر|After adding, you can customize their permissions from the button
+بعد انتهاء الاشتراك بـ30 يوم|بعد انتهاء الاشتراك بـ30 يوماً|30 days after the subscription ends
+بمتغيرين:|بمتغيّرين:|with two variables:
+بمعدل تجديدكم|بمعدل تجديدكم|At your renewal rate
+بنفسك||Yourself
+بياناته ومدفوعاته ومحادثاته ومهامه، وبعدها يتحذف (وتقدر ترجّعه من سجل التعديلات)|بياناته ومدفوعاته ومحادثاته ومهامه، ثم يُحذف (ويمكنك استعادته من سجل التعديلات)|their data, payments, conversations and tasks, then it is deleted (you can restore it from the change log)
+بيتبدل باسم العميل|يُستبدل باسم العميل|is replaced with the client's name
+بيتبعت لكل دفعة جديدة مسجلة في آخر 3 أيام، مرة واحدة لكل دفعة|يُرسل لكل دفعة جديدة مسجلة خلال آخر 3 أيام، مرة واحدة لكل دفعة|Sent for each new payment recorded in the last 3 days, once per payment
+بيتبعت مرة واحدة لكل اشتراك قبل انتهائه بالأيام اللي تحددها|يُرسل مرة واحدة لكل اشتراك قبل انتهائه بعدد الأيام الذي تحدده|Sent once per subscription before it ends, by the number of days you set
+بيقدر:|يستطيع:|Can:
+بيكتب دلوقتي|يكتب الآن|is typing now
+ت||T
+تاريخ الانتهاء في تقويم|تاريخ الانتهاء في التقويم|Expiry date in calendar
+تاريخ الدفع||Payment date
+تجديد||Renewal
+تجديد اشتراكك في||Renew your subscription at
+تجديد قريب||Renewing soon
+تجديد)||renewal)
+تجديدات||Renewals
+تجديدات قريبة||Upcoming renewals
+تجهيز حملة تجديد|إعداد حملة تجديد|Prepare a renewal campaign
+تجربة على رقم/إيميل واحد|تجربة على رقم/بريد واحد|Test on a single number/email
+تجريبي||Test
+تحتاج متابعة||Needs follow-up
+تحديث||Update
+تحديث المرحلة تلقائياً||Update stage automatically
+تحفظ برضه؟|هل تريد الحفظ على أي حال؟|Save anyway?
+تحقق بخطوتين||Two-step verification
+تحليلات العملاء||Client analytics
+تحميل||Load
+تحويل بنكي||Bank transfer
+تخطي||Skip
+تذكير بالتجديد||Renewal reminder
+ترحيب بعد الدفع||Welcome after payment
+ترشيح||Referral
+تسجيل خروج||Sign out
+تسجيل دفع اشتراك لهذا العميل (بينزل في الحسابات)|تسجيل دفع اشتراك لهذا العميل (يُضاف إلى الحسابات)|Record a subscription payment for this client (added to accounts)
+تسويق وإعلانات||Marketing and ads
+تصدير||Export
+تصدير المستلمين||Export recipients
+تعديل||Edit
+تعديل عملية||Edit transaction
+تعذر الإرسال||Unable to send
+تعذر الإرسال، جرّب تاني|تعذر الإرسال، حاول مرة أخرى|Unable to send, try again
+تعذر الاتصال بالسيرفر|تعذر الاتصال بالخادم|Unable to connect to the server
+تعذر الاسترجاع|تعذرت الاستعادة|Unable to restore
+تعذر التحديث||Unable to update
+تعذر التحميل||Unable to load
+تعذر التصدير||Unable to export
+تعذر التغيير||Unable to change
+تعذر التغيير:||Unable to change:
+تعذر التنزيل||Unable to download
+تعذر الحذف||Unable to delete
+تعذر الحذف (بس صاحب المهمة أو الإدارة يقدروا يحذفوا)|تعذر الحذف (صاحب المهمة أو الإدارة فقط يمكنهم الحذف)|Unable to delete (only the task owner or management can delete)
+تعذر الحفظ:||Unable to save:
+تعذر تحميل البيانات:||Unable to load data:
+تعذر تحميل التفاصيل||Unable to load details
+تعذر تحميل النسخة||Unable to load the backup
+تعذر تنفيذ الطلب||Unable to complete the request
+تعذر حفظ الملاحظة||Unable to save the note
+تعذر رفع||Unable to upload
+تعذر عمل النسخة||Unable to create the backup
+تعذر قراءة الملف||Unable to read the file
+تغيير الدور هيرجّع صلاحيات الشخص ده لصلاحيات الدور الجديد. تكمل؟|تغيير الدور سيعيد صلاحيات هذا الشخص إلى صلاحيات الدور الجديد. هل تريد المتابعة؟|Changing the role will reset this person's permissions to those of the new role. Continue?
+تغيير كلمة المرور||Change password
+تفاصيل||Details

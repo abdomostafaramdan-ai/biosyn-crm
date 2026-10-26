@@ -1,0 +1,190 @@
+تفعيل التنبيهات||Enable notifications
+تقرير||Report
+تقرير للطباعة||Printable report
+تقرير مالي||Financial report
+تقويم||Calendar
+تكلفة المشترك||Cost per subscriber
+تكمّل إرسال الحملة دي؟|هل تريد إكمال إرسال هذه الحملة؟|Continue sending this campaign?
+تلقائي||Automatic
+تلقائي (واتساب لو متاح وإلا إيميل)|تلقائي (واتساب إن توفر وإلا البريد الإلكتروني)|Automatic (WhatsApp if available, otherwise email)
+تليفون|هاتف|Phone
+تم||Done
+تم الاسترجاع|تمت الاستعادة|Restored
+تم تغيير كلمة المرور||Password changed
+تم حفظ||Saved
+تم:||Done:
+تمام||OK
+تنزيل||Download
+تنزيل نسخة كاملة||Download a full backup
+ج||EGP
+ج)||EGP)
+جاري||In progress
+جاري الإرسال||Sending
+جاري الإضافة||Adding
+جاري الاختبار||Testing
+جاري الاسترجاع|جارٍ الاستعادة|Restoring
+جاري التحميل||Loading
+جاري الحفظ||Saving
+جاري تحميل النسخ التلقائية||Loading automatic backups
+جديد||New
+جهة||Organization
+جهة / شراكة||Organization / Partnership
+جهة الاتصال||Contact
+جهة الاتصال (اختياري)||Contact (optional)
+جوال||Mobile
+جوه|داخل|inside
+حدد القناة في العملية عشان تتحسب)|حدد القناة في العملية لتُحتسب)|set the channel on the transaction so it is counted)
+حذف||Delete
+حذف الحملة؟||Delete the campaign?
+حذف الرد؟||Delete the reply?
+حذف العملاء||Delete clients
+حذف المحادثة وكل رسائلها نهائياً؟||Permanently delete the conversation and all its messages?
+حذف المهمة؟||Delete the task?
+حساب المالك محمي: محدش يقدر يغيّر دوره أو صلاحياته أو يوقفه|حساب المالك محمي: لا يمكن لأحد تغيير دوره أو صلاحياته أو إيقافه|The owner account is protected: nobody can change its role or permissions or suspend it
+حسابك غير مفعّل. كلّم المدير يفعّله|حسابك غير مفعّل. تواصل مع المدير لتفعيله|Your account is not active. Ask the admin to activate it
+حسابي||My account
+حصل خطأ|حدث خطأ|An error occurred
+حط البيانات دي في تطبيقك على|ضع هذه البيانات في تطبيقك على|Put these details in your app at
+حفظ||Save
+حفظ الحملة||Save campaign
+حفظ الملاحظة||Save note
+حفظ كرد جاهز|حفظ كرد جاهز|Save as a canned reply
+حفظ كعميل||Save as a client
+حملات||Campaigns
+حملات محفوظة||Saved campaigns
+حملة||Campaign
+حملة جديدة||New campaign
+خلصت: اتبعت|اكتملت: أُرسلت|Finished: sent
+د||min
+دافئ||Warm
+دخل||Income
+دخل فقط||Income only
+دخل ومصروف||Income and expense
+دخول||Sign in
+دعم ومبيعات||Support and sales
+دفع اشتراك:||Subscription payment:
+دمج||Merge
+دمج المكررين||Merge duplicates
+دمج عميلين مكررين||Merge two duplicate clients
+دمج مع عميل مكرر||Merge with a duplicate client
+دمج: يضيف ويحدّث من غير حذف|دمج: يضيف ويحدّث دون حذف|Merge: adds and updates without deleting
+دورة||Course
+ديسمبر||December
+ربط القنوات (الإعدادات)||Link channels (Settings)
+ربط القنوات (واتساب / فيسبوك / إنستجرام)||Link channels (WhatsApp / Facebook / Instagram)
+ربط الموقع||Website integration
+رجوع لصلاحيات الدور|العودة إلى صلاحيات الدور|Back to role permissions
+رجّع|استعاد|Restored
+رد جديد||New reply
+ردود جاهزة||Canned replies
+رسائل أرسلها||Messages I sent
+رسالة تجريبية||Test message
+رسوم بوابة الدفع||Payment gateway fees
+رشّح||Referred
+رشّحه||Referred by
+رشّحه (اسم أو كود المُرشِّح، اختياري)|رشّحه (اسم أو رمز المُرشِّح، اختياري)|Referred by (referrer name or code, optional)
+رعاية وشراكات||Sponsorship and partnerships
+رقم||Number
+رقم (اختياري، لو موجود عندك كعميل هيتربط بيه)|رقم (اختياري، وإن كان موجوداً لديك كعميل فسيُربط به)|Number (optional; if he is already your client it will be linked)
+رقم الإيصال||Receipt number
+رقم الفاتورة / المرجع||Invoice / reference number
+رقم الموبايل (واتساب)|رقم الجوال (واتساب)|Mobile number (WhatsApp)
+رقم الواتساب (بالكود، مثال 2010...)|رقم واتساب (مع رمز الدولة، مثال 2010...)|WhatsApp number (with country code, e.g. 2010...)
+رقم واتساب||WhatsApp number
+رواتب ومحاضرين||Salaries and lecturers
+س||S
+ساخن||Hot
+سبتمبر||September
+سجل التعديلات||Change log
+سجل التعديلات والمحذوفات||Change and deletion log
+سر جديد|سرّ جديد|New secret
+سنة||year
+شريك||Partner
+شريك مؤسس||Co-founder
+شغّالة|مفعّلة|Active
+شغّالة (بتتنفذ تلقائي كل يوم الصبح)|مفعّلة (تُنفَّذ تلقائياً كل صباح)|Active (runs automatically every morning)
+شغّلها دلوقتي|شغّلها الآن|Run it now
+شكراً لثقتك في||Thank you for trusting
+شهر بشهر||Month to month
+صافي الربح||Net profit
+صرف الإعلانات||Ad spend
+صف||row
+صف)||row)
+صلاحيات كل دور||Permissions of each role
+صندوق الرسائل||Message inbox
+صندوق الرسائل الموحّد||Unified message inbox
+ضرائب ورسوم||Taxes and fees
+طالب||Student
+طباعة / حفظ||Print / Save
+طريقة الدفع||Payment method
+عبر الإيميل والواتساب|عبر البريد الإلكتروني وواتساب|via email and WhatsApp
+عدد الاشتراكات والمبيعات||Subscriptions and sales count
+عدّت أكتر من 24 ساعة على آخر رسالة من العميل، فـ|مضى أكثر من 24 ساعة على آخر رسالة من العميل، لذا|More than 24 hours have passed since the client's last message, so
+عدّل|عدّل|Edited
+عضو||Member
+عضو فريق||Team member
+عمل نسخة على السيرفر دلوقتي|إنشاء نسخة على الخادم الآن|Create a backup on the server now
+عملاء||Clients
+عملاء محتملين||Leads
+عمليات مالية||Financial transactions
+عملية||Transaction
+عملية جديدة||New transaction
+عملية دخل تلقائي. في ووردبريس:|عملية دخل تلقائية. في ووردبريس:|Automatic income transaction. In WordPress:
+عملية مالية||Financial transaction
+عملية)||transaction)
+عمود||Column
+عميل||Client
+عميل تجريبي||Test client
+عميل محتمل||Lead
+عميل. تكمل؟|عميلاً. هل تريد المتابعة؟|clients. Continue?
+عميل/عنصر دلوقتي. لسه مفيش حاجة اتبعتت|عميل/عنصر الآن. لم يُرسل شيء بعد|clients/items now. Nothing has been sent yet
+عناصر تالفة (اتتخطت)|عناصر تالفة (تم تخطيها)|Corrupted items (skipped)
+عنصر. تكمل؟|عنصراً. هل تريد المتابعة؟|items. Continue?
+عنوان (مثال: سعر الباقات)||Title (e.g. Plan prices)
+عنوان الإيميل|عنوان البريد الإلكتروني|Email address
+غير محدد||Not specified
+غير مسندة||Unassigned
+غير معروف||Unknown
+ف||M
+فاتح المحادثة دي|فاتح هذه المحادثة|Opened this conversation
+فاضي|فارغ|Empty
+فاضي / إيميل غير صالح|فارغ / بريد إلكتروني غير صالح|Empty / invalid email
+فبراير||February
+فشل||Failed
+فشل الإرسال||Sending failed
+فشل:||Failed:
+فعالية||Event
+فعالية / ورشة||Event / Workshop
+فعّل القاعدة الأول واحفظها|فعّل القاعدة أولاً ثم احفظها|Enable the rule first, then save it
+فودافون كاش||Vodafone Cash
+في أول السكربت داخل|في بداية السكربت داخل|At the start of the script inside
+فيسبوك||Facebook
+قالب واتساب للأتمتة (رسائل خدمية، اختياري)||WhatsApp template for automation (utility messages, optional)
+قبل الانتهاء بكام يوم|قبل الانتهاء بكم يوماً|Days before expiry
+قبل الانتهاء بكام يوم ينتقل لتجديد قريب|عدد الأيام قبل الانتهاء لينتقل إلى «تجديد قريب»|Days before expiry to move to “Renewing soon”
+قبل الانتهاء، ولـ|قبل الانتهاء، ولـ|before expiry, and for
+قراءة||Read
+قراءة العملاء بس|قراءة العملاء فقط|Read clients only
+قراءة فقط||Read-only
+قرّب يخلص. جدّد دلوقتي وكمّل رحلتك معانا|اقترب موعد الانتهاء. جدّد الآن وواصل رحلتك معنا|It is about to end. Renew now and continue your journey with us
+كارت / بوابة دفع|بطاقة / بوابة دفع|Card / payment gateway
+كاش|كاش|Cash
+كرر شهرياً حتى آخر السنة||Repeat monthly until the end of the year
+كل إضافة وتعديل وحذف بيتسجل بمين عمله وإمتى. أي حاجة اتحذفت تقدر ترجّعها من هنا|يُسجَّل كل إضافة وتعديل وحذف مع منفّذه ووقته. ويمكنك استعادة أي عنصر محذوف من هنا|Every addition, edit and deletion is recorded with who did it and when. You can restore anything deleted from here
+كل الأنواع||All types
+كل الصلاحيات||All permissions
+كل الصلاحيات، زي المدير|كل الصلاحيات، مثل المدير|All permissions, like the admin
+كل العملاء||All clients
+كل القنوات||All channels
+كل المراحل||All stages
+كل طرق الدفع||All payment methods
+كل طلب مكتمل/قيد التنفيذ بيتحوّل لعميل|كل طلب مكتمل/قيد التنفيذ يتحوّل إلى عميل|Every completed/processing order becomes a client
+كلمة المرور||Password
+كلمة المرور الجديدة (8 أحرف على الأقل)||New password (at least 8 characters)
+كلمة المرور المؤقتة:||Temporary password:
+كلمة مرور جديدة||New password
+كلمة مرور جديدة (8 أحرف على الأقل)||New password (at least 8 characters)
+كمان||Also
+كمّل الإرسال|أكمل الإرسال|Continue sending
+كود الخصم (اختياري)|رمز الخصم (اختياري)|Discount code (optional)
+كود الخصم / الكوبون|رمز الخصم / القسيمة|Discount code / coupon

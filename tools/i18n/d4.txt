@@ -1,0 +1,179 @@
+كورس||Course
+كورس تفاعلي||Interactive course
+كورس مسجل||Recorded course
+لا توجد بيانات||No data
+لا توجد حملات||No campaigns
+لا توجد رسائل||No messages
+لا توجد عمليات||No transactions
+لا يوجد||None
+لاسم العميل)|لاسم العميل)|for the client's name)
+لسه ماعملتش نسخة احتياطية|لم تُنشئ نسخة احتياطية بعد|You have not made a backup yet
+لسه مفيش|لا يوجد بعد|None yet
+لسه مفيش بيانات كفاية|لا توجد بيانات كافية بعد|Not enough data yet
+لسه مفيش تنفيذات|لا توجد عمليات تنفيذ بعد|No runs yet
+لسه مفيش ردود|لا توجد ردود بعد|No replies yet
+لسه مفيش نسخ تلقائية. أول نسخة بتتعمل الساعة 1:15 بالليل بتوقيت|لا توجد نسخ تلقائية بعد. تُنشأ أول نسخة الساعة 1:15 ليلاً بتوقيت|No automatic backups yet. The first one is made at 1:15 AM, time zone:
+لسه مفيش نشاط|لا يوجد نشاط بعد|No activity yet
+لغة القالب||Template language
+لـ فيسبوك أو إنستجرام حسب الصفحة. بيقبل إعلانات|لـ فيسبوك أو إنستجرام حسب الصفحة. يقبل الإعلانات|For Facebook or Instagram depending on the page. Accepts ads
+للإرسال)||for sending)
+للماسنجر وإنستجرام)|لماسنجر وإنستجرام)|for Messenger and Instagram)
+لو آخر رسالة من فريقكم ومفيش رد، بيتعمل مهمة متابعة في قايمة المهام|إذا كانت آخر رسالة من فريقكم ولم يأتِ رد، تُنشأ مهمة متابعة في قائمة المهام|If the last message is from your team and there is no reply, a follow-up task is created in the task list
+لو الإيميل مسجل هيوصلك رابط إعادة تعيين كلمة المرور|إذا كان البريد مسجلاً فسيصلك رابط إعادة تعيين كلمة المرور|If the email is registered you will receive a password reset link
+لو الاشتراك باقة (شهرية/ربع/نصف/سنوية) بيتحسب تاريخ الانتهاء ويتحوّل العميل لـ|إذا كان الاشتراك باقة (شهرية/ربع سنوية/نصف سنوية/سنوية) يُحسب تاريخ الانتهاء ويتحوّل العميل إلى|If the subscription is a plan (monthly/quarterly/semi-annual/annual), the expiry date is calculated and the client moves to
+لو العميل موجود بالفعل|إذا كان العميل موجوداً بالفعل|If the client already exists
+لو جددوا كلهم|إذا جدّدوا جميعاً|If they all renew
+لو حبيت)، وحط:|إن أردت)، وضع:|if you like), and put:
+ليس لديك صلاحية على بيانات العملاء. اطلب من المدير يرفع مستوى مشاركتك|ليس لديك صلاحية على بيانات العملاء. اطلب من المدير رفع مستوى مشاركتك|You do not have permission for client data. Ask the admin to raise your access level
+مارس||March
+ماسنجر||Messenger
+مايو||May
+مبالغ مستردة||Refunds
+متأخرة||Overdue
+متأكد من الحذف؟ هتلاقيه في سجل التعديلات لو حبيت ترجّعه|هل أنت متأكد من الحذف؟ ستجده في سجل التعديلات إن أردت استعادته|Are you sure you want to delete? You will find it in the change log if you want to restore it
+متأكد من الحذف؟ هتلاقيها في سجل التعديلات لو حبيت ترجّعها|هل أنت متأكد من الحذف؟ ستجدها في سجل التعديلات إن أردت استعادتها|Are you sure you want to delete? You will find it in the change log if you want to restore it
+متأكد؟|هل أنت متأكد؟|Are you sure?
+متابعات متأخرة||Overdue follow-ups
+متابعة||Follow-up
+متابعة متأخرة||Overdue follow-up
+متابعة من غير رد|متابعة دون رد|Follow-up with no reply
+متابعة:||Follow-up:
+متسجل|مسجّل|Registered
+متقدم||Advanced
+متوسط ما دفعه العميل الواحد|متوسط ما دفعه العميل الواحد|Average paid per client
+متوقف||Inactive
+مثال: كلّم العميل عن التجديد|مثال: تحدّث مع العميل عن التجديد|Example: talk to the client about renewal
+مجاني 100 رسالة/يوم) ودومين متوثّق. واتساب: لازم قالب معتمد من|مجاني 100 رسالة/يوم) ونطاق موثّق. واتساب: يلزم قالب معتمد من|free 100 messages/day) and a verified domain. WhatsApp: requires an approved template from
+محادثات مفتوحة||Open conversations
+محادثاته|المحادثات|Conversations
+محادثة||Conversation
+محادثة جديدة||New conversation
+محاسب||Accountant
+محاضر||Lecturer
+محتمل||Potential
+محمي||Protected
+مخصص||Custom
+مخصّص||Custom
+مدفوع||Paid
+مدفوعاته|المدفوعات|Payments
+مدير||Admin
+مرات الاستخدام||Times used
+مراحل العملاء||Client stages
+مستبعدين (بدون بيانات أو موافقة)|مستبعدون (بدون بيانات أو موافقة)|Excluded (no data or consent)
+مستحقات معلّقة||Pending dues
+مسترد||Refunded
+مستلم||Recipient
+مستلم. متأكد؟|مستلماً. هل أنت متأكد؟|recipients. Are you sure?
+مسندة لـ|مُسندة إلى|Assigned to
+مسودة||Draft
+مش عندك صلاحية صندوق الرسائل|ليس لديك صلاحية صندوق الرسائل|You do not have inbox permission
+مش متاحة دلوقتي. احفظ الملف|غير متاحة الآن. احفظ الملف|Not available now. Save the file
+مش متاحة دلوقتي. استخدم تصدير|غير متاحة الآن. استخدم تصدير|Not available now. Use export
+مش متسجل|غير مسجّل|Not registered
+مش موجود|غير موجود|Not found
+مش هتسمح برد عادي. تقدر تكتب ملاحظة داخلية|لن تسمح برد عادي. يمكنك كتابة ملاحظة داخلية|will not allow a normal reply. You can write an internal note
+مشارك||Participant
+مشاهد||Viewer
+مشاهد (قراءة فقط)||Viewer (read-only)
+مشترك||Subscriber
+مشتركين||Subscribers
+مشتركين نشطين|مشتركون نشطون|Active subscribers
+مشتركين نشطين (اشتراكهم ساري)|مشتركون نشطون (اشتراكهم ساري)|Active subscribers (subscription valid)
+مشتركين نشطين حاليًا|مشتركون نشطون حالياً|Currently active subscribers
+مصادر العملاء||Client sources
+مصاريف التشغيل||Operating costs
+مصروف||Expense
+مصروفات إعلانات من غير قناة محددة:|مصروفات إعلانات دون قناة محددة:|Ad spend with no specified channel:
+مصروفات فقط||Expenses only
+معاينة||Preview
+معاينة مين هيتأثر|معاينة من سيتأثر|Preview who will be affected
+معدل التجديد (اشتروا باقة أكتر من مرة)|معدل التجديد (اشتروا باقة أكثر من مرة)|Renewal rate (bought a plan more than once)
+معلّق||Pending
+معلّقة||Pending
+مفتوحة||Open
+مفعّل||Active
+مفيش حاجة تتستورد|لا يوجد ما يمكن استيراده|Nothing to import
+مفيش حاجة هنا|لا يوجد شيء هنا|Nothing here
+مفيش محادثات هنا|لا توجد محادثات هنا|No conversations here
+مفيش مهام|لا توجد مهام|No tasks
+مفيش مهام أو متابعات أو تجديدات جاية|لا توجد مهام أو متابعات أو تجديدات قادمة|No upcoming tasks, follow-ups or renewals
+مفيش نتائج|لا توجد نتائج|No results
+مفيش نتيجة|لا توجد نتيجة|No result
+مفيش نسخة احتياطية حديثة. اضغط هنا لعمل نسخة كاملة|لا توجد نسخة احتياطية حديثة. اضغط هنا لإنشاء نسخة كاملة|No recent backup. Click here to make a full backup
+مقفولة|مغلقة|Closed
+مكتبة||Library
+مكرر||Duplicate
+مكرر داخل الملف||Duplicate within the file
+مكرر في الملف||Duplicate in the file
+مكرر مع الموجود|مكرر مع الموجود|Duplicate of an existing one
+ملاحظات||Notes
+ملاحظة||Note
+ملاحظة جديدة||New note
+ملاحظة داخلية||Internal note
+ملاحظة داخلية (الفريق بس يشوفها)|ملاحظة داخلية (يراها الفريق فقط)|Internal note (visible to the team only)
+ملخص||Summary
+ملف||File
+من||from
+من غير رد لمدة (يوم)|دون رد لمدة (يوم)|With no reply for (days)
+من غير موعد|دون موعد|No date
+من ملف العميل||From the client's file
+مهام||Tasks
+مهام باقي الفريق|مهام بقية الفريق|Rest of the team's tasks
+مهام خلّصها|مهام أنجزها|Tasks completed
+مهام متأخرة||Overdue tasks
+مهام متابعة||Follow-up tasks
+مهامي||My tasks
+مهتم||Interested
+مهتم بكورس (اختياري)|مهتم بكورس (اختياري)|Interested in a course (optional)
+مهمة||Task
+مهمة جديدة||New task
+مهمة متابعة||Follow-up task
+مهمة:||Task:
+موافق على الإيميلات|موافق على رسائل البريد|Agrees to emails
+موافق على واتساب||Agrees to WhatsApp
+موافقة الإيميل|موافقة البريد الإلكتروني|Email consent
+موافقة واتساب||WhatsApp consent
+موبايل|جوال|Mobile
+مودريتور|مشرف|Moderator
+موعد المتابعة||Follow-up date
+موقوف||Suspended
+نسبة النجاح||Success rate
+نسخ||Copy
+نسخ الكود|نسخ الرمز|Copy code
+نسخة احتياطية||Backup
+نسخة تلقائية||Automatic backup
+نسيت كلمة المرور؟||Forgot your password?
+نص الرد||Reply text
+نص الرسالة||Message text
+نص الرسالة (استخدم||Message text (use
+نفس الموبايل|نفس الجوال|Same mobile
+نموذج الموقع||Website form
+نموذج تسجيل للموقع|نموذج تسجيل للموقع|Sign-up form for the website
+نوفمبر||November
+هاتف||Phone
+هامش الربح||Profit margin
+هتتبعت لـ|ستُرسل إلى|Will be sent to
+هتتنفذ دلوقتي على اللي مستحق. متأكد؟|ستُنفَّذ الآن على المستحقين. هل أنت متأكد؟|It will run now for those due. Are you sure?
+هيتأثر|سيتأثر|will be affected
+هيتدمج العميل التاني جوه|سيُدمج العميل الثاني داخل|The second client will be merged into
+هيتعمل كلمة مرور مؤقتة جديدة لـ|ستُنشأ كلمة مرور مؤقتة جديدة لـ|A new temporary password will be created for
+هيتغيّر السر وتحتاج تحدّثه في|سيتغيّر السر وستحتاج إلى تحديثه في|The secret will change and you will need to update it in
+هيتم استرجاع|ستتم استعادة|Will restore
+هيتم استيراد/تحديث|سيتم استيراد/تحديث|Will import/update
+و||and
+واتس||WhatsApp
+واتساب||WhatsApp
+واتساب فقط||WhatsApp only
+والدخل المتوقع||and expected income
+والقديمة هتبطل. تكمل؟|وستتعطل القديمة. هل تريد المتابعة؟|and the old one will stop working. Continue?
+وجرّب تاني|وحاول مرة أخرى|and try again
+وصلنا طلبك وهنتواصل معاك قريب|وصلنا طلبك وسنتواصل معك قريباً|We received your request and will contact you soon
+وفشل||and failed
+وكرر بـ|وكرر بـ|and repeat with
+يناير||January
+ينتهي||Ends
+ينتهي بعد||Ends after
+يوليو||July
+يوم||day
+يوم (وكمان اللي خلص من آخر 30 يوم)|يوم (وكذلك من انتهى خلال آخر 30 يوماً)|days (and also those who ended in the last 30 days)
+يونيو||June

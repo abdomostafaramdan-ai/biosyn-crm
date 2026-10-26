@@ -1,11 +1,16 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>إلغاء الاشتراك</title>
 <style>body{font-family:Tahoma,Arial,sans-serif;display:flex;min-height:90vh;align-items:center;justify-content:center;background:#f6f7f6;margin:0}.b{background:#fff;border-radius:14px;padding:28px;max-width:380px;text-align:center;box-shadow:0 2px 14px #0001}button{padding:10px 22px;border:0;border-radius:8px;background:#2f6f4f;color:#fff;font-size:16px;cursor:pointer}button:disabled{opacity:.5}</style></head>
-<body><div class="b"><h2 style="margin-top:0">إلغاء الاشتراك</h2><p id="m">جاري التحقق من الرابط…</p><button id="go" hidden>تأكيد الإلغاء</button></div>
+<body><div class="b"><h2 id="h" style="margin-top:0"></h2><p id="m"></p><button id="go" hidden></button></div>
 <script>
 const U="https://vscfjvpccgkgojuktvjn.supabase.co/functions/v1/unsub",q=new URLSearchParams(location.search),c=q.get("c")||"",t=q.get("t")||"";
+const EN=(q.get("lang")||navigator.language||"ar").toLowerCase().startsWith("en");
+const L=EN?{h:"Unsubscribe",chk:"Checking the link…",ask:"You will stop receiving our promotional messages by email and WhatsApp.",bad:"This link is expired or invalid.",net:"Unable to connect. Please try again.",btn:"Confirm unsubscribe",ok:"You have been unsubscribed. You will no longer receive our messages. Thank you.",err:"An error occurred. Please try again."}
+:{h:"إلغاء الاشتراك",chk:"جارٍ التحقق من الرابط…",ask:"ستتوقف رسائلنا الإعلانية عنك عبر البريد الإلكتروني وواتساب.",bad:"هذا الرابط منتهي أو غير صحيح.",net:"تعذر الاتصال. حاول مرة أخرى.",btn:"تأكيد الإلغاء",ok:"تم إلغاء الاشتراك. لن تصلك رسائلنا بعد الآن. شكراً لوقتك.",err:"حدث خطأ. حاول مرة أخرى."};
 const m=document.getElementById("m"),go=document.getElementById("go");
+if(EN){document.documentElement.lang="en";document.documentElement.dir="ltr"}
+document.title=document.getElementById("h").textContent=L.h;m.textContent=L.chk;go.textContent=L.btn;
 async function call(confirm){const r=await fetch(U,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({c,t,confirm})});return{ok:r.ok,j:await r.json().catch(()=>({}))}}
-call(false).then(r=>{if(r.ok&&r.j.valid){m.textContent="هتتوقف عنك رسائلنا الإعلانية على الإيميل والواتساب.";go.hidden=false}else m.textContent="الرابط ده منتهي أو غير صحيح."}).catch(()=>{m.textContent="تعذر الاتصال. جرّب تاني."});
-go.onclick=async()=>{go.disabled=true;try{const r=await call(true);if(r.ok&&r.j.ok){m.textContent="تم إلغاء الاشتراك. مش هتوصلك رسائلنا بعد كده. شكراً لوقتك.";go.hidden=true}else{m.textContent="حصل خطأ. جرّب تاني.";go.disabled=false}}catch(e){m.textContent="تعذر الاتصال. جرّب تاني.";go.disabled=false}};
+call(false).then(r=>{if(r.ok&&r.j.valid){m.textContent=L.ask;go.hidden=false}else m.textContent=L.bad}).catch(()=>{m.textContent=L.net});
+go.onclick=async()=>{go.disabled=true;try{const r=await call(true);if(r.ok&&r.j.ok){m.textContent=L.ok;go.hidden=true}else{m.textContent=L.err;go.disabled=false}}catch(e){m.textContent=L.net;go.disabled=false}};
 </script></body></html>

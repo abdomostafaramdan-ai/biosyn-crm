@@ -1,0 +1,69 @@
+طلب غير صالح||Invalid request
+الحملة مش موجودة. احفظها الأول|الحملة غير موجودة. احفظها أولاً|The campaign does not exist. Save it first
+قناة غير معروفة||Unknown channel
+نص الرسالة فاضي|نص الرسالة فارغ|The message text is empty
+واتساب مش جاهز: محتاج Phone Number ID و Access Token واسم قالب معتمد (الإعدادات ← ربط القنوات)|واتساب غير جاهز: يلزم Phone Number ID و Access Token واسم قالب معتمد (الإعدادات ← ربط القنوات)|WhatsApp is not ready: Phone Number ID, Access Token and an approved template name are required (Settings → Link channels)
+الإيميل مش جاهز: محتاج Resend API Key وإيميل المرسل (الإعدادات ← ربط القنوات)|البريد الإلكتروني غير جاهز: يلزم Resend API Key وبريد المرسل (الإعدادات ← ربط القنوات)|Email is not ready: a Resend API Key and sender email are required (Settings → Link channels)
+عنوان التجربة غير صالح||Invalid test address
+الحملة دي اتبعتت قبل كده|هذه الحملة أُرسلت من قبل|This campaign was already sent
+سجّل دخول الأول|سجّل الدخول أولاً|Sign in first
+مش عندك صلاحية|ليس لديك صلاحية|You do not have permission
+مش عندك صلاحية إدارة الفريق|ليس لديك صلاحية إدارة الفريق|You do not have permission to manage the team
+دور غير معروف||Unknown role
+اتعمل الحساب لكن تعذر تحديد الدور|أُنشئ الحساب لكن تعذر تحديد الدور|The account was created but the role could not be set
+المستخدم مش موجود|المستخدم غير موجود|User not found
+حساب المالك محمي، والمالك بس يقدر يغيّر كلمة مروره|حساب المالك محمي، والمالك وحده يستطيع تغيير كلمة مروره|The owner account is protected; only the owner can change its password
+تعذر تغيير كلمة المرور||Unable to change the password
+إجراء غير معروف||Unknown action
+اكتب الرسالة أو أرفق ملف|اكتب الرسالة أو أرفق ملفاً|Write a message or attach a file
+الرسالة طويلة جداً||The message is too long
+المحادثة مش موجودة|المحادثة غير موجودة|The conversation does not exist
+مش بتسمح برد عادي بعد كده (واتساب محتاج رسالة قالب معتمدة)|لا تسمح بردّ عادي بعد ذلك (واتساب يحتاج رسالة قالب معتمدة)|does not allow a normal reply after that (WhatsApp needs an approved template message)
+واتساب مش متوصل. كمّل إعداده من الإعدادات ← ربط القنوات|واتساب غير متصل. أكمل إعداده من الإعدادات ← ربط القنوات|WhatsApp is not connected. Finish setting it up in Settings → Link channels
+فيسبوك/إنستجرام مش متوصل. كمّل إعداده من الإعدادات ← ربط القنوات|فيسبوك/إنستجرام غير متصل. أكمل إعداده من الإعدادات ← ربط القنوات|Facebook/Instagram is not connected. Finish setting it up in Settings → Link channels
+تعذر الاتصال بـ||Unable to connect to
+تعذر تجهيز المرفق||Unable to prepare the attachment
+إصدار Graph API لازم يكون زي v25.0|يجب أن يكون إصدار Graph API مثل v25.0|The Graph API version must look like v25.0
+تعذر الحفظ||Unable to save
+اكتب نص الرسالة||Enter the message text
+الإيميل ده عنده حساب بالفعل|هذا البريد الإلكتروني لديه حساب بالفعل|This email already has an account
+تعذر إنشاء الحساب||Unable to create the account
+اكتب رقم موبايل أو إيميل صحيح|اكتب رقم جوال أو بريداً إلكترونياً صحيحاً|Enter a valid mobile number or email
+طلبات كتير. جرّب بعد شوية|طلبات كثيرة. حاول بعد قليل|Too many requests. Try again shortly
+الرابط غير صالح||Invalid link
+القاعدة مقفولة|القاعدة معطّلة|The rule is off
+القناة مش مجهّزة في الإعدادات|القناة غير مجهّزة في الإعدادات|The channel is not set up in Settings
+مفيش وسيلة تواصل|لا توجد وسيلة تواصل|No contact method
+العميل اتحذف|العميل حُذف|The client was deleted
+تعذر الاتصال||Unable to connect
+الاشتراك انتهى من أكتر من 30 يوم|انتهى الاشتراك منذ أكثر من 30 يوماً|The subscription ended more than 30 days ago
+قرّب انتهاء الاشتراك|اقترب انتهاء الاشتراك|Subscription about to expire
+نقل تلقائي للمرحلة:||Automatic move to stage:
+ألغى الاشتراك|ألغى الاشتراك|Unsubscribed
+ألغى الاشتراك برد على واتساب|ألغى الاشتراك بالرد على واتساب|Unsubscribed by replying on WhatsApp
+ألغى الاشتراك من رابط الإيميل|ألغى الاشتراك من رابط البريد الإلكتروني|Unsubscribed from the email link
+العنصر ده اترجع قبل كده|هذا العنصر استُعيد من قبل|This item was already restored
+العنصر مش موجود في المحذوفات|العنصر غير موجود في المحذوفات|The item is not in the deleted items
+النوع ده مش بيترجع|هذا النوع لا يمكن استعادته|This type cannot be restored
+لا يمكنك تغيير دورك أو إيقاف حسابك بنفسك||You cannot change your own role or suspend your own account
+لا يمكنك تغيير دورك أو صلاحياتك أو إيقاف حسابك بنفسك||You cannot change your own role or permissions or suspend your own account
+لا يمكن تغيير المالك||The owner cannot be changed
+فقط المدير يقدر يعدّل حساب مدير أو يعيّن مدير جديد|فقط المدير يمكنه تعديل حساب مدير أو تعيين مدير جديد|Only an admin can edit an admin account or appoint a new admin
+صفحة||Page
+مش متوصل|غير متصل|Not connected
+مش مربوطة بحساب إنستجرام|غير مربوطة بحساب إنستجرام|not linked to an Instagram account
+لازم تحط|يجب أن تضع|You must enter
+عشان الرسائل الواردة تتقبل|حتى تُقبل الرسائل الواردة|so that incoming messages are accepted
+متسجل|مسجّل|Registered
+مرفق||Attachment
+رد تفاعلي||Interactive reply
+نوع رسالة غير مدعوم||Unsupported message type
+رسالة صوتية||Voice message
+فيديو||Video
+جهة اتصال||Contact
+ملف||File
+موقع||Location
+صورة||Image
+ملصق||Sticker
+تفاعل||Reaction
+عدّت أكتر من 24 ساعة على آخر رسالة من العميل|مضى أكثر من 24 ساعة على آخر رسالة من العميل|More than 24 hours have passed since the client's last message

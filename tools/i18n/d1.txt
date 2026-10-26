@@ -1,0 +1,99 @@
+،||,
+، وفشل|، وفشل|, failed
+؟||?
+آخر التنفيذات|آخر عمليات التنفيذ|Latest runs
+آخر نسخة:||Latest backup:
+أبريل||April
+أحدّث ببيانات الملف|أحدّث بيانات الملف|Update with file data
+أحرف على الأقل||characters minimum
+أخرى||Other
+أداء الفريق (آخر 30 يوم)||Team performance (last 30 days)
+أسباب الفشل||Failure reasons
+أضاف||Added
+أضف لتقويم|أضف إلى التقويم|Add to calendar
+أغسطس||August
+أقصى عدد مرفقات|الحد الأقصى للمرفقات|Maximum attachments
+أكبر من 10 ميجا|أكبر من 10 ميغابايت|Larger than 10 MB
+أكتوبر||October
+أكمّل الحقول الفاضية فقط|أكمل الحقول الفارغة فقط|Fill empty fields only
+أهلاً||Hello
+أوافق على استقبال رسائل من|أوافق على استلام رسائل من|I agree to receive messages from
+أول 30 فقط، الباقي في ملف|أول 30 فقط، والباقي في الملف|First 30 only, the rest is in the file
+أي حد يملأه بيدخل عندك عميل محتمل جديد مع مصدره، ومهمة رد في قايمة المهام. ممكن تغيّر قيمة المصدر المخفية|كل من يملؤه يُسجَّل لديك عميلاً محتملاً جديداً مع مصدره، وتُنشأ مهمة رد في قائمة المهام. يمكنك تغيير قيمة المصدر المخفية|Anyone who fills it in becomes a new lead with their source, and a reply task is created in the task list. You can change the hidden source value
+أي وقت||Any time
+أُنشئ||Created
+إ||I
+إجمالي الدخل||Total income
+إجمالي جهات الاتصال||Total contacts
+إخفاء الصلاحيات||Hide permissions
+إدارة الفريق والصلاحيات||Team and permissions management
+إدخال عميل||Add a client
+إدخال عميل جديد||Add a new client
+إرسال||Send
+إرسال الحملات||Send campaigns
+إرسال لكل المستلمين||Send to all recipients
+إرسال للصندوق|إرسال إلى الصندوق|Send to inbox
+إرسال ناقص||Incomplete send
+إرسال يدوي (واتساب)||Manual send (WhatsApp)
+إرفاق||Attach
+إضافة||Add
+إضافة عضو للفريق|إضافة عضو إلى الفريق|Add a team member
+إضافة وتعديل العملاء||Add and edit clients
+إضافة. الموضوع:||added. Subject:
+إغلاق||Close
+إلغاء||Cancel
+إنستاباي||InstaPay
+إنستجرام||Instagram
+إيجار ومكتب||Rent and office
+إيصال||Receipt
+إيصال دفع||Payment receipt
+إيميل|بريد إلكتروني|Email
+إيميل المرسل (مثال:|البريد الإلكتروني للمرسل (مثال:|Sender email (e.g.
+إيميل فقط|بريد إلكتروني فقط|Email only
+إيميل: حساب|بريد إلكتروني: حساب|Email: account
+ابحث بالاسم أو الموبايل أو الإيميل|ابحث بالاسم أو رقم الجوال أو البريد الإلكتروني|Search by name, mobile or email
+ابعتها للشخص ده بنفسك (مش هتظهر تاني)، وخليه يغيّرها أول ما يدخل|أرسلها إلى هذا الشخص بنفسك (لن تظهر مرة أخرى)، واطلب منه تغييرها عند أول دخول|Send it to this person yourself (it will not be shown again) and ask them to change it at first login
+اتبعت|أُرسلت|Sent
+اتبعت لحد دلوقتي:|المُرسَل حتى الآن:|Sent so far:
+اتبعتت|أُرسلت|Sent
+اتبعتت التجربة|أُرسلت التجربة|Test sent
+اتحفظ|تم الحفظ|Saved
+اتخطّى|تم التخطي|Skipped
+اتخطّى:|تم التخطي:|Skipped:
+اتدمج|تم الدمج|Merged
+اتدمج معاه:|دُمج معه:|Merged with:
+اترجع|تمت الاستعادة|Restored
+اتسندت لك المحادثة دي|أُسندت إليك هذه المحادثة|This conversation was assigned to you
+اتضاف من محادثة|أُضيف من محادثة|Added from a conversation
+اتعمل حساب|أُنشئ الحساب|Account created
+اتغيّر:|تم التغيير:|Changed:
+اتقرت|تمت قراءتها|Read
+اتنسخ|تم النسخ|Copied
+اتنسخت|تم النسخ|Copied
+اختار أو اكتب|اختر أو اكتب|Choose or type
+اختار الاشتراك أو الكورس|اختر الاشتراك أو الكورس|Choose the subscription or course
+اختار التاريخ|اختر التاريخ|Choose the date
+اختار تاريخ الدفع|اختر تاريخ الدفع|Choose the payment date
+اختار محادثة|اختر محادثة|Choose a conversation
+اختبار الاتصال||Test connection
+اختياري)||optional)
+استبدال كامل: هيتم حذف أي بيانات مش موجودة في النسخة. متأكد؟|استبدال كامل: ستُحذف أي بيانات غير موجودة في النسخة. هل أنت متأكد؟|Full replace: any data not in the backup will be deleted. Are you sure?
+استبدال كامل: يحذف الباقي|استبدال كامل: يحذف ما عداه|Full replace: deletes everything else
+استرجاع|استعادة|Restore
+استرجاع من نسخة|استعادة من نسخة|Restore from a backup
+استرجاع:|استعادة:|Restore:
+استضافة وأدوات||Hosting and tools
+استقبال الرسائل||Receiving messages
+استيراد||Import
+استيراد العملاء||Import clients
+استيراد من ملف||Import from a file
+استيراد:||Import:
+اسم||Name
+اسم الحملة (للحفظ)||Campaign name (for saving)
+اسم العميل||Client name
+اسم العميل، و|اسم العميل، و|the client's name, and
+اسم الكورس / الباقة / الفعالية||Course / plan / event name
+اسم المستخدم)||username)
+اسم قالب واتساب المعتمد||Approved WhatsApp template name
+اسم، موبايل، إيميل، كورس، رقم فاتورة، محتوى رسالة|اسم، جوال، بريد إلكتروني، كورس، رقم فاتورة، محتوى رسالة|name, mobile, email, course, invoice number, message content
+اشتراك||Subscription
