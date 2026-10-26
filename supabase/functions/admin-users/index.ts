@@ -1,4 +1,4 @@
-// Biosyn CRM: إضافة أعضاء الفريق وإعادة تعيين كلمات المرور (للمدير والشريك المؤسس فقط)
+// Biosyn CRM: إضافة أعضاء الفريق وإعادة تعيين كلمات المرور (لأي حد عنده صلاحية "إدارة الفريق")
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS = {
@@ -8,6 +8,7 @@ const CORS = {
 };
 const ROLES = ["admin", "cofounder", "accountant", "moderator", "support", "viewer"];
 const MANAGERS = ["admin", "cofounder"];
+const PERM_KEYS = ["fin", "cw", "cdel", "camp", "imp", "bk", "inbox", "users"];
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
@@ -31,8 +32,9 @@ Deno.serve(async (req) => {
   const { data: who } = await admin.auth.getUser(jwt);
   if (!who?.user) return json(401, { error: "سجّل دخول الأول" });
 
-  const { data: me } = await admin.from("profiles").select("role,active").eq("id", who.user.id).maybeSingle();
-  if (!me || !me.active || !MANAGERS.includes(me.role)) return json(403, { error: "مش عندك صلاحية إدارة الفريق" });
+  const { data: me } = await admin.from("profiles").select("role,active,perms").eq("id", who.user.id).maybeSingle();
+  const canUsers = me && me.active && (me.perms && typeof me.perms.users === "boolean" ? me.perms.users : MANAGERS.includes(me.role));
+  if (!canUsers) return json(403, { error: "مش عندك صلاحية إدارة الفريق" });
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json(400, { error: "طلب غير صالح" }); }
@@ -43,7 +45,8 @@ Deno.serve(async (req) => {
     const role = String(body.role || "");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(400, { error: "الإيميل غير صحيح" });
     if (!ROLES.includes(role)) return json(400, { error: "دور غير معروف" });
-    if (role === "admin" && me.role !== "admin") return json(403, { error: "فقط المدير يقدر يضيف مدير" });
+    const perms: Record<string, boolean> = {};
+    if (body.perms && typeof body.perms === "object") for (const k of PERM_KEYS) { const v = (body.perms as Record<string, unknown>)[k]; if (typeof v === "boolean") perms[k] = v; }
 
     const password = tempPassword();
     const { data: created, error } = await admin.auth.admin.createUser({
@@ -54,16 +57,16 @@ Deno.serve(async (req) => {
       return json(dup ? 409 : 400, { error: dup ? "الإيميل ده عنده حساب بالفعل" : "تعذر إنشاء الحساب" });
     }
     const { error: pe } = await admin.from("profiles")
-      .update({ role, name, active: true, email }).eq("id", created.user.id);
+      .update({ role, name, active: true, email, perms }).eq("id", created.user.id);
     if (pe) return json(500, { error: "اتعمل الحساب لكن تعذر تحديد الدور" });
     return json(200, { id: created.user.id, email, role, password });
   }
 
   if (body.action === "reset_password") {
     const id = String(body.user_id || "");
-    const { data: target } = await admin.from("profiles").select("role").eq("id", id).maybeSingle();
+    const { data: target } = await admin.from("profiles").select("is_owner").eq("id", id).maybeSingle();
     if (!target) return json(404, { error: "المستخدم مش موجود" });
-    if (target.role === "admin" && me.role !== "admin") return json(403, { error: "فقط المدير يقدر يغيّر كلمة مرور مدير" });
+    if (target.is_owner && id !== who.user.id) return json(403, { error: "حساب المالك محمي، والمالك بس يقدر يغيّر كلمة مروره" });
     const password = tempPassword();
     const { error } = await admin.auth.admin.updateUserById(id, { password });
     if (error) return json(400, { error: "تعذر تغيير كلمة المرور" });

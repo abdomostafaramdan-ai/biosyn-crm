@@ -455,7 +455,7 @@ async function boot(){
  const{data:pr,error}=await SB.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
  if(error||!pr||!pr.active){lg(LH+`<div class="empty">حسابك غير مفعّل. كلّم المدير يفعّله.</div><div class="row"><button id="lo2">تسجيل خروج</button></div>`);$("lo2").onclick=signOut;return}
  $("lg").classList.remove("on");if(booted)return;booted=true;
- ME={id:pr.id,email:pr.email||session.user.email,role:pr.role,name:pr.name};
+ ME={id:pr.id,email:pr.email||session.user.email,role:pr.role,name:pr.name,perms:pr.perms||{},is_owner:!!pr.is_owner};
  ROLE=RN[pr.role]?pr.role:"viewer";setPerms();
  db=mkDb();applyRole();
  const mk=(arr,set)=>s=>{set(s.docs.map(d=>({...(typeof d.data==="function"?d.data():d.data),id:d.id})));render()};
@@ -465,33 +465,51 @@ async function boot(){
  if(P.users)loadUsers();
 }
 function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
-const ROLES=[["admin","مدير","كل حاجة، وهو الوحيد اللي يضيف أو يعدّل مدير"],["cofounder","شريك مؤسس","كل حاجة: الحسابات والعملاء والحملات والفريق والنسخ الاحتياطي"],["accountant","محاسب","الحسابات والأرباح والداشبورد المالي، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل، من غير الحسابات"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل، من غير الحسابات"],["viewer","مشاهد","يشوف العملاء والداشبورد قراءة فقط"]];
+const ROLES=[["admin","مدير","كل الصلاحيات"],["cofounder","شريك مؤسس","كل الصلاحيات، زي المدير"],["accountant","محاسب","الحسابات والأرباح، والعملاء قراءة فقط"],["moderator","مودريتور","العملاء (إضافة وتعديل) وصندوق الرسائل"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل"],["viewer","مشاهد","قراءة فقط"]];
+const PL=[["fin","الحسابات والأرباح"],["cw","إضافة وتعديل العملاء"],["cdel","حذف العملاء"],["camp","الحملات"],["imp","استيراد العملاء"],["bk","النسخ الاحتياطي والاسترجاع"],["inbox","صندوق الرسائل"],["users","إدارة الفريق والصلاحيات"]];
 const PERM={fin:["admin","cofounder","accountant"],cw:["admin","cofounder","moderator","support"],cdel:["admin","cofounder"],camp:["admin","cofounder","support"],imp:["admin","cofounder","support"],bk:["admin","cofounder"],users:["admin","cofounder"],inbox:["admin","cofounder","moderator","support"]};
-const setPerms=()=>{P={};Object.keys(PERM).forEach(k=>P[k]=PERM[k].includes(ROLE))};
+const roleHas=(r,k)=>PERM[k].includes(r);
+const effP=(u,k)=>u&&u.perms&&typeof u.perms[k]==="boolean"?u.perms[k]:roleHas(u&&u.role,k);
+const setPerms=()=>{P={};Object.keys(PERM).forEach(k=>P[k]=effP(ME||{role:ROLE},k))};
+let OPENP=null;
 async function teamCall(body){
  try{const{data,error}=await SB.functions.invoke("admin-users",{body});
   if(error){let m="تعذر تنفيذ الطلب";try{const j=await error.context.json();if(j&&j.error)m=j.error}catch(e){}return{error:m}}
   return{data}}catch(e){return{error:"تعذر الاتصال بالسيرفر"}}
 }
+function permEditor(u){
+ const custom=u.perms&&Object.keys(u.perms).length;
+ return `<div class="pe" style="background:var(--ac2);border-radius:10px;padding:8px 10px;margin-top:6px">${PL.map(([k,n])=>{const on=effP(u,k),c=u.perms&&typeof u.perms[k]==="boolean";return `<label style="display:flex;gap:8px;align-items:center;margin:5px 0;color:var(--tx);font-size:14px"><input type="checkbox" data-pk="${k}" data-pu="${esc(u.id)}" ${on?"checked":""} style="width:auto">${n}${c?' <small class="tag" style="margin:0">مخصّص</small>':""}</label>`}).join("")}
+ <div class="row" style="margin-top:6px">${custom?`<button data-pr="${esc(u.id)}" style="font-size:13px">رجوع لصلاحيات الدور</button>`:'<small class="lg">الصلاحيات دي حسب الدور. أي تغيير هنا بيتطبق على الشخص ده بس.</small>'}</div></div>`;
+}
 function usersCard(){
- const amAdmin=ROLE==="admin",RR=ROLES.filter(r=>amAdmin||r[0]!=="admin");
- const opt=(u)=>ROLES.map(([k,n])=>`<option value="${k}" ${u.role===k?"selected":""} ${!amAdmin&&k==="admin"?"disabled":""}>${n}</option>`).join("");
+ const opt=u=>ROLES.map(([k,n])=>`<option value="${k}" ${u.role===k?"selected":""}>${n}</option>`).join("");
  return `<div class="card2"><h4>الفريق (${USERS.length})</h4>
  ${NEWPW?`<div class="ok" style="margin:6px 0 10px;font-size:14px">اتعمل حساب <b>${esc(NEWPW.email)}</b><br>كلمة المرور المؤقتة: <code id="npw" style="font-size:15px;user-select:all">${esc(NEWPW.password)}</code> <button id="npw_c" style="padding:3px 10px">نسخ</button><br><small>ابعتها للشخص ده بنفسك (مش هتظهر تاني)، وخليه يغيّرها أول ما يدخل.</small><div class="row"><button id="npw_x">تمام</button></div></div>`:""}
- ${USERS.map(u=>{const me=u.id===ME.id,lock=me||(!amAdmin&&u.role==="admin");return `<div class="hb" style="border-bottom:1px solid var(--bd);padding-bottom:8px"><div class="hl"><span>${esc(u.name||u.email)}${me?' <small class="tag">انت</small>':""}<br><small>${esc(u.email)}</small></span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><select data-ur="${esc(u.id)}" ${lock?"disabled":""} style="width:auto">${opt(u)}</select><label style="display:inline-flex;gap:4px;align-items:center;font-size:13px"><input type="checkbox" data-ua="${esc(u.id)}" ${u.active?"checked":""} ${lock?"disabled":""} style="width:auto">مفعّل</label>${lock?"":`<button data-rp="${esc(u.id)}" data-em="${esc(u.email)}" style="padding:4px 8px;font-size:12px">كلمة مرور جديدة</button>`}</span></div></div>`}).join("")}
+ ${USERS.map(u=>{const me=u.id===ME.id,lock=me||u.is_owner,has=PL.filter(([k])=>effP(u,k)).map(x=>x[1]);
+  return `<div class="hb" style="border-bottom:1px solid var(--bd);padding-bottom:8px"><div class="hl"><span>${esc(u.name||u.email)}${u.is_owner?' <small class="tag">المالك</small>':""}${me?' <small class="tag">انت</small>':""}${u.active?"":' <small class="tag w">موقوف</small>'}<br><small>${esc(u.email)}</small></span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><select data-ur="${esc(u.id)}" ${lock?"disabled":""} style="width:auto">${opt(u)}</select><label style="display:inline-flex;gap:4px;align-items:center;font-size:13px"><input type="checkbox" data-ua="${esc(u.id)}" ${u.active?"checked":""} ${lock?"disabled":""} style="width:auto">مفعّل</label></span></div>
+  <small class="lg" style="display:block;margin-top:4px">${has.length?"بيقدر: "+esc(has.join("، ")):"قراءة العملاء بس"}</small>
+  ${lock?(u.is_owner&&!me?'<small class="lg">حساب المالك محمي: محدش يقدر يغيّر دوره أو صلاحياته أو يوقفه.</small>':""):`<div class="row" style="margin-top:6px"><button data-po="${esc(u.id)}" style="padding:4px 10px;font-size:13px">${OPENP===u.id?"إخفاء الصلاحيات":"الصلاحيات"}</button><button data-rp="${esc(u.id)}" data-em="${esc(u.email)}" style="padding:4px 10px;font-size:13px">كلمة مرور جديدة</button></div>${OPENP===u.id?permEditor(u):""}`}</div>`}).join("")}
  <h4 style="margin-top:14px">إضافة عضو للفريق</h4>
  <div class="g2"><div><label class="cl">الاسم</label><input id="nu_n"></div><div><label class="cl">الإيميل</label><input id="nu_e" type="email" inputmode="email"></div></div>
- <label class="cl">الدور</label><select id="nu_r">${RR.map(([k,n])=>`<option value="${k}" ${k==="moderator"?"selected":""}>${n}</option>`).join("")}</select>
+ <label class="cl">الدور</label><select id="nu_r">${ROLES.map(([k,n])=>`<option value="${k}" ${k==="moderator"?"selected":""}>${n}</option>`).join("")}</select>
  <small class="lg" id="nu_d"></small>
  <div class="row"><button class="pri" id="nu_go">إضافة</button></div>
- <details style="margin-top:10px"><summary class="lg" style="cursor:pointer">مين يعمل إيه؟</summary><div class="tw" style="padding:6px 0 0"><table>${ROLES.map(([k,n,d])=>`<tr><td><b>${n}</b></td><td style="white-space:normal">${d}</td></tr>`).join("")}</table></div></details></div>`;
+ <small class="lg">بعد الإضافة تقدر تخصّص صلاحياته من زرار "الصلاحيات".</small>
+ <details style="margin-top:10px"><summary class="lg" style="cursor:pointer">صلاحيات كل دور</summary><div class="tw" style="padding:6px 0 0"><table><tr><th></th>${ROLES.map(r=>`<th>${r[1]}</th>`).join("")}</tr>${PL.map(([k,n])=>`<tr><td style="white-space:normal">${n}</td>${ROLES.map(r=>`<td style="text-align:center">${roleHas(r[0],k)?"✓":"–"}</td>`).join("")}</tr>`).join("")}</table></div></details></div>`;
 }
 function bindAcct(v){
  if($("lo"))$("lo").onclick=signOut;
  if($("pw_go"))$("pw_go").onclick=async()=>{const p=$("pw1").value;if(p.length<8){alert("8 أحرف على الأقل");return}const{error}=await SB.auth.updateUser({password:p});alert(error?"تعذر التغيير: "+error.message:"تم تغيير كلمة المرور");$("pw1").value=""};
- const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert(/مدير/.test(error.message||"")?error.message:"تعذر التغيير");loadUsers()};
- v.querySelectorAll("[data-ur]").forEach(s=>s.onchange=e=>up(s.dataset.ur,{role:e.target.value}));
+ const up=async(id,patch)=>{const{error}=await SB.from("profiles").update(patch).eq("id",id);if(error)alert(/محمي|بنفسك|المالك/.test(error.message||"")?error.message:"تعذر التغيير");loadUsers()};
+ v.querySelectorAll("[data-ur]").forEach(s=>s.onchange=e=>{const u=USERS.find(x=>x.id===s.dataset.ur);
+  if(u&&u.perms&&Object.keys(u.perms).length&&!confirm("تغيير الدور هيرجّع صلاحيات الشخص ده لصلاحيات الدور الجديد. تكمل؟")){e.target.value=u.role;return}
+  up(s.dataset.ur,{role:e.target.value,perms:{}})});
  v.querySelectorAll("[data-ua]").forEach(c=>c.onchange=e=>up(c.dataset.ua,{active:e.target.checked}));
+ v.querySelectorAll("[data-po]").forEach(b=>b.onclick=()=>{OPENP=OPENP===b.dataset.po?null:b.dataset.po;render()});
+ v.querySelectorAll("[data-pk]").forEach(c=>c.onchange=e=>{const u=USERS.find(x=>x.id===c.dataset.pu);if(!u)return;
+  const k=c.dataset.pk,np={...(u.perms||{})};if(e.target.checked===roleHas(u.role,k))delete np[k];else np[k]=e.target.checked;up(u.id,{perms:np})});
+ v.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>up(b.dataset.pr,{perms:{}}));
  const desc=()=>{if($("nu_r")&&$("nu_d"))$("nu_d").textContent=(ROLES.find(r=>r[0]===$("nu_r").value)||[0,0,""])[2]};desc();
  if($("nu_r"))$("nu_r").onchange=desc;
  if($("nu_go"))$("nu_go").onclick=async()=>{
