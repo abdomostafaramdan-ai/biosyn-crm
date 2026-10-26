@@ -105,9 +105,9 @@ alter table public.txns      add constraint txns_data_valid      check (public.v
 alter table public.campaigns add constraint campaigns_data_valid check (public.valid_campaign(data));
 alter table public.messages  add constraint messages_body_len    check (length(body) <= 8000);
 
--- ---------- 4) نسخ احتياطي يومي تلقائي (آخر 14 يوم) ----------
+-- ---------- 4) نسخ احتياطي يومي تلقائي (14 خانة بتتبدّل: آخر 14 يوم) ----------
 create table if not exists public.backups (
-  id bigint generated always as identity primary key,
+  id int primary key check (id between 0 and 13),
   at timestamptz not null default now(),
   counts jsonb not null default '{}'::jsonb,
   data jsonb not null
@@ -119,8 +119,8 @@ create policy backups_read on public.backups for select to authenticated
   using (public.has_perm('users'));
 
 create or replace function public.take_backup()
-returns bigint language plpgsql security definer set search_path = public as $$
-declare d jsonb; c jsonb; new_id bigint;
+returns int language plpgsql security definer set search_path = public as $$
+declare d jsonb; c jsonb; slot int := (floor(extract(epoch from now()) / 86400))::int % 14;
 begin
   select jsonb_build_object(
     'app','biosyn-crm','v',1,'date', to_char(now() at time zone 'utc','YYYY-MM-DD"T"HH24:MI:SS"Z"'),'auto',true,
@@ -129,16 +129,15 @@ begin
     'campaigns', coalesce((select jsonb_agg(data || jsonb_build_object('id', id)) from public.campaigns), '[]'::jsonb)
   ) into d;
   c := jsonb_build_object('contacts', jsonb_array_length(d->'contacts'), 'txns', jsonb_array_length(d->'txns'), 'campaigns', jsonb_array_length(d->'campaigns'));
-  insert into public.backups (counts, data) values (c, d) returning id into new_id;
-  delete from public.backups where id not in (select id from public.backups order by at desc limit 14);
-  delete from public.audit_log where at < now() - interval '365 days';
-  return new_id;
+  insert into public.backups (id, at, counts, data) values (slot, now(), c, d)
+    on conflict (id) do update set at = excluded.at, counts = excluded.counts, data = excluded.data;
+  return slot;
 end $$;
 revoke execute on function public.take_backup() from public, anon, authenticated;
 
 -- نسخة يدوية من الإعدادات (لإدارة الفريق)
 create or replace function public.backup_now()
-returns bigint language plpgsql security definer set search_path = public as $$
+returns int language plpgsql security definer set search_path = public as $$
 begin
   if not public.has_perm('users') then raise exception 'مش عندك صلاحية'; end if;
   return public.take_backup();
