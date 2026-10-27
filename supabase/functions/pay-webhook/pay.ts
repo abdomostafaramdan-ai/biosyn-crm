@@ -70,3 +70,28 @@ export function fillTemplate(tpl: string, v: Record<string, string>) {
   return out;
 }
 export const CUSTOM_PAID = /^(paid|success|succeeded|completed|captured|approved|مدفوع|ناجح)$/i;
+
+/* ---------- Fawaterak (فواتيرك) ---------- */
+// hashKey = HMAC-SHA256(vendorKey, "InvoiceId=..&InvoiceKey=..&PaymentMethod=..")
+export async function verifyFawaterak(b: Record<string, any>, key: string) {
+  const got = String(b.hashKey || "").toLowerCase();
+  if (!got || !key) return false;
+  return same(got, await hmacHex("SHA-256", key, `InvoiceId=${b.invoice_id}&InvoiceKey=${b.invoice_key}&PaymentMethod=${b.payment_method}`));
+}
+export function fawaterakPaid(b: Record<string, any>): { txn?: string; ref?: string; invoice?: string; paid: boolean } {
+  let pl: any = b.pay_load;
+  if (typeof pl === "string") { try { pl = JSON.parse(pl); } catch { pl = null; } }
+  const txn = pl && typeof pl === "object" && pl.txn_id ? String(pl.txn_id) : undefined;
+  return { txn, ref: String(b.referenceNumber || b.invoice_id || ""), invoice: b.invoice_id != null ? String(b.invoice_id) : undefined, paid: String(b.invoice_status || "").toLowerCase() === "paid" };
+}
+export function fawaterakBody(p: { amount: number; name: string; txn: string; contact: { name?: string; email?: string; phone?: string }; ret: string }) {
+  const [first, ...rest] = String(p.contact.name || "عميل").trim().split(/\s+/);
+  return {
+    cartTotal: String(p.amount), currency: "EGP",
+    customer: { first_name: first || "عميل", last_name: rest.join(" ") || "-", email: p.contact.email || "na@biosynegypt.com", phone: p.contact.phone || "01000000000", address: "NA" },
+    redirectionUrls: { successUrl: p.ret, failUrl: p.ret, pendingUrl: p.ret },
+    cartItems: [{ name: p.name.slice(0, 120) || "Biosyn Egypt", price: String(p.amount), quantity: "1" }],
+    payLoad: { txn_id: p.txn },
+  };
+}
+export const fawaterakBase = (env?: string) => (env === "test" ? "https://staging.fawaterk.com" : "https://app.fawaterk.com");

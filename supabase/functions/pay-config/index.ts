@@ -4,6 +4,7 @@ import { CORS, json, serviceDb, requirePerm } from "./inbox.ts";
 const SPEC: Record<string, { plain: string[]; secret: string[] }> = {
   stripe: { plain: ["return_url"], secret: ["secret_key", "webhook_secret"] },
   paymob: { plain: ["public_key", "integration_ids", "return_url"], secret: ["secret_key", "hmac_secret"] },
+  fawaterak: { plain: ["env", "return_url"], secret: ["api_key"] },
   custom: { plain: ["label", "link_template"], secret: ["secret"] },
 };
 
@@ -24,7 +25,7 @@ Deno.serve(async (req) => {
       const spec = SPEC[r.provider]; if (!spec) continue;
       const c = (r.config || {}) as Record<string, string>;
       res[r.provider] = {
-        enabled: !!r.enabled, webhook_url: `${base}/${r.provider}`,
+        enabled: !!r.enabled, webhook_url: `${base}/${r.provider === "fawaterak" ? "fawaterak_json" : r.provider}`,
         ...Object.fromEntries(spec.plain.map((k) => [k, c[k] || ""])),
         has: Object.fromEntries(spec.secret.map((k) => [k, !!c[k]])),
       };
@@ -46,6 +47,7 @@ Deno.serve(async (req) => {
     for (const k of (Array.isArray(body.clear) ? body.clear : []) as string[]) if (spec.secret.includes(k)) delete cfg[k];
     if (cfg.link_template && !/^https:\/\//i.test(cfg.link_template)) return json(400, { error: "رابط الدفع يجب أن يبدأ بـ https://" });
     if (cfg.return_url && !/^https:\/\//i.test(cfg.return_url)) return json(400, { error: "رابط العودة يجب أن يبدأ بـ https://" });
+    if (cfg.env && !/^(live|test)$/.test(cfg.env)) return json(400, { error: "البيئة تُكتب live أو test" });
     if (cfg.integration_ids && !/^\d+(\s*,\s*\d+)*$/.test(cfg.integration_ids)) return json(400, { error: "أرقام الـ Integration IDs تُكتب أرقاماً مفصولة بفواصل" });
     const enabled = typeof body.enabled === "boolean" ? body.enabled : !!row?.enabled;
     const { error } = await db.from("gateway_secrets").upsert({ provider: p, enabled, config: cfg, updated_at: new Date().toISOString() });
@@ -69,6 +71,7 @@ Deno.serve(async (req) => {
       const miss = ["secret_key", "public_key", "integration_ids", "hmac_secret"].filter((k) => !c[k]);
       return json(200, miss.length ? { ok: false, msg: "ينقصك: " + miss.join("، ") } : { ok: true, msg: "✅ كل الحقول مسجّلة (يتأكد الربط عند إنشاء أول رابط دفع)" });
     }
+    if (p === "fawaterak") return json(200, c.api_key ? { ok: true, msg: `✅ API Key مسجّل (بيئة ${c.env === "test" ? "تجريبية" : "حقيقية"}). يتأكد الربط عند إنشاء أول رابط دفع` } : { ok: false, msg: "ضع API Key أولاً" });
     if (p === "custom") return json(200, c.link_template && /\{(المبلغ|المرجع)\}/.test(c.link_template) ? { ok: true, msg: "✅ القالب جاهز" } : { ok: false, msg: "القالب يجب أن يحتوي {المبلغ} أو {المرجع}" });
     return json(400, { error: "بوابة غير معروفة" });
   }

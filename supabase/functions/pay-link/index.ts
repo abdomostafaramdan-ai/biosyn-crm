@@ -1,6 +1,6 @@
 // ينشئ رابط دفع إلكتروني لعملية دخل معلّقة (أو قسط) عبر البوابة المختارة
 import { CORS, json, serviceDb, requirePerm } from "./inbox.ts";
-import { stripeForm, paymobIntention, fillTemplate } from "./pay.ts";
+import { stripeForm, paymobIntention, fillTemplate, fawaterakBody, fawaterakBase } from "./pay.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
 
   if (body.action === "list") {
     const { data } = await db.from("gateway_secrets").select("provider,enabled,config");
-    return json(200, (data || []).filter((g) => g.enabled).map((g) => ({ provider: g.provider, label: g.provider === "custom" ? ((g.config as any)?.label || "رابط الدفع") : g.provider === "stripe" ? "Stripe" : "Paymob" })));
+    return json(200, (data || []).filter((g) => g.enabled).map((g) => ({ provider: g.provider, label: g.provider === "custom" ? ((g.config as any)?.label || "رابط الدفع") : g.provider === "stripe" ? "Stripe" : g.provider === "fawaterak" ? "فواتيرك" : "Paymob" })));
   }
 
   const { data: row } = await db.from("txns").select("id,data").eq("id", String(body.txn_id || "")).maybeSingle();
@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
   const ret = c.return_url || "https://biosynegypt.com";
   const base = `${Deno.env.get("SUPABASE_URL")}/functions/v1/pay-webhook`;
   let url = "";
+  let invoiceId = "";
 
   try {
     if (provider === "stripe") {
@@ -57,12 +58,22 @@ Deno.serve(async (req) => {
       const j = await r.json();
       if (!r.ok || !j.client_secret) return json(502, { error: (typeof j?.detail === "string" ? j.detail : null) || "فشل إنشاء الرابط عبر Paymob" });
       url = `https://accept.paymob.com/unifiedcheckout/?publicKey=${encodeURIComponent(c.public_key)}&clientSecret=${encodeURIComponent(j.client_secret)}`;
+    } else if (provider === "fawaterak") {
+      if (!c.api_key) return json(400, { error: "API Key غير مسجّل" });
+      const phone = String(contact.phone || "").replace(/\D/g, "");
+      const r = await fetch(`${fawaterakBase(c.env)}/api/v2/createInvoiceLink`, {
+        method: "POST", headers: { Authorization: `Bearer ${c.api_key}`, "Content-Type": "application/json" },
+        body: JSON.stringify(fawaterakBody({ amount, name, txn: row.id, ret, contact: { name: contact.name, email: /^\S+@\S+\.\S+$/.test(String(contact.email || "")) ? contact.email : undefined, phone: phone ? phone.replace(/^20/, "0") : undefined } })),
+      });
+      const j = await r.json();
+      if (!r.ok || !j?.data?.url) return json(502, { error: (typeof j?.message === "string" ? j.message : null) || "فشل إنشاء الرابط عبر فواتيرك" });
+      url = j.data.url; invoiceId = String(j.data.invoiceId ?? "");
     } else if (provider === "custom") {
       if (!c.link_template) return json(400, { error: "قالب الرابط غير مسجّل" });
       url = fillTemplate(c.link_template, { amount: String(amount), ref: row.id, name: String(contact.name || ""), email: String(contact.email || ""), phone: String(contact.phone || ""), item: name });
     } else return json(400, { error: "بوابة غير معروفة" });
   } catch { return json(502, { error: "تعذر الاتصال بالبوابة" }); }
 
-  await db.from("txns").update({ data: { ...d, pay: { ...(d.pay || {}), provider, url, at: new Date().toISOString() } } }).eq("id", row.id);
+  await db.from("txns").update({ data: { ...d, pay: { ...(d.pay || {}), provider, url, at: new Date().toISOString(), ...(invoiceId ? { invoice_id: invoiceId } : {}) } } }).eq("id", row.id);
   return json(200, { url });
 });

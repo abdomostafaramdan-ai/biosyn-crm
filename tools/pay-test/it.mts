@@ -28,4 +28,18 @@ reset();r=await call("/custom",JSON.stringify({txn_id:"t1",status:"paid",amount:
 reset();r=await call("/custom",JSON.stringify({txn_id:"t1",status:"paid"}),{"x-pay-secret":"no"});ok("custom wrong secret 401",r.s===401);
 reset();r=await call("/custom?s=cs",JSON.stringify({ref:"t1",status:"failed"}));ok("custom non-paid status ignored",r.j.ignored==="failed"&&store.txns[0].data.status==="pending");
 reset();store.gateway_secrets[0].enabled=false;e=stripeEv("evt9","t1",1200);r=await call("/stripe",e.raw,e.h);ok("disabled gateway rejected",r.s===403);
+
+// fawaterak
+const fk=(o:any,key="fk_key")=>({...o,hashKey:crypto.createHmac("sha256",key).update(`InvoiceId=${o.invoice_id}&InvoiceKey=${o.invoice_key}&PaymentMethod=${o.payment_method}`).digest("hex")});
+const fpay={invoice_id:501,invoice_key:"K1",payment_method:"Card",invoice_status:"paid",pay_load:{txn_id:"t1"},referenceNumber:"R9"};
+const withFk=()=>{reset();store.gateway_secrets.push({provider:"fawaterak",enabled:true,config:{api_key:"fk_key"}})};
+withFk();r=await call("/fawaterak_json",JSON.stringify(fk(fpay)));ok("fawaterak paid",r.s===200&&r.j.paid===true&&store.txns[0].data.status==="paid"&&store.txns[0].data.pay.provider==="fawaterak");
+r=await call("/fawaterak_json",JSON.stringify(fk(fpay)));ok("fawaterak replay duplicate",r.j.duplicate===true);
+withFk();r=await call("/fawaterak_json",JSON.stringify(fk(fpay,"wrong")));ok("fawaterak bad hash 401",r.s===401&&store.txns[0].data.status==="pending");
+withFk();r=await call("/fawaterak_json",JSON.stringify({...fk(fpay),invoice_id:502}));ok("fawaterak tampered id 401",r.s===401);
+withFk();r=await call("/fawaterak_json",new URLSearchParams({...fk({...fpay,pay_load:JSON.stringify({txn_id:"t1"})}) as any}).toString());ok("fawaterak form-encoded accepted",r.j.paid===true);
+withFk();r=await call("/fawaterak_json",JSON.stringify({invoice_id:501,invoice_key:"K1",payment_method:"Card",errorMessage:"declined"}));ok("fawaterak failed (no hash) ignored",r.j.ignored==="no hash"&&store.txns[0].data.status==="pending");
+withFk();store.txns[0].data.pay={provider:"fawaterak",invoice_id:"999"};r=await call("/fawaterak_json",JSON.stringify(fk(fpay)));ok("fawaterak invoice mismatch rejected",r.j.mismatch===true&&store.txns[0].data.status==="pending");
+withFk();r=await call("/fawaterak_json",JSON.stringify(fk({...fpay,pay_load:{txn_id:"nope"}})));ok("fawaterak unknown txn unmatched",r.j.unmatched===true);
+withFk();store.gateway_secrets.find((g:any)=>g.provider==="fawaterak").enabled=false;r=await call("/fawaterak_json",JSON.stringify(fk(fpay)));ok("fawaterak disabled 403",r.s===403);
 console.log(fails?fails+" FAILED":"ALL OK");process.exit(fails?1:0)

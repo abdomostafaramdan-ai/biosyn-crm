@@ -1,12 +1,12 @@
 // يستقبل إشعارات بوابات الدفع (Stripe / Paymob / رابط مخصص) ويحوّل العملية المعلّقة إلى مدفوعة
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { same, verifyStripe, stripePaid, verifyPaymob, paymobPaid, CUSTOM_PAID } from "./pay.ts";
+import { same, verifyStripe, stripePaid, verifyPaymob, paymobPaid, CUSTOM_PAID, verifyFawaterak, fawaterakPaid } from "./pay.ts";
 
 const out = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
 const MONTHS: [RegExp, number][] = [[/شهري|monthly|month/i, 1], [/ربع|quarter/i, 3], [/نصف|half|semi/i, 6], [/سنوي|annual|year|yearly/i, 12]];
 const addMonths = (iso: string, n: number) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 10); };
 const today = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Africa/Cairo" }).format(new Date());
-const LABEL: Record<string, string> = { stripe: "Stripe", paymob: "Paymob", custom: "بوابة دفع" };
+const LABEL: Record<string, string> = { stripe: "Stripe", paymob: "Paymob", fawaterak: "فواتيرك", custom: "بوابة دفع" };
 
 type Db = ReturnType<typeof createClient>;
 async function event(db: Db, id: string, provider: string, txn: string | null, status: string, note = "") {
@@ -14,13 +14,14 @@ async function event(db: Db, id: string, provider: string, txn: string | null, s
   return !error; // false = تكرار
 }
 
-async function markPaid(db: Db, provider: string, evId: string, txnId: string | undefined, ref: string, amount?: number) {
+async function markPaid(db: Db, provider: string, evId: string, txnId: string | undefined, ref: string, amount?: number, invoice?: string) {
   const id = `${provider}:${evId}`;
   if (!txnId) { await event(db, id, provider, null, "unmatched", "لا يوجد رقم عملية"); return { unmatched: true }; }
   const { data: row } = await db.from("txns").select("id,data").eq("id", txnId).maybeSingle();
   if (!row) { await event(db, id, provider, txnId, "unmatched", "العملية غير موجودة"); return { unmatched: true }; }
   const d = row.data as Record<string, any>;
   if (d.status === "paid") { await event(db, id, provider, txnId, "duplicate", "مدفوعة مسبقاً"); return { duplicate: true }; }
+  if (invoice && d.pay?.invoice_id && String(d.pay.invoice_id) !== invoice) { await event(db, id, provider, txnId, "failed", "رقم الفاتورة لا يطابق رابط الدفع"); return { mismatch: true }; }
   if (amount != null && Math.abs(amount - Number(d.amt)) > 0.5) { await event(db, id, provider, txnId, "failed", `المبلغ المدفوع ${amount} لا يطابق ${d.amt}`); return { mismatch: true }; }
   if (!(await event(db, id, provider, txnId, "paid", ref))) return { duplicate: true };
   const date = today();
@@ -43,15 +44,17 @@ async function markPaid(db: Db, provider: string, evId: string, txnId: string | 
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return out({ error: "method" }, 405);
-  const url = new URL(req.url), p = url.searchParams.get("p") || url.pathname.replace(/\/+$/, "").split("/").pop() || "";
-  if (!["stripe", "paymob", "custom"].includes(p)) return out({ error: "unknown gateway" }, 404);
+  const url = new URL(req.url), p = url.searchParams.get("p") || (url.pathname.replace(/\/+$/, "").split("/").pop() || "").replace(/_json$/, "");
+  if (!["stripe", "paymob", "fawaterak", "custom"].includes(p)) return out({ error: "unknown gateway" }, 404);
   const raw = await req.text();
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   const { data: g } = await db.from("gateway_secrets").select("enabled,config").eq("provider", p).maybeSingle();
   const cfg = (g?.config || {}) as Record<string, string>;
   if (!g?.enabled) return out({ error: "gateway disabled" }, 403);
   let body: Record<string, any>;
-  try { body = JSON.parse(raw); } catch { return out({ error: "bad json" }, 400); }
+  try { body = JSON.parse(raw); } catch {
+    if (p === "fawaterak") { body = Object.fromEntries(new URLSearchParams(raw)); } else return out({ error: "bad json" }, 400);
+  }
 
   if (p === "stripe") {
     if (!cfg.webhook_secret || !(await verifyStripe(raw, req.headers.get("stripe-signature") || "", cfg.webhook_secret))) return out({ error: "bad signature" }, 401);
@@ -66,6 +69,13 @@ Deno.serve(async (req) => {
     const r = paymobPaid(obj);
     if (!r.paid) return out({ ok: true, ignored: "not paid" });
     return out({ ok: true, ...(await markPaid(db, p, String(obj.id), r.txn, r.ref || "", r.amount)) });
+  }
+  if (p === "fawaterak") {
+    if (!body.hashKey) return out({ ok: true, ignored: "no hash" });
+    if (!cfg.api_key || !(await verifyFawaterak(body, cfg.api_key))) return out({ error: "bad signature" }, 401);
+    const r = fawaterakPaid(body);
+    if (!r.paid) return out({ ok: true, ignored: String(body.invoice_status || "") });
+    return out({ ok: true, ...(await markPaid(db, p, String(r.invoice || body.invoice_key), r.txn, r.ref || "", undefined, r.invoice)) });
   }
   // custom
   const got = req.headers.get("x-pay-secret") || url.searchParams.get("s") || "";
