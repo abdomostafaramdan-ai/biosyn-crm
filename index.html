@@ -730,7 +730,8 @@ function applyRole(){
 }
 function goTab(n){
  if(n===3&&!P.fin||n===4&&!P.camp||n===6&&!P.inbox)return;
- tab=n;[0,1,6,3,4,5].forEach(m=>$("t"+m).className=m===n?"on":"");
+ tab=n;try{sessionStorage.setItem("tab",n);history.replaceState(null,"","#t"+n)}catch(e){}
+ [0,1,6,3,4,5].forEach(m=>$("t"+m).className=m===n?"on":"");
  document.querySelectorAll(".bar,.fl,.stats").forEach(e=>e.style.display=n>=3||n===0?"none":"");render();
 }
 /* ===== صندوق الرسائل الموحّد ===== */
@@ -1551,6 +1552,7 @@ async function boot(){
  if(P.fin)db.collection("txns").onSnapshot(mk(0,x=>{T=x}),()=>{});
  if(P.users)loadUsers();
  if(P.inbox)startInbox();loadTasks();
+ try{const h=(location.hash.match(/^#t(\d)$/)||[])[1],n=parseInt(h!=null?h:sessionStorage.getItem("tab"),10);if([1,3,4,5,6].includes(n))goTab(n)}catch(e){}
 }
 function acctCard(){return `<div class="card2" style="margin-top:0"><h4>حسابي</h4><div class="hl"><span>${esc(ME.email)}</span><span class="tag">${RN[ROLE]}</span></div><label class="cl">كلمة مرور جديدة (8 أحرف على الأقل)</label><input type="password" id="pw1" autocomplete="new-password"><div class="row"><button id="pw_go">تغيير كلمة المرور</button><button id="lo" style="color:var(--dg)">تسجيل خروج</button></div></div>`}
 const ROLES=[["admin","مدير","كل الصلاحيات"],["cofounder","شريك مؤسس","كل الصلاحيات، مثل المدير"],["accountant","محاسب","الحسابات والأرباح، والعملاء للقراءة فقط"],["moderator","مشرف","العملاء (إضافة وتعديل) وصندوق الرسائل"],["support","دعم ومبيعات","العملاء والحملات والاستيراد وصندوق الرسائل"],["viewer","مشاهد","قراءة فقط"]];
