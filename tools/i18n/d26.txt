@@ -1,0 +1,8 @@
+صباح الخير|Good morning
+مساء الخير|Good evening
+نهارك سعيد|Good afternoon
+عندك|You have
+مهمة مستحقة اليوم أو متأخرة|tasks due today or overdue
+لا توجد مهام مستحقة اليوم|No tasks due today
++ عميل|+ Client
++ مهمة|+ Task
