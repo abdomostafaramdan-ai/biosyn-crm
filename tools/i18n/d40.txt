@@ -1,0 +1,14 @@
+يمكنك إضافته كعميل جديد بالأسفل|You can add him as a new client below
+إدخال يدوي|manual entry
+ابحث بالاسم أو الجوال أو البريد|Search by name phone or email
+اكتب اسم العميل أو رقمه|Enter the client name or number
+اكتب بياناته بالأسفل|enter his details below
+دفع بالتقسيط|Pay in installments
+المبلغ أعلاه هو الإجمالي|The amount above is the total
+يُنشأ مقدّم وأقساط ويلزم تحديد العميل|A down payment and installments are created and a client is required
+تُسجَّل مصاريف التشغيل على أول دفعة|Operating costs are recorded on the first payment
+أدخل المبلغ لتظهر الأقساط|Enter the amount to see the installments
+اختر العميل أو أضفه يدوياً|Choose the client or add him manually
+التقسيط يحتاج عميلاً|Installments need a client
+اختر عميلاً أو اكتب اسمه|choose a client or type his name
+أُنشئ من عملية تقسيط|Created from an installment transaction
