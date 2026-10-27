@@ -1,0 +1,10 @@
+تثبيت التطبيق على الموبايل|Install the app on your phone
+ثبّته على شاشتك الرئيسية ليعمل كتطبيق بملء الشاشة|Install it on your home screen to run as a full screen app
+تثبيت التطبيق|Install the app
+التطبيق مثبّت على جهازك|The app is installed on your device
+على الآيفون افتح الموقع من|On iPhone open the site from
+ثم اضغط زر المشاركة ثم اختر إضافة إلى الشاشة الرئيسية|then tap the Share button and choose Add to Home Screen
+افتح الموقع من|Open the site from
+ثم اضغط قائمة النقاط الثلاث ثم اختر تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية|then tap the three dots menu and choose Install app or Add to Home screen
+لا يوجد اتصال بالإنترنت|No internet connection
+قد لا تُحفظ التغييرات|Changes may not be saved
