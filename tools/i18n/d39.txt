@@ -1,0 +1,2 @@
+التحليلات تعتمد على بياناتك وتزداد دقة كلما زادت|Analytics depend on your data and get more accurate as it grows
+حدّد مصدر كل عميل واربط كل عملية دخل بعميل|Set the source of each client and link each income transaction to a client
