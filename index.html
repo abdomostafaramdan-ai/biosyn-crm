@@ -1243,10 +1243,11 @@ if(r.ok){f.reset();m.textContent="وصلنا طلبك وسنتواصل معك ق
 function openInsights(){
  const paid=T.filter(t=>isI(t)&&st(t)==="paid"),rev={};paid.forEach(t=>{if(t.con)rev[t.con]=(rev[t.con]||0)+(+t.amt||0)});
  const fin=!!P.fin,pc=(a,b)=>b?Math.round(a/b*100)+"%":"—";
- const src={};C.forEach(c=>{const k=c.src||"غير محدد",o=src[k]=src[k]||{n:0,cv:0,r:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0});
+ const opc={};paid.forEach(t=>{if(t.con)opc[t.con]=(opc[t.con]||0)+tcost(t)});
+ const src={};C.forEach(c=>{const k=c.src||"غير محدد",o=src[k]=src[k]||{n:0,cv:0,r:0,op:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0;o.op+=opc[c.id]||0});
  const adT=T.filter(t=>!isI(t)&&t.cat==="تسويق وإعلانات"),spend={};adT.filter(t=>t.src).forEach(t=>{spend[t.src]=(spend[t.src]||0)+(+t.amt||0)});
- Object.keys(spend).forEach(k=>{src[k]=src[k]||{n:0,cv:0,r:0}});const unal=sum(adT.filter(t=>!t.src));
- const srows=Object.entries(src).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>{const sp=spend[k]||0;return `<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}</td><td>${pc(o.cv,o.n)}</td>${fin?`<td>${fm(o.r)}</td><td>${sp?fm(sp):"—"}</td><td>${sp&&o.cv?fm(sp/o.cv):"—"}</td><td>${sp?(o.r/sp).toFixed(1)+"x":"—"}</td>`:""}</tr>`}).join("");
+ Object.keys(spend).forEach(k=>{src[k]=src[k]||{n:0,cv:0,r:0,op:0}});const unal=sum(adT.filter(t=>!t.src));
+ const srows=Object.entries(src).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>{const sp=spend[k]||0,op=o.op||0,tc=sp+op,net=o.r-tc;return `<tr><td>${esc(k)}</td><td>${o.n}</td><td>${o.cv}${o.n?" ("+pc(o.cv,o.n)+")":""}</td>${fin?`<td>${fm(o.r)}</td><td>${op?fm(op):"—"}</td><td>${sp?fm(sp):"—"}</td><td class="${cls(net)}">${o.r||tc?fm(net):"—"}</td><td>${tc?(o.r/tc).toFixed(1)+"x":"—"}</td>`:""}</tr>`}).join("");
  const cp={};paid.forEach(t=>{if(t.cpn)String(t.cpn).split(/[,،]\s*/).filter(Boolean).forEach(x=>{const k=x.toUpperCase(),o=cp[k]=cp[k]||{n:0,r:0};o.n++;o.r+=+t.amt||0})});
  const cprows=Object.entries(cp).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td>${fin?`<td>${fm(o.r)}</td>`:""}</tr>`).join("");
  const rf={};C.forEach(c=>{const k=String(c.refBy||"").trim();if(!k)return;const o=rf[k]=rf[k]||{n:0,cv:0,r:0};o.n++;if(c.stage==="member"||c.stage==="renew"||rev[c.id]>0)o.cv++;o.r+=rev[c.id]||0});
@@ -1268,7 +1269,7 @@ function openInsights(){
  const cohrows=Object.keys(coh).sort().slice(-6).map(f=>{const o=coh[f],mx=nowI-mi(f);return `<tr><td>${esc(MN[+f.slice(5,7)-1]+" "+f.slice(0,4))}</td><td>${o.n}</td>${[1,2,3,4,5].map(d=>`<td>${d>mx?"—":pc(o.k[d]||0,o.n)}</td>`).join("")}</tr>`}).join("");
  const pay=Object.values(rev),ltv=pay.length?pay.reduce((a,b)=>a+b,0)/pay.length:0;
  $("md").innerHTML=`<div class="rep"><h2 style="margin:0">تحليلات العملاء</h2><small>${esc(new Date().toLocaleDateString(LOC))}</small>${C.length<10||paid.filter(t=>t.con).length<3?`<div class="note" style="margin:8px 0">التحليلات تعتمد على بياناتك وتزداد دقة كلما زادت. حدّد مصدر كل عميل واربط كل عملية دخل بعميل</div>`:""}
- <h3>مصادر العملاء</h3><table><tr><th>المصدر</th><th>عملاء</th><th>اشتركوا</th><th>التحويل</th>${fin?"<th>الدخل</th><th>صرف الإعلانات</th><th>تكلفة المشترك</th><th>العائد</th>":""}</tr>${srows||`<tr><td colspan="8">لا يوجد</td></tr>`}</table>${fin&&unal?`<small class="lg">مصروفات إعلانات دون قناة محددة: ${fm(unal)} (حدد القناة في العملية لتُحتسب).</small>`:""}
+ <h3>مصادر العملاء</h3><table><tr><th>المصدر</th><th>عملاء</th><th>اشتركوا</th>${fin?"<th>الدخل</th><th>مصاريف التشغيل</th><th>صرف الإعلانات</th><th>الصافي</th><th>العائد</th>":""}</tr>${srows||`<tr><td colspan="8">لا يوجد</td></tr>`}</table>${fin&&unal?`<small class="lg">مصروفات إعلانات دون قناة محددة: ${fm(unal)} (حدد القناة في العملية لتُحتسب).</small>`:""}
  ${cprows?`<h3>الكوبونات</h3><table><tr><th>الكود</th><th>مرات الاستخدام</th>${fin?"<th>الدخل</th>":""}</tr>${cprows}</table>`:""}${rfrows?`<h3>الترشيحات</h3><table><tr><th>المُرشِّح</th><th>رشّح</th><th>اشتركوا</th>${fin?"<th>الدخل</th>":""}</tr>${rfrows}</table>`:""}
  <h3>مراحل العملاء</h3><table>${fun}</table>${lostrows?`<h3>أسباب الخسارة</h3><table>${lostrows}</table>`:""}
  ${fin&&cohrows?`<h3>الاحتفاظ حسب شهر أول دفعة</h3><small>نسبة العملاء الذين دفعوا مجدداً بعد كل عدد من الأشهر من أول دفعة لهم.</small><table><tr><th>شهر أول دفعة</th><th>عملاء</th><th>بعد شهر</th><th>بعد شهرين</th><th>بعد 3 أشهر</th><th>بعد 4 أشهر</th><th>بعد 5 أشهر</th></tr>${cohrows}</table>`:""}
