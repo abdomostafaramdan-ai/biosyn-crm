@@ -1,0 +1,29 @@
+جنيه|EGP
+مقدّم يُدفع الآن|Down payment paid now
+عدد الأقساط|Number of installments
+كل كم شهر|Every how many months
+شهر|1 month
+شهران|2 months
+3 أشهر|3 months
+أول قسط في|First installment on
+طريقة المقدّم|Down payment method
+أدخل الإجمالي لتظهر الأقساط|Enter the total to see the installments
+إنشاء الخطة|Create plan
+رجوع|Back
++ خطة تقسيط|+ Installment plan
+✔ تحصيل|✔ Collect
+خطة تقسيط|Installment plan
+خطة تقسيط:|Installment plan:
+أقساط|installments
+مدفوع|Paid
+المتبقي|Remaining
+القسط القادم|Next installment
+مكتملة|Completed
+قسط|Installment
+اليوم|Today
+مقدّم|down payment
+فعّل الاشتراك فوراً|Activate the subscription now
+للباقات|for plans
+الكورس / الباقة|Course / plan
+الإجمالي|Total
+أول قسط|First installment
