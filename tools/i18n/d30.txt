@@ -1,0 +1,7 @@
+— عميل جديد أو بدون عميل —|— New client or no client —
+بيانات العميل|Client details
+رقم الجوال|Mobile number
+رقم واتساب إن اختلف|WhatsApp number if different
+عميل مسجّل: يمكنك تعديل بياناته من هنا وستُحدَّث عند الحفظ|Registered client: you can edit their details here and they will be updated on save
+اكتب بيانات العميل لإنشاء ملف له تلقائياً|Enter the client details to create a file for them automatically
+أو لربطها بعميل موجود يُطابق الرقم أو البريد|or to link to an existing client matching the number or email
