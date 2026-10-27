@@ -1,0 +1,15 @@
+رسائل مجدولة|Scheduled messages
+إلغاء هذه الرسالة المجدولة|Cancel this scheduled message
+تعذر الإلغاء|Could not cancel
+جدولة الإرسال|Schedule sending
+جدولة|Schedule
+اكتب الرسالة أولاً ثم اضغط جدولة|Write the message first, then press Schedule
+جدولة الرسالة|Schedule message
+وقت الإرسال|Send time
+يجب أن يكون الإرسال قبل|Sending must be before
+نافذة 24 ساعة من آخر رسالة للعميل|24-hour window from the client's last message
+اختر وقتاً في المستقبل|Choose a future time
+الوقت بعد انتهاء نافذة الرد 24 ساعة اختر وقتاً أقرب|The time is after the 24-hour reply window; choose an earlier time
+تعذرت الجدولة|Could not schedule
+المتغيرات|Variables
+تُستبدل ببيانات العميل|are replaced with the client's data

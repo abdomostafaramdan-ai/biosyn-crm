@@ -1,0 +1,3 @@
+الوقت بعد انتهاء نافذة الرد|The time is after the reply window
+اختر وقتاً أقرب|Choose an earlier time
+نافذة 24 ساعة من آخر رسالة للعميل|24-hour window from the client's last message

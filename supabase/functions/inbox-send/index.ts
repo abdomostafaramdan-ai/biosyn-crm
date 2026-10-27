@@ -3,14 +3,19 @@ import { CORS, json, serviceDb, requirePerm, getSecrets } from "./inbox.ts";
 
 const DAY = 24 * 60 * 60 * 1000;
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  if (req.method !== "POST") return json(405, { error: "method" });
-  const who = await requirePerm(req, "inbox");
-  if (who instanceof Response) return who;
+const same = (a: string, b: string) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
 
+async function handle(req: Request, pre?: { who: { uid: string }; body: Record<string, unknown> }): Promise<Response> {
+  let who: { uid: string };
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return json(400, { error: "طلب غير صالح" }); }
+  if (pre) { who = pre.who; body = pre.body; } else {
+    if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+    if (req.method !== "POST") return json(405, { error: "method" });
+    const w = await requirePerm(req, "inbox");
+    if (w instanceof Response) return w;
+    who = w;
+    try { body = await req.json(); } catch { return json(400, { error: "طلب غير صالح" }); }
+  }
   const text = String(body.text || "").trim();
   const atts = (Array.isArray(body.attachments) ? body.attachments : []).slice(0, 5)
     .filter((a: any) => a && typeof a.path === "string" && a.path.startsWith("out/") && !a.path.includes("..") && typeof a.mime === "string")
@@ -93,4 +98,29 @@ Deno.serve(async (req) => {
     }).eq("id", conv.id);
   }
   return err ? json(502, { error: err, message: msg }) : json(200, { message: msg });
+}
+
+// الرسائل المجدولة: تُنفَّذ كل دقيقة من الجدولة (x-cron-key) وتُرسل بنفس مسار الرد العادي
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  const ck = req.headers.get("x-cron-key");
+  if (!ck) return handle(req);
+  const db = serviceDb();
+  const s = await getSecrets(db);
+  if (!s.cron_key || !same(ck, String(s.cron_key))) return json(401, { error: "غير مصرّح" });
+  const { data: rows } = await db.from("scheduled_messages").select("*").eq("status", "pending").lte("send_at", new Date().toISOString()).order("send_at").limit(20);
+  let sent = 0, failed = 0;
+  for (const r of rows || []) {
+    const { data: claim } = await db.from("scheduled_messages").update({ status: "sending" }).eq("id", r.id).eq("status", "pending").select("id");
+    if (!claim || !claim.length) continue;
+    let ok = false, msg = "";
+    try {
+      const res = await handle(req, { who: { uid: r.created_by }, body: { conversation_id: r.conversation_id, text: r.body } });
+      ok = res.ok;
+      if (!ok) { try { msg = (await res.json()).error || "فشل الإرسال"; } catch { msg = "فشل الإرسال"; } }
+    } catch { msg = "تعذر الإرسال"; }
+    await db.from("scheduled_messages").update({ status: ok ? "sent" : "failed", error: ok ? null : msg, sent_at: new Date().toISOString() }).eq("id", r.id);
+    ok ? sent++ : failed++;
+  }
+  return json(200, { sent, failed });
 });

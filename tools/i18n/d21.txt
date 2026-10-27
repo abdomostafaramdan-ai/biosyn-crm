@@ -1,0 +1,2 @@
+نافذة|window
+ساعة من آخر رسالة للعميل|hours from the client's last message

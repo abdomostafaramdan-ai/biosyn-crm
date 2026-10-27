@@ -1,0 +1,9 @@
+إيصال بالبريد|Receipt by email
+يُرسل إيصال دفع بالبريد الإلكتروني للعميل مرة واحدة لكل دفعة مدفوعة خلال آخر 3 أيام|Emails a payment receipt to the client once for each paid entry in the last 3 days
+استخدم {الاسم} {البند} {المبلغ} {التاريخ} {الرقم}|Use {الاسم} {البند} {المبلغ} {التاريخ} {الرقم}
+التقرير الشهري|Monthly report
+يصل بالبريد الإلكتروني إلى من لديه صلاحية الحسابات في اليوم المحدد من كل شهر|Emailed to everyone with accounts access on the chosen day of each month
+ملخص الشهر الماضي وأعلى البنود دخلاً|a summary of last month and the top-earning items
+يوم الإرسال من الشهر|Send day of the month
+إيصال بالبريد بعد الدفع|Email receipt after payment
+التقرير الشهري بالبريد|Monthly email report

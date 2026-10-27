@@ -1,0 +1,7 @@
+السجل الزمني|Timeline
+دفعة|Payment
+مصروف|Expense
+منجزة|done
+مهمة|Task
+محادثة|Conversation
+تجريبية|Test

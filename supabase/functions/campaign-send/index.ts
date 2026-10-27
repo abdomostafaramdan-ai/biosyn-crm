@@ -4,8 +4,8 @@ import { sendMsg, waN, mailOk } from "./send.ts";
 
 const BATCH = 30;
 // نفس منطق تحديد الجمهور والموافقات في الواجهة (السيرفر هو المرجع)
-function audience(k: Record<string, any>, contacts: { id: string; data: Record<string, any> }[]) {
-  return contacts.filter(({ data: c }) => {
+function audience(k: Record<string, any>, contacts: { id: string; data: Record<string, any> }[], pay: Map<string, { paid: boolean; pending: boolean }> = new Map()) {
+  return contacts.filter(({ id, data: c }) => {
     if (c.stage === "lost" && k.st !== "lost") return false;
     if (k.st && (k.st === "subs" ? !(c.stage === "member" || c.stage === "renew") : c.stage !== k.st)) return false;
     if (k.ty && c.type !== k.ty) return false;
@@ -13,6 +13,13 @@ function audience(k: Record<string, any>, contacts: { id: string; data: Record<s
     if (k.ex) {
       const d = c.exp ? Math.ceil((new Date(c.exp).getTime() - Date.now()) / 864e5) : null;
       if (d === null || d > Number(k.ex) || d < -30) return false;
+    }
+    if (k.sr && String(c.src || "") !== String(k.sr)) return false;
+    if (k.pd) {
+      const p = pay.get(id) || { paid: false, pending: false };
+      if (k.pd === "paid" && !p.paid) return false;
+      if (k.pd === "unpaid" && p.paid) return false;
+      if (k.pd === "due" && !p.pending) return false;
     }
     if (c.unsub) return false;
     return k.ch === "wa" ? c.okW !== false && !!waN(c) : c.okM !== false && mailOk(c.email);
@@ -54,7 +61,18 @@ Deno.serve(async (req) => {
   if (k.status === "sent") return json(409, { error: "هذه الحملة أُرسلت من قبل" });
 
   const { data: all } = await db.from("contacts").select("id,data");
-  const rec = audience(k, all || []);
+  const pay = new Map<string, { paid: boolean; pending: boolean }>();
+  if (k.pd) {
+    const { data: tx } = await db.from("txns").select("data");
+    for (const t of tx || []) {
+      const d = t.data || {};
+      if (d.kind !== "in" || !d.con) continue;
+      const o = pay.get(d.con) || { paid: false, pending: false };
+      if (d.status === "pending") o.pending = true; else if ((d.status || "paid") === "paid") o.paid = true;
+      pay.set(d.con, o);
+    }
+  }
+  const rec = audience(k, all || [], pay);
   const { data: done } = await db.from("campaign_log").select("contact_id,status").eq("campaign_id", row.id);
   const doneSet = new Set((done || []).map((d) => d.contact_id));
   const todo = rec.filter((r) => !doneSet.has(r.id));

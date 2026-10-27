@@ -8,7 +8,7 @@ const CORS = {
 };
 const ROLES = ["admin", "cofounder", "accountant", "moderator", "support", "viewer"];
 const MANAGERS = ["admin", "cofounder"];
-const PERM_KEYS = ["fin", "cw", "cdel", "camp", "imp", "bk", "inbox", "users"];
+const PERM_KEYS = ["fin", "cw", "cdel", "camp", "imp", "bk", "inbox", "users", "inbox_own"];
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });

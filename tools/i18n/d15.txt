@@ -1,0 +1,10 @@
+تنبيهات|Alerts
+محادثة بلا رد منذ أكثر من|conversations unanswered for more than
+ساعة|hours
+مهمة متأخرة|overdue tasks
+اشتراك ينتهي خلال|subscriptions expiring within
+أيام|days
+وتيرة الإيراد الحالية أقل من|Current revenue pace is below
+من هدف الشهر|of the monthly goal
+المتوقع|projected
+تنبيه المشرف عند بقاء محادثة بلا رد (بالساعات)|Alert the supervisor when a conversation stays unanswered (hours)

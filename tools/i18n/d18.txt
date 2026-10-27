@@ -1,0 +1,6 @@
+المصدر (اختياري)|Source (optional)
+أي مصدر|Any source
+حالة الدفع (اختياري)|Payment status (optional)
+دفع من قبل|Has paid before
+لم يدفع قط|Never paid
+لديه مبلغ مستحق|Has an amount due
