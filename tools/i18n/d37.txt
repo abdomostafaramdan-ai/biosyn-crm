@@ -1,0 +1,17 @@
+تكلفة الكورس|Course cost
+أضف بنود التكلفة لهذه العملية مثل المدرّب والمنصة والإعلانات ليظهر صافي الربح|Add cost items for this transaction such as trainer platform and ads to see the net profit
+اسم البند|Item name
+أجر المدرّب|Trainer fee
+المنصة والاستضافة|Platform and hosting
+مواد وأدوات|Materials and tools
+عمولة مبيعات|Sales commission
++ بند تكلفة|+ Cost item
+إجمالي مصاريف التشغيل|Total operating expenses
+صافي ربح العملية|Transaction net profit
+منها تشغيل الكورسات|of which course operating costs
+ربحية العمليات|Transaction profitability
+العملية|Transaction
+التشغيل|Operating
+تشغيل|Operating
+صافي|Net
+دخل|Income

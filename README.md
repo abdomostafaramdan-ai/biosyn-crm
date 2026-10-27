@@ -118,3 +118,9 @@
   - روابط الإشعار: `/functions/v1/pay-webhook/stripe|paymob|custom`. أحداث Stripe: `checkout.session.completed` و`checkout.session.async_payment_succeeded`.
   - اختبارات المنطق في `tools/pay-test/` (Node 22، `--experimental-strip-types`). لم تُختبر ضد حسابات حقيقية.
 - **فواتيرك (Fawaterak)** (ترحيل `022_fawaterak.sql`): `pay-link` ينشئ الرابط عبر `/api/v2/createInvoiceLink` (بيئة `live` = app.fawaterk.com أو `test` = staging.fawaterk.com) ويحفظ `invoice_id`. رابط الإشعار `…/pay-webhook/fawaterak_json` (يجب أن ينتهي بـ `_json`)؛ التحقق `hashKey` = HMAC-SHA256 على `InvoiceId=..&InvoiceKey=..&PaymentMethod=..` بمفتاح الـ API. التفاصيل مأخوذة من التوثيق العام؛ يلزم تجربة فعلية بحسابك.
+
+## مصاريف التشغيل لكل عملية (صافي الربح)
+
+- عملية الدخل تقبل بنود `costs:[{n,a}]` (اسم + مبلغ) من نافذة «+ عملية»، مع إجمالي التشغيل وصافي ربح العملية لحظياً.
+- `tcost(t)` = مجموع بنود العملية، `OPC(l)` = تكاليف تشغيل العمليات المدفوعة، و`EXPS(l)` = المصروفات + تكاليف التشغيل (تُستخدم في الداشبورد والحسابات والتقارير وشهر بشهر).
+- الداشبورد والحسابات: كارت «منها تشغيل الكورسات» وكارت «ربحية العمليات» (دخل/تشغيل/صافي)، وفي قائمة العمليات سطر تشغيل + صافي. التصدير (CSV وExcel) فيه عمودا «مصاريف التشغيل» و«صافي العملية». الاختبار: `m_t24`.
