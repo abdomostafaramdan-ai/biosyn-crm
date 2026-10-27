@@ -65,6 +65,16 @@ Deno.serve(async (req) => {
         if (d.kind === "in" && d.status === "paid" && d.con && String(d.date || "") >= since && Number(d.amt) > 0)
           targets.push({ key: "i:" + t.id, cid: d.con, amt: Number(d.amt), item: String(d.item || d.cat || ""), date: String(d.date), ref: String(d.ref || String(t.id).slice(-6).toUpperCase()) });
       }
+    } else if (r.kind === "instrem") {
+      const today = new Date().toISOString().slice(0, 10);
+      const upto = new Date(Date.now() + r.days * 864e5).toISOString().slice(0, 10);
+      const { data: tx } = await db.from("txns").select("id,data");
+      for (const t of tx || []) {
+        const d = t.data || {};
+        const due = String(d.inst?.due || d.date || "");
+        if (d.kind === "in" && d.status === "pending" && d.inst && d.con && Number(d.amt) > 0 && due >= today && due <= upto)
+          targets.push({ key: "q:" + t.id, cid: d.con, amt: Number(d.amt), item: String(d.item || d.cat || ""), date: due });
+      }
     } else if (r.kind === "dues") {
       const upto = new Date(Date.now() - r.days * 864e5).toISOString().slice(0, 10);
       const { data: tx } = await db.from("txns").select("id,data");
@@ -80,7 +90,7 @@ Deno.serve(async (req) => {
       continue;
     }
 
-    if (r.kind === "welcome" || r.kind === "renew" || r.kind === "dues" || r.kind === "receipt") {
+    if (r.kind === "welcome" || r.kind === "renew" || r.kind === "dues" || r.kind === "receipt" || r.kind === "instrem") {
       const todo = targets.filter((t) => !seen.has(t.key));
       res.due = todo.length;
       if (dry) { results.push(res); continue; }

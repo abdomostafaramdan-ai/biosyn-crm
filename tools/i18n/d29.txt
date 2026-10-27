@@ -1,0 +1,4 @@
+تذكير بموعد القسط|Installment due-date reminder
+يُرسل مرة واحدة لكل قسط قبل موعده بعدد الأيام الذي تحدده|Sent once per installment, before its due date by the number of days you set
+استخدم|Use
+قبل موعد القسط بكم يوماً|Days before the installment due date

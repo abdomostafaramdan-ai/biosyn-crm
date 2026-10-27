@@ -1,0 +1,7 @@
++ تقسيط|+ Installments
+خطة تقسيط جديدة|New installment plan
+اختر العميل|Choose the client
+الأقساط المستحقة|Due installments
+لا توجد أقساط مستحقة|No due installments
+تأكيد تحصيل هذا القسط؟|Confirm collecting this installment?
+متأخر|Overdue
