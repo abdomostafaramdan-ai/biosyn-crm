@@ -1,0 +1,18 @@
+فعّل البوابة وضع مفاتيحها ثم سجّل رابط الإشعار في لوحتها|Enable the gateway and enter its keys then register the notification link in its dashboard
+عند نجاح الدفع تتحول العملية إلى مدفوع تلقائياً دون تدخل|When payment succeeds the transaction becomes Paid automatically
+من لوحة Stripe افتح Developers ثم API keys وانسخ Secret Key|From the Stripe dashboard open Developers then API keys and copy the Secret Key
+ثم افتح Webhooks وأضف Endpoint بالرابط أدناه|Then open Webhooks and add an Endpoint with the link below
+الأحداث المطلوبة|Required events
+ثم انسخ Signing secret|Then copy the Signing secret
+من لوحة Paymob افتح Settings ثم Account Info وانسخ Secret Key وPublic Key وHMAC|From the Paymob dashboard open Settings then Account Info and copy Secret Key Public Key and HMAC
+وأرقام Integration IDs من Developers ثم Payment Integrations وافصل بينها بفاصلة|Get the Integration IDs from Developers then Payment Integrations separated by commas
+وضع الرابط أدناه في Callback الخاص بالـ Integration|Put the link below in the Callback of the Integration
+Integration IDs مفصولة بفاصلة|Integration IDs separated by commas
+ضع قالب رابط الدفع ويمكنك استخدام المتغيرات التالية|Enter the payment link template and you can use these variables
+للتأكيد التلقائي اجعل البوابة ترسل POST إلى الرابط أدناه مع الهيدر|For automatic confirmation make the gateway send a POST to the link below with the header
+وجسم JSON فيه|and a JSON body containing
+هو نفس|equal to
+مع|with
+بقيمة|set to
+السر المشترك x-pay-secret|Shared secret x-pay-secret
+تظهر في ترويسة وتذييل الفاتورة PDF|Shown in the header and footer of the PDF invoice

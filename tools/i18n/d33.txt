@@ -1,0 +1,52 @@
+فاتورة / إيصال|Invoice / receipt
+🔗 رابط دفع|🔗 Payment link
+⬇ تحميل PDF|⬇ Download PDF
+طباعة|Print
+جاري التجهيز…|Preparing…
+فاتورة إلى|Bill to
+فاتورة|Invoice
+رقم الفاتورة|Invoice number
+مدفوعة|Paid
+بانتظار الدفع|Awaiting payment
+مستردّة|Refunded
+السعر|Price
+الإجمالي|Total
+المدفوع|Paid amount
+المتبقي|Remaining
+جدول الأقساط|Installment schedule
+دفعة مقدّمة|Down payment
+✔ مدفوع|✔ Paid
+للدفع إلكترونياً|Pay online
+شكراً لثقتك في Biosyn Egypt|Thank you for trusting Biosyn Egypt
+رابط دفع إلكتروني|Online payment link
+لا توجد بوابة دفع مفعّلة|No payment gateway is enabled
+فعّلها من الإعدادات ← بوابات الدفع|Enable one in Settings then Payment gateways
+البوابة|Gateway
+إنشاء الرابط|Create link
+الرابط|Link
+نسخ|Copy
+تم النسخ|Copied
+إرسال واتساب|Send via WhatsApp
+فتح|Open
+بوابات الدفع|Payment gateways
+بيانات الفاتورة|Invoice details
+اسم الشركة|Company name
+العنوان / الموقع|Address / website
+الهاتف|Phone
+الرقم الضريبي|Tax ID
+عبارة التذييل|Footer text
+معاينة|Preview
+رابط الإشعار|Notification link
+اختبار|Test
+مسجّل ✓|Saved ✓
+رابط الصفحة بعد الدفع|Page after payment
+السر المشترك|Shared secret
+قالب رابط الدفع|Payment link template
+اسم يظهر للفريق|Name shown to the team
+تظهر في ترويسة وتذييل الفاتورة PDF|Shown in the header and footer of the PDF invoice
+فعّل البوابة، ضع مفاتيحها، ثم سجّل رابط الإشعار في لوحتها|Enable the gateway, enter its keys, then register the notification link in its dashboard
+عند نجاح الدفع تتحول العملية إلى «مدفوع» تلقائياً دون تدخل|When payment succeeds the transaction becomes Paid automatically
+الحقول السرية لا تظهر بعد الحفظ|Secret fields are hidden after saving
+Stripe — بطاقات فيزا وماستركارد|Stripe cards Visa and Mastercard
+Paymob — بطاقات ومحافظ وفوري وكيوسك|Paymob cards wallets Fawry and Aman
+بوابة أخرى (فوري، كاشير، أو أي رابط دفع)|Other gateway (Fawry, Kashier or any payment link)

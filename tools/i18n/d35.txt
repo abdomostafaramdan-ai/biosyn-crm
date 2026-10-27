@@ -1,0 +1,6 @@
+بطاقات فيزا وماستركارد|Visa and Mastercard cards
+بطاقات ومحافظ وفوري وكيوسك|cards wallets Fawry and Aman
+بوابة أخرى (فوري، كاشير، أو أي رابط دفع)|Other gateway (Fawry Kashier or any payment link)
+مفصولة بفاصلة|separated by commas
+السر المشترك|Shared secret
+تظهر في ترويسة وتذييل الفاتورة|Shown in the header and footer of the invoice
